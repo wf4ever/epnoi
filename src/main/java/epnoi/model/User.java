@@ -1,6 +1,7 @@
 package epnoi.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class User {
 
@@ -10,7 +11,7 @@ public class User {
 	String description;
 	String name;
 
-	ArrayList<String> tagApplied;
+	ArrayList<Tagging> tagApplied;
 	ArrayList<String> friends;
 	ArrayList<String> favouritedWorkflows;
 	ArrayList<String> favouritedFiles;
@@ -19,7 +20,7 @@ public class User {
 	ArrayList<String> workflows;
 
 	public User() {
-		this.tagApplied = new ArrayList<String>();
+		this.tagApplied = new ArrayList<Tagging>();
 		this.favouritedWorkflows = new ArrayList<String>();
 		this.favouritedFiles = new ArrayList<String>();
 		this.groups = new ArrayList<String>();
@@ -92,11 +93,11 @@ public class User {
 		this.resource = resource;
 	}
 
-	public ArrayList<String> getTagApplied() {
+	public ArrayList<Tagging> getTagApplied() {
 		return tagApplied;
 	}
 
-	public void setTagApplied(ArrayList<String> tagApplied) {
+	public void setTagApplied(ArrayList<Tagging> tagApplied) {
 		this.tagApplied = tagApplied;
 	}
 
@@ -122,6 +123,28 @@ public class User {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void addTagging(String tag) {
+		//System.out.println(">> entra " + tag);
+		Iterator<Tagging> taggingIterator = this.tagApplied.iterator();
+		boolean finded = false;
+		while (!finded && taggingIterator.hasNext()) {
+			Tagging tagging = taggingIterator.next();
+			finded = tagging.getTag().equals(tag);
+			if (finded) {
+				//System.out.println(">> a–ado +1 " + tag);
+				tagging.setNumberOfTaggings(tagging.getNumberOfTaggings() + 1);
+			}
+		}
+		if (!finded) {
+			//System.out.println(">> creo " + tag + " en " + this.ID);
+			Tagging newTagging = new Tagging();
+			newTagging.setTag(tag);
+			newTagging.setNumberOfTaggings(1);
+			this.tagApplied.add(newTagging);
+
+		}
 	}
 
 }

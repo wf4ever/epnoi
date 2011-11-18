@@ -27,7 +27,7 @@ import epnoi.model.Workflow;
 public class MyExperimentModelImporter {
 
 	public static void main(String[] args) {
-		String FILE_NAME = "model.xml";
+		String FILE_NAME = "/lastImportedModel.xml";
 		System.out.println("Extracting the myExperiment model");
 		MyExperimentModelImporter importer = new MyExperimentModelImporter();
 		importer.extractModel();
@@ -67,7 +67,7 @@ public class MyExperimentModelImporter {
 		try {
 			db = dbf.newDocumentBuilder();
 			doc = db.parse(usersQueryService);
-			//doc.getDocumentElement().normalize();
+			// doc.getDocumentElement().normalize();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -261,8 +261,8 @@ public class MyExperimentModelImporter {
 				NodeList ratingNodeList = ratingElementRoot
 						.getElementsByTagName("rating");
 
-				Integer value = new Integer(((Element) ratingNodeList.item(0))
-						.getTextContent());
+				Integer value = new Integer(
+						((Element) ratingNodeList.item(0)).getTextContent());
 				rating.setRatingValue(value);
 			}
 
@@ -358,12 +358,13 @@ public class MyExperimentModelImporter {
 		 * resource; String description; String name = "whatever";
 		 * ArrayList<String> friends;ArrayList<String> favouritedWorkflows;
 		 * ArrayList<String> files; ArrayList<String> workflows;
+		 * ArrayList<String> tagApplied;
 		 */
 
 		/*
 		 * * NO HECHAS
 		 * 
-		 * ArrayList<String> tagApplied; ArrayList<String> groups;
+		 * ArrayList<String> groups;
 		 */
 
 		User user = new User();
@@ -372,153 +373,178 @@ public class MyExperimentModelImporter {
 		user.setResource(userResource);
 
 		int indexOfUsers = userResource.indexOf("/users/");
-		String userID = userResource.substring(indexOfUsers + 7, userResource
-				.length());
+		String userID = userResource.substring(indexOfUsers + 7,
+				userResource.length());
 		user.setID(new Long(userID));
 
 		String userURIBase = userResource.substring(0, indexOfUsers + 1);
 		String userURI = userURIBase + "user.xml?id=" + userID;
 		user.setURI(userURI);
 		System.out.println("Extracting user" + user.getURI());
-
-		try {
-			Document doc = null;
-		/*
-			DocumentBuilderFactory dbf = null;
-			dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			*/
-			doc = documentBuilder.parse(user.getURI() + "&all_elements=yes");
-			doc.getDocumentElement().normalize();
-
-			// User name extraction
-			NodeList nodeList = null;
+		if (user.getID() < 100) {
 			try {
-				nodeList = doc.getElementsByTagName("name");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (nodeList.getLength() > 0) {
-				Node nameNode = nodeList.item(0);
+				Document doc = null;
+				/*
+				 * DocumentBuilderFactory dbf = null; dbf =
+				 * DocumentBuilderFactory.newInstance(); DocumentBuilder db =
+				 * dbf.newDocumentBuilder();
+				 */
+				doc = documentBuilder
+						.parse(user.getURI() + "&all_elements=yes");
+				doc.getDocumentElement().normalize();
 
-				user.setName(((Element) nameNode).getTextContent());
-			}
-
-			// User name extraction
-			nodeList = null;
-			try {
-				nodeList = doc.getElementsByTagName("description");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (nodeList.getLength() > 0) {
-				Node nameNode = nodeList.item(0);
-
-				user.setDescription(((Element) nameNode).getTextContent());
-			}
-
-			// User friends extractions
-			nodeList = null;
-			try {
-				nodeList = doc.getElementsByTagName("friend");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			for (int s = 0; s < nodeList.getLength(); s++) {
-				Node fstNode = nodeList.item(s);
-				Element firstUserElement = (Element) fstNode;
-				user.getFriends().add(firstUserElement.getAttribute("uri"));
-			}
-
-			// User workflows
-			nodeList = null;
-			try {
-				nodeList = doc.getElementsByTagName("workflows");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (nodeList.getLength() > 0) {
-				Node nameNode = nodeList.item(0);
-
-				NodeList workflowsNodeList = ((Element) nameNode)
-						.getElementsByTagName("workflow");
-				for (int s = 0; s < workflowsNodeList.getLength(); s++) {
-					Node fstNode = workflowsNodeList.item(s);
-					Element firstWorkflowElement = (Element) fstNode;
-					user.getWorkflows().add(
-							firstWorkflowElement.getAttribute("uri"));
+				// User name extraction
+				NodeList nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("name");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
 
-			// User files
-			nodeList = null;
-			try {
-				nodeList = doc.getElementsByTagName("files");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (nodeList.getLength() > 0) {
-				Node nameNode = nodeList.item(0);
-
-				NodeList workflowsNodeList = ((Element) nameNode)
-						.getElementsByTagName("file");
-				for (int s = 0; s < workflowsNodeList.getLength(); s++) {
-					Node fstNode = workflowsNodeList.item(s);
-					Element firstWorkflowElement = (Element) fstNode;
-					user.getFiles().add(
-							firstWorkflowElement.getAttribute("uri"));
-				}
-			}
-
-			// User favourites
-			nodeList = null;
-			try {
-				nodeList = doc.getElementsByTagName("favourited");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (nodeList.getLength() > 0) {
-				Node nameNode = nodeList.item(0);
-
-				NodeList workflowsNodeList = ((Element) nameNode)
-						.getElementsByTagName("workflow");
-				for (int s = 0; s < workflowsNodeList.getLength(); s++) {
-					Node fstNode = workflowsNodeList.item(s);
-					Element firstWorkflowElement = (Element) fstNode;
-					user.getFavouritedWorkflows().add(
-							firstWorkflowElement.getAttribute("uri"));
+					user.setName(((Element) nameNode).getTextContent());
 				}
 
-				NodeList filesNodeList = ((Element) nameNode)
-						.getElementsByTagName("file");
-				for (int s = 0; s < filesNodeList.getLength(); s++) {
-					Node fstNode = filesNodeList.item(s);
-					Element firsFileElement = (Element) fstNode;
-					user.getFavouritedFiles().add(
-							firsFileElement.getAttribute("uri"));
+				// User description extraction
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("description");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
 
-			// User workflows
-/*
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();*/
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+					user.setDescription(((Element) nameNode).getTextContent());
+				}
+
+				// User friends extractions
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("friend");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				for (int s = 0; s < nodeList.getLength(); s++) {
+					Node fstNode = nodeList.item(s);
+					Element firstUserElement = (Element) fstNode;
+					user.getFriends().add(firstUserElement.getAttribute("uri"));
+				}
+
+				// User workflows
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("workflows");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
+
+					NodeList workflowsNodeList = ((Element) nameNode)
+							.getElementsByTagName("workflow");
+					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
+						Node fstNode = workflowsNodeList.item(s);
+						Element firstWorkflowElement = (Element) fstNode;
+						user.getWorkflows().add(
+								firstWorkflowElement.getAttribute("uri"));
+					}
+				}
+
+				// User files
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("files");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
+
+					NodeList workflowsNodeList = ((Element) nameNode)
+							.getElementsByTagName("file");
+					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
+						Node fstNode = workflowsNodeList.item(s);
+						Element firstWorkflowElement = (Element) fstNode;
+						user.getFiles().add(
+								firstWorkflowElement.getAttribute("uri"));
+					}
+				}
+
+				// User favourites
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("favourited");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
+
+					NodeList workflowsNodeList = ((Element) nameNode)
+							.getElementsByTagName("workflow");
+					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
+						Node fstNode = workflowsNodeList.item(s);
+						Element firstWorkflowElement = (Element) fstNode;
+						user.getFavouritedWorkflows().add(
+								firstWorkflowElement.getAttribute("uri"));
+					}
+
+					NodeList filesNodeList = ((Element) nameNode)
+							.getElementsByTagName("file");
+					for (int s = 0; s < filesNodeList.getLength(); s++) {
+						Node fstNode = filesNodeList.item(s);
+						Element firsFileElement = (Element) fstNode;
+						user.getFavouritedFiles().add(
+								firsFileElement.getAttribute("uri"));
+					}
+
+				}
+
+				// User files
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("taggings-applied");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (nodeList.getLength() > 0) {
+					Node taggingsNode = nodeList.item(0);
+
+					NodeList taggingsNodeList = ((Element) taggingsNode)
+							.getElementsByTagName("tagging");
+					for (int s = 0; s < taggingsNodeList.getLength(); s++) {
+						Node fstNode = taggingsNodeList.item(s);
+						Element firstTaggingElement = (Element) fstNode;
+
+						String tag = firstTaggingElement.getTextContent();
+						user.addTagging(tag);
+
+					}
+				}
+
+				// User workflows
+				/*
+				 * } catch (ParserConfigurationException e) { // TODO
+				 * Auto-generated catch block e.printStackTrace();
+				 */
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-
 		return user;
 	}
 
