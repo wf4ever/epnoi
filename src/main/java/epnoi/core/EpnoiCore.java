@@ -38,14 +38,13 @@ public class EpnoiCore {
 
 	private void _initRecommendationSpace() {
 		this.recommendationSpace = new RecommendationSpace();
-		// All the recommenders offer the firs round of recommendations
-	/*
+		// All the recommenders offer the first round of recommendations
+	
 		this.workflowsCollaborativeFilteringRecommender
 				.recommend(this.recommendationSpace);
 		this.filesCollaborativeFilteringRecommender
 				.recommend(this.recommendationSpace);
-		*/
-		this.kewyordContentBasedRecommender.recommend(this.recommendationSpace);
+				this.kewyordContentBasedRecommender.recommend(this.recommendationSpace);
 	}
 
 	private void _initRecommeders() {
