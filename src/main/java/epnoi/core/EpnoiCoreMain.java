@@ -1,7 +1,11 @@
 package epnoi.core;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Properties;
 
 import epnoi.model.Rating;
 import epnoi.model.Recommendation;
@@ -9,14 +13,18 @@ import epnoi.model.Tagging;
 import epnoi.model.User;
 
 public class EpnoiCoreMain {
-	public static final String MODEL_PATH = "/lastImportedModel.xml";
+	
 
-	// public static final String MODEL_PATH = "/model.xml";
 
 	public static void main(String[] args) {
 		System.out.println("Starting the EpnoiCoreMain");
 		EpnoiCore epnoiCore = new EpnoiCore();
-		epnoiCore.init(MODEL_PATH);
+		Properties initializationProperties = new Properties();
+	
+		initializationProperties.setProperty(EpnoiCore.INDEX_PATH_PROPERTY, "/wf4ever/indexMyExperiment");
+		initializationProperties.setProperty(EpnoiCore.MODEL_PATH_PROPERTY, "/wf4ever/lastImportedModel.xml");
+		
+		epnoiCore.init(initializationProperties);
 		ArrayList<String> differentRaters = new ArrayList<String>();
 		for (Rating rating : epnoiCore.getModel().getRatings()) {
 			if (!differentRaters.contains(rating.getOwnerURI())
@@ -25,7 +33,7 @@ public class EpnoiCoreMain {
 			}
 		}
 
-		;
+		
 
 		for (Recommendation recommendation : epnoiCore.getRecommendationSpace()
 				.getAllRecommendations()) {
@@ -163,4 +171,5 @@ public class EpnoiCoreMain {
 
 	}
 
+	
 }

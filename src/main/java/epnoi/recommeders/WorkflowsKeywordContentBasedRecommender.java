@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Properties;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -21,30 +22,40 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 import epnoi.model.Model;
+import epnoi.model.Parameter;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.Tagging;
 import epnoi.model.User;
+import epnoi.model.Workflow;
 
-public class KeywordContentBasedRecommender implements Recommender {
+public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 
+	//Recommedender parameters
+	public static final String INDEX_PATH_PROPERTY = "INDEX_PATH";
+	//Consider to make every parameter of the algorithm externally accessible
+	
 	static final int NUMBER_OF_QUERY_HITS = 10;
-	String indexDir = "/indexMyExperiment";
+
 
 	Model model = null;
 	Directory dir = null;
 	IndexSearcher is = null;
 	QueryParser parser = null;
 
+	private Properties initializationProperties = null;
+
 	public void recommend(RecommendationSpace recommedationSpace) {
 
 		for (User user : this.model.getUsers()) {
+			/*
 			if (user.getTagApplied().size() > 0) {
 				System.out.println("-----------------------------------------");
 				System.out.println(" >>" + user.getName());
 				System.out.println(" >>" + user.getURI());
 				System.out.println("-----------------------------------------");
 			}
+			*/
 			HashMap<String, Recommendation> recommendationsByItemURI = new HashMap<String, Recommendation>();
 			if (user.getTagApplied().size() > 0) {
 				
@@ -55,11 +66,11 @@ public class KeywordContentBasedRecommender implements Recommender {
 						Query query = parser.parse(queryExpression);
 
 						TopDocs hits = is.search(query, NUMBER_OF_QUERY_HITS);
-
+/*
 						System.out.println("(q:" + queryExpression
 								+ ") Recommendations for user "
 								+ user.getName() + " #> " + hits.totalHits);
-
+*/
 						float maxScore = _scoreMax(hits.scoreDocs);
 						for (ScoreDoc scoreDoc : hits.scoreDocs) {
 
@@ -85,21 +96,32 @@ public class KeywordContentBasedRecommender implements Recommender {
 								break;
 							}
 							if (user.getWorkflows().contains(itemURI)) {
+								/*
 								System.out
 										.println("The user was the owner of "
 												+ itemURI
 												+ "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+												*/
 							} else {
 
 								if (!recommendationsByItemURI
 										.containsKey(itemURI)) {
 									Recommendation newRecommendation = new Recommendation();
 									newRecommendation.setItemURI(itemURI);
+									
+									Long itemID = null;
+									
+									Workflow workflow = this.model.getWorkflowByURI(itemURI);
+									if (workflow!=null)
+										itemID = workflow.getId();
+									
+									newRecommendation.setItemID(itemID);
 
 									newRecommendation
 											.setStrength(estimatedStrength);
 									newRecommendation.setUserURI(user.getURI());
 									recommendationsByItemURI.put(itemURI,newRecommendation);
+								/*
 									System.out
 											.println("The recommendation for "
 													+ itemURI
@@ -107,19 +129,24 @@ public class KeywordContentBasedRecommender implements Recommender {
 													+ estimatedStrength
 													+ " and length"
 													+ queryTermsList.size());
+													*/
 								} else {
 									Recommendation recommendation = recommendationsByItemURI
 											.get(itemURI);
 									if (recommendation.getStrength() > estimatedStrength) {
+										/*
 										System.out
 												.println("The strenght of the recommendation for "
 														+ itemURI
 														+ "was greater than "
 														+ estimatedStrength);
+														*/
 									} else {
+										/*
 										System.out
 												.println("The strenght is updated from "+recommendation.getStrength()+" to "
 														+ estimatedStrength+ " for "+itemURI);
+														*/
 
 										recommendation
 												.setStrength(estimatedStrength);
@@ -143,10 +170,13 @@ public class KeywordContentBasedRecommender implements Recommender {
 				}
 				// Finally all the recommendations are added to the recommendation
 				// space
-				System.out.println(">>>>"+recommendationsByItemURI.values());
+				//System.out.println(">>>>"+recommendationsByItemURI.values());
 				for (Recommendation recommendation : recommendationsByItemURI
 						.values()) {
-					
+					Parameter parameter = new Parameter();
+					parameter.setName("technique");
+					parameter.setValue("keyword-based");
+					recommendation.getProvenance().getParameters().add(parameter);
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
 				}
@@ -176,12 +206,13 @@ public class KeywordContentBasedRecommender implements Recommender {
 		return max;
 	}
 
-	public void init(Model model) {
+	public void init(Model model, Properties inizializationProperties) {
 		this.model = model;
-
+this.initializationProperties=inizializationProperties;
 		this.parser = null;
 		try {
-			Directory dir = FSDirectory.open(new File(indexDir)); // 3
+			String indexDirectory = this.initializationProperties.getProperty(WorkflowsKeywordContentBasedRecommender.INDEX_PATH_PROPERTY);
+			Directory dir = FSDirectory.open(new File(indexDirectory)); // 3
 			this.is = new IndexSearcher(dir);
 			this.parser = new QueryParser(Version.LUCENE_30, // 4
 					"contents", // 4

@@ -3,12 +3,25 @@ package epnoi.model;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "recommendation")
-public class Recommendation {
+public class Recommendation implements Comparable {
 
 	String userURI;
 	Float strength;
 	Long itemID;
 	String itemURI;
+	Provenance provenance;
+
+	public Recommendation() {
+		this.provenance = new Provenance();
+	}
+
+	public Provenance getProvenance() {
+		return provenance;
+	}
+
+	public void setProvenance(Provenance provenance) {
+		this.provenance = provenance;
+	}
 
 	public String getUserURI() {
 		return userURI;
@@ -40,5 +53,25 @@ public class Recommendation {
 
 	public void setItemURI(String itemURI) {
 		this.itemURI = itemURI;
+	}
+
+	public int compareTo(Object object) {
+
+		// a negative integer, zero, or a positive integer as this object is
+		// less than, equal to, or greater than the specified object.
+		// or a ClassCastException
+		Recommendation recommendation = (Recommendation) object;
+		if (this.strength > recommendation.getStrength())
+			return 1;
+		if (this.strength == recommendation.getStrength())
+			return 0;
+
+		return -1;
+
+	}
+
+	@Override
+	public String toString() {
+		return "R [" + this.strength + "]";
 	}
 }

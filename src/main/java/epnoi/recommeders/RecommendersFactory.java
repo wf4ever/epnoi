@@ -7,7 +7,7 @@ public class RecommendersFactory {
 		}else if (type.equals(Recommender.FILES_COLLABORATIVE_FILTER)){
 		return new FilesCollaborativeFilterRecommender();
 		}else if (type.equals(Recommender.KEYWORD_CONTENT_BASED)){
-			return new KeywordContentBasedRecommender();
+			return new WorkflowsKeywordContentBasedRecommender();
 		}
 		return null;
 	}	

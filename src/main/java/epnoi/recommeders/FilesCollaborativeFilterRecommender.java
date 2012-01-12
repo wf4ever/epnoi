@@ -1,6 +1,7 @@
 package epnoi.recommeders;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
@@ -22,7 +23,6 @@ import epnoi.model.Rating;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.User;
-import epnoi.model.Workflow;
 
 public class FilesCollaborativeFilterRecommender implements
 		CollaborativeFilterRecommender {
@@ -35,10 +35,12 @@ public class FilesCollaborativeFilterRecommender implements
 	UserNeighborhood neighborhood = null;
 	Recommender recommender = null;
 	DataModel dataModel = null;
+	private Properties initializationProperties;
 
-	public void init(Model model) {
+	public void init(Model model, Properties inizializationProperties) {
 		this.model = model;
-		System.out.println("(model)> " + model);
+		this.initializationProperties= inizializationProperties;
+		//System.out.println("(model)> " + model);
 		_initData();
 
 		try {

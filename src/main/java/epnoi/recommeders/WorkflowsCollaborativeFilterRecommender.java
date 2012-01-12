@@ -1,7 +1,7 @@
 package epnoi.recommeders;
 
 import java.util.List;
-import java.util.Random;
+import java.util.Properties;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
@@ -18,22 +18,27 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
 import epnoi.model.Model;
+import epnoi.model.Parameter;
 import epnoi.model.Rating;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.User;
 import epnoi.model.Workflow;
 
+
 public class WorkflowsCollaborativeFilterRecommender implements
 		CollaborativeFilterRecommender {
 
+	
 	Model model = null;
 	UserSimilarity similarity = null;
 	UserNeighborhood neighborhood = null;
 	Recommender recommender = null;
 	DataModel dataModel = null;
+	Properties inizializationProperties = null;
 
-	public void init(Model model) {
+	public void init(Model model, Properties initializationProperties) {
+		this.inizializationProperties= initializationProperties;
 		this.model = model;
 		System.out.println("(model)> " + model);
 		_initData();
@@ -65,6 +70,11 @@ public class WorkflowsCollaborativeFilterRecommender implements
 					recommendation.setUserURI(user.getURI());
 					recommendation.setStrength(recommendedItem.getValue());
 					recommendation.setItemID(recommendedItem.getItemID());
+					
+					Parameter parameter = new Parameter();
+					parameter.setName("technique");
+					parameter.setValue("collaborative-filtering");
+					recommendation.getProvenance().getParameters().add(parameter);
 
 					Workflow workflow = this.model
 							.getWorkflowByID(recommendation.getItemID());
