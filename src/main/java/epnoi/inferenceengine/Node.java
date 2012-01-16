@@ -44,5 +44,10 @@ public class Node {
 	public void setOutgoingLinks(ArrayList<Link> outgoingLinks) {
 		this.outgoingLinks = outgoingLinks;
 	}
+	
+	@Override 
+	public String toString(){
+	return "Node["+this.URI+"]";	
+	}
 
 }

@@ -35,6 +35,7 @@ public class EpnoiCore {
 
 		this._initRecommeders();
 		this._initRecommendationSpace();
+		this.inferenceEngine.init(model);
 
 	}
 

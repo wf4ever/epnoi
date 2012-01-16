@@ -40,7 +40,8 @@ public class Graph {
 	public void connect(Node originNode, Node destinationNode, Link link){
 		originNode.getOutgoingLinks().add(link);
 		destinationNode.getIncomingLinks().add(link);
-		
+		link.setOrigin(originNode);
+		link.setDestination(destinationNode);
 	}
 	
 }
