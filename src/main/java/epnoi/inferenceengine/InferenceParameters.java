@@ -21,5 +21,10 @@ public class InferenceParameters {
 	public void setInitialActivations(ArrayList<Activation> initialActivations) {
 		this.initialActivations = initialActivations;
 	}
+	
+	@Override 
+	public String toString(){
+		return "# of iterations "+numberOfIterations+" Initial Activations:> "+this.initialActivations;
+	}
 
 }

@@ -44,4 +44,9 @@ public class Graph {
 		link.setDestination(destinationNode);
 	}
 	
+	@Override
+	public String toString(){
+		return "Nodes> "+this.nodes+"Links> "+this.links;
+	}
+	
 }

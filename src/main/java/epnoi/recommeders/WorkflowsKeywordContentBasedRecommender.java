@@ -298,7 +298,7 @@ this.initializationProperties=inizializationProperties;
 	}
 
 	public String _buildQuery(ArrayList<String> terms) {
-		System.out.println("Este es el que entra " + terms);
+		//System.out.println("Este es el que entra " + terms);
 		Iterator<String> termsIt = terms.iterator();
 		String queryExpression = termsIt.next();
 		while (termsIt.hasNext()) {

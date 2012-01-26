@@ -25,6 +25,8 @@ public class EpnoiCore {
 	WorkflowsKeywordContentBasedRecommender kewyordContentBasedRecommender = null;
 
 	RecommendationSpace recommendationSpace;
+	RecommendationSpace inferredRecommendationSpace;
+	
 	private Properties initializationProperties = null;
 
 	public void init(Properties initializationProperties) {
@@ -35,8 +37,14 @@ public class EpnoiCore {
 
 		this._initRecommeders();
 		this._initRecommendationSpace();
+		this._initInferenceEngine();
+		
+		this._initInferredRecommendationSpace();
+	}
+	
+	private void _initInferenceEngine(){
+		this.inferenceEngine= new InferenceEngine();
 		this.inferenceEngine.init(model);
-
 	}
 
 	private void _initRecommendationSpace() {
@@ -48,6 +56,11 @@ public class EpnoiCore {
 		this.filesCollaborativeFilteringRecommender
 				.recommend(this.recommendationSpace);
 				this.kewyordContentBasedRecommender.recommend(this.recommendationSpace);
+	}
+	
+	private void _initInferredRecommendationSpace(){
+		
+		this.inferredRecommendationSpace = this.inferenceEngine.infer(this.recommendationSpace);
 	}
 
 	private void _initRecommeders() {

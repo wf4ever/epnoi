@@ -3,14 +3,14 @@ package epnoi.inferenceengine;
 import java.util.ArrayList;
 
 public class InferenceResult {
-	private ArrayList<ActiveNode> activeNodes;
+	private ArrayList<Activation> resultActivations;
 
-	public ArrayList<ActiveNode> getActiveNodes() {
-		return activeNodes;
+	public ArrayList<Activation> getActivations() {
+		return resultActivations;
 	}
 
-	public void setActiveNodes(ArrayList<ActiveNode> activeNodes) {
-		this.activeNodes = activeNodes;
+	public void setActivations(ArrayList<Activation> activations) {
+		this.resultActivations = activations;
 	}
 	
 	

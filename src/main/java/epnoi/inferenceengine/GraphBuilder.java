@@ -33,7 +33,6 @@ public class GraphBuilder {
  }
  
  public static Graph buildGraph(Model model){
-	 Graph graph = new Graph();
-	 return graph;
+	return Wf4EverGraphBuilder.buildGraph(model);
  }
 }

@@ -4,6 +4,7 @@ public class File {
 	Long id;
 	String uri;
 	String resource;
+	String title;
 
 	public Long getId() {
 		return id;
@@ -29,4 +30,15 @@ public class File {
 		this.resource = resource;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	
+
+	
 }

@@ -1,25 +1,19 @@
 package epnoi.inferenceengine;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import epnoi.model.Model;
+import epnoi.model.Recommendation;
+import epnoi.model.RecommendationSpace;
+import epnoi.model.User;
 
 public class InferenceEngine {
 	/**
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
+
 	 */
 
 	private ExtendedModel extendedModel = null;
@@ -50,6 +44,11 @@ public class InferenceEngine {
 		int inferenceStep = 0;
 		float conservationConstant = this
 				._calculateTotalActivation(currentActiveNodes);
+		System.out.println();
+		System.out.println();
+		
+		System.out.println("-----------------------------------------------------------------------");
+		System.out.println("Inference parameters "+parameters);
 		System.out.println("Activation Constant " + conservationConstant);
 
 		while (!currentActiveNodes.isEmpty()
@@ -61,7 +60,8 @@ public class InferenceEngine {
 
 			// For each step of the inference process
 			// A) We expand the
-			this._expandActivationSet(currentActiveNodes, activeNodes, inferenceStep);
+			this._expandActivationSet(currentActiveNodes, activeNodes,
+					inferenceStep);
 			// B) We update the activation of the nodes
 			this._upadateActivationOfCurrentActiveNodes(currentActiveNodes,
 					activeNodes, inferenceStep);
@@ -75,10 +75,36 @@ public class InferenceEngine {
 			System.out.println("B)Active nodes> " + activeNodes);
 
 		}
-		InferenceResult inferenceResults = _generateInferenceResults(activeNodes, conservationConstant);
+		InferenceResult inferenceResults = _generateInferenceResults(
+				activeNodes, conservationConstant);
+		_fitlerInitiallyActivated (inferenceResults, parameters);
 		return inferenceResults;
 	}
-
+/**
+ * 
+ * @param inferenceResult
+ * @param inferenceParameters
+ */
+	private void _fitlerInitiallyActivated(InferenceResult inferenceResult, InferenceParameters inferenceParameters){
+		
+		Set<String> initiallyActiveNodes = new HashSet<String>();
+ 		for (Activation activation:inferenceParameters.getInitialActivations()){
+			initiallyActiveNodes.add(activation.getNodeURI());
+		}
+ 		ArrayList<Activation> activationsToRemove = new ArrayList<Activation>();
+ 		for (Activation activation:inferenceResult.getActivations()){
+ 			if(initiallyActiveNodes.contains(activation.getNodeURI())){
+ 				activationsToRemove.add(activation);
+ 			}
+ 		}
+ 		for(Activation activation:activationsToRemove){
+ 			inferenceResult.getActivations().remove(activation);
+ 		}
+	}
+	 
+	 
+	
+	
 	/*
 	 * Function that initializes the set of current active nodes
 	 */
@@ -91,6 +117,7 @@ public class InferenceEngine {
 			Node node = this.extendedModel.getGraph().getNodeByURI(URI);
 			ActiveNode activeNode = new ActiveNode(node);
 			activeNode.setActivation(activation.getActivationValue());
+
 			activeNodes.put(node.getURI(), activeNode);
 		}
 		return activeNodes;
@@ -109,12 +136,10 @@ public class InferenceEngine {
 		for (ActiveNode activeNode : currentActiveNodes.values()) {
 
 			activeNodes.put(activeNode.getMirroedNode().getURI(), activeNode);
-			//In the case of the first inference step we 
+			// In the case of the first inference step we
 			/*
-			if (inferenceStep == 0) {
-				activeNode.setActivation(0f);
-			}
-			*/
+			 * if (inferenceStep == 0) { activeNode.setActivation(0f); }
+			 */
 		}
 
 		// currentActiveNodes=null;
@@ -167,7 +192,7 @@ public class InferenceEngine {
 		for (Link link : currentActiveNode.getMirroedNode().getIncomingLinks()) {
 
 			Node originNode = link.getOrigin();
-			System.out.println("origNode > " + originNode);
+			//System.out.println("origNode > " + originNode);
 			float originActivation = 0;
 			// If it is already in the active nodes, we need to retrieve the
 			// node
@@ -175,30 +200,33 @@ public class InferenceEngine {
 
 				ActiveNode originActiveNode = activeNodes.get(originNode
 						.getURI());
-				System.out.println("It was activated " + activationUpdate
-						+ " and it was " + originActiveNode);
+			
+				//System.out.println("It was activated " + activationUpdate + " and it was " + originActiveNode);
 				originActivation = originActiveNode.getActivation();
-				if (inferenceStep==0){
+				if (inferenceStep == 0) {
 					originActiveNode.setActivation(0f);
 				}
 			}
 
 			activationUpdate += originActivation * link.getWeight();
 		}
-		System.out.println("The activation update is " + activationUpdate);
+		//System.out.println("The activation update is " + activationUpdate);
 		currentActiveNode.setActivation(currentActiveNode.getActivation()
 				+ activationUpdate);
 	}
 
 	private void _normalizeNodes(HashMap<String, ActiveNode> activeNodes,
 			float conservationConstant) {
-		float actualActivationTotal = this._calculateTotalActivation(activeNodes);
-		
-		for (ActiveNode activeNode:activeNodes.values()){
+		float actualActivationTotal = this
+				._calculateTotalActivation(activeNodes);
+
+		for (ActiveNode activeNode : activeNodes.values()) {
 			float currentActivation = activeNode.getActivation();
-			float proportionOfActualTotal = currentActivation/actualActivationTotal;
-			activeNode.setActivation(proportionOfActualTotal*conservationConstant);
-			
+			float proportionOfActualTotal = currentActivation
+					/ actualActivationTotal;
+			activeNode.setActivation(proportionOfActualTotal
+					* conservationConstant);
+
 		}
 
 	}
@@ -215,7 +243,14 @@ public class InferenceEngine {
 		Collections.sort(orderedActiveNodes);
 		Collections.reverse(orderedActiveNodes);
 		this._normalizeAndFilter(orderedActiveNodes, conservationConstant);
-		inferenceResults.setActiveNodes(orderedActiveNodes);
+		ArrayList<Activation> activations = new ArrayList<Activation>();
+		for(ActiveNode activeNode: orderedActiveNodes){
+			Activation activation = new Activation();
+			activation.setNodeURI(activeNode.getMirroedNode().getURI());
+			activation.setActivationValue(activeNode.getActivation());
+			activations.add(activation);
+		}
+		inferenceResults.setActivations(activations);
 		return inferenceResults;
 	}
 
@@ -227,11 +262,58 @@ public class InferenceEngine {
 		}
 		return activationConstant;
 	}
-	
-	private void _normalizeAndFilter(ArrayList<ActiveNode> activeNodes, float conservationConstant){
-		for (ActiveNode activeNode: activeNodes){
-			activeNode.setActivation(activeNode.getActivation()/conservationConstant);
+
+	private void _normalizeAndFilter(ArrayList<ActiveNode> activeNodes,
+			float conservationConstant) {
+		for (ActiveNode activeNode : activeNodes) {
+			activeNode.setActivation(activeNode.getActivation()
+					/ conservationConstant);
 		}
+	}
+
+	public RecommendationSpace infer(RecommendationSpace recommendationSpace) {
+		RecommendationSpace inferredRecommendationSpace = new RecommendationSpace();
+		for (User user : this.extendedModel.getModel().getUsers()) {
+			ArrayList<Recommendation> recommendationsForUser = recommendationSpace
+					.getRecommendationsForUserURI(user.getURI());
+			// If the user has been provided with any recommendation, we try to
+			// infer new ones
+			if (recommendationsForUser.size() > 0) {
+
+				InferenceParameters inferenceParameters = new InferenceParameters();
+				inferenceParameters.setNumberOfIterations(50);
+				ArrayList<Activation> initialActivations = _generateActivation(recommendationsForUser);
+				//System.out.println(":.......>  " + initialActivations);
+				inferenceParameters.setInitialActivations(initialActivations);
+				InferenceResult inferenceResult = this
+						.perfomInferenceProcess(inferenceParameters);
+
+				System.out.println("The result is"+inferenceResult.getActivations());
+				System.out.println("-----------------------------------------------------------");
+				System.out.println();
+				System.out.println();
+				System.out.println();
+			}
+		}
+		return inferredRecommendationSpace;
+	}
+
+	private ArrayList<Activation> _generateActivation(
+			ArrayList<Recommendation> recommendationsForUser) {
+		ArrayList<Activation> initialActivations = new ArrayList<Activation>();
+		for (Recommendation recommenadtionForUser : recommendationsForUser) {
+			recommenadtionForUser.getItemURI();
+
+			Activation activation = new Activation();
+			activation.setNodeURI(recommenadtionForUser.getItemURI());
+			// As recommendations strength range from 0 to 5 we divide its value
+			// to change the range
+			// to [0, 1]
+			activation
+					.setActivationValue(recommenadtionForUser.getStrength() / 5);
+			initialActivations.add(activation);
+		}
+		return initialActivations;
 	}
 
 }

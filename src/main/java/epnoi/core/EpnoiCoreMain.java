@@ -13,17 +13,17 @@ import epnoi.model.Tagging;
 import epnoi.model.User;
 
 public class EpnoiCoreMain {
-	
-
 
 	public static void main(String[] args) {
 		System.out.println("Starting the EpnoiCoreMain");
 		EpnoiCore epnoiCore = new EpnoiCore();
 		Properties initializationProperties = new Properties();
-	
-		initializationProperties.setProperty(EpnoiCore.INDEX_PATH_PROPERTY, "/wf4ever/indexMyExperiment");
-		initializationProperties.setProperty(EpnoiCore.MODEL_PATH_PROPERTY, "/wf4ever/lastImportedModel.xml");
-		
+
+		initializationProperties.setProperty(EpnoiCore.INDEX_PATH_PROPERTY,
+				"/wf4ever/indexMyExperiment");
+		initializationProperties.setProperty(EpnoiCore.MODEL_PATH_PROPERTY,
+				"/wf4ever/lastImportedModel.xml");
+
 		epnoiCore.init(initializationProperties);
 		ArrayList<String> differentRaters = new ArrayList<String>();
 		for (Rating rating : epnoiCore.getModel().getRatings()) {
@@ -33,20 +33,20 @@ public class EpnoiCoreMain {
 			}
 		}
 
-		
-
-		for (Recommendation recommendation : epnoiCore.getRecommendationSpace()
-				.getAllRecommendations()) {
-			System.out.println("Recommendation for "
-					+ recommendation.getUserURI());
-
-			System.out.println("         (i)" + recommendation.getItemID());
-			System.out.println("         (s)" + recommendation.getStrength());
-			System.out
-					.println("         (i.URI)" + recommendation.getItemURI());
-
-		}
-		System.out.println("# of recommendations"
+		/*
+		 * for (Recommendation recommendation :
+		 * epnoiCore.getRecommendationSpace() .getAllRecommendations()) {
+		 * System.out.println("Recommendation for " +
+		 * recommendation.getUserURI());
+		 * 
+		 * System.out.println("         (i)" + recommendation.getItemID());
+		 * System.out.println("         (s)" + recommendation.getStrength());
+		 * System.out .println("         (i.URI)" +
+		 * recommendation.getItemURI());
+		 * 
+		 * }
+		 */
+		System.out.println("# of recommendations "
 				+ epnoiCore.getRecommendationSpace().getAllRecommendations()
 						.size());
 		System.out.println("# of users> "
@@ -55,7 +55,7 @@ public class EpnoiCoreMain {
 				+ epnoiCore.getModel().getWorflows().size());
 		System.out.println("# of files> "
 				+ epnoiCore.getModel().getFiles().size());
-		System.out.println("# of users with at least one rating"
+		System.out.println("# of users with at least one rating "
 				+ differentRaters.size());
 
 		int numberOfFavouritedWorkflows = 0;
@@ -72,11 +72,11 @@ public class EpnoiCoreMain {
 			}
 
 		}
-		System.out.println("# of users that have uploaded a workflow"
+		System.out.println("# of users that have uploaded a workflow "
 				+ differentUploaders.size());
-		System.out.println("# of users with at least one favourite workflow"
+		System.out.println("# of users with at least one favourite workflow "
 				+ differentFavouriters.size());
-		System.out.println("# of favourited workflows (they may be repeated)"
+		System.out.println("# of favourited workflows (they may be repeated) "
 				+ numberOfFavouritedWorkflows);
 
 		ArrayList<String> differentFavouritersAndRaters = new ArrayList<String>();
@@ -86,11 +86,13 @@ public class EpnoiCoreMain {
 				differentFavouritersAndRaters.add(userURI);
 			}
 		}
-		System.out.println("# of users with at least one favourite and rating"
+		System.out.println("# of users with at least one favourite and rating "
 				+ differentFavouritersAndRaters.size());
 
 		ArrayList<String> differentRecommendedUsers = new ArrayList<String>();
 		ArrayList<Long> differentRatedWorkflow = new ArrayList<Long>();
+		int contentBased = 0;
+		int collaborativeBased = 0;
 
 		for (Recommendation recommendation : epnoiCore.getRecommendationSpace()
 				.getAllRecommendations()) {
@@ -102,11 +104,23 @@ public class EpnoiCoreMain {
 				differentRatedWorkflow.add(recommendation.getItemID());
 			}
 
+			if (recommendation.getProvenance().getParameterByName("technique")
+					.equals("collaborative-filtering")) {
+				collaborativeBased++;
+			} else {
+				contentBased++;
+			}
 		}
-		System.out.println("# of users that have received a recommendation"
+
+		System.out.println("# of users that have received a recommendation "
 				+ differentRecommendedUsers.size());
-		System.out.println("# of workflows that have been rated"
+		System.out.println("# of items that have been recommended "
 				+ differentRatedWorkflow.size());
+
+		System.out.println("# of recommendations by collaborative filtering algorithm "
+				+ collaborativeBased);
+		System.out.println("# of recommendations by content based algorithm "
+				+ contentBased);
 
 		int numberOfFavouritedFiles = 0;
 		ArrayList<String> differentFilesUploaders = new ArrayList<String>();
@@ -121,11 +135,11 @@ public class EpnoiCoreMain {
 			}
 
 		}
-		System.out.println("# of users that have uploaded a file"
+		System.out.println("# of users that have uploaded a file "
 				+ differentFilesUploaders.size());
-		System.out.println("# of users with at least one favourite file"
+		System.out.println("# of users with at least one favourite file "
 				+ differentFilesFavouriters.size());
-		System.out.println("# of favourited files  (they may be repeated)"
+		System.out.println("# of favourited files  (they may be repeated) "
 				+ numberOfFavouritedFiles);
 
 		int ratingsForFiles = 0;
@@ -139,8 +153,8 @@ public class EpnoiCoreMain {
 			}
 		}
 
-		System.out.println("# of file ratings" + ratingsForFiles);
-		System.out.println("# of workflow ratings" + ratingsForWorkflows);
+		System.out.println("# of file ratings " + ratingsForFiles);
+		System.out.println("# of workflow ratings " + ratingsForWorkflows);
 
 		int numberOfUsersWithTags = 0;
 		float averageNumberOfTags = 0;
@@ -152,14 +166,17 @@ public class EpnoiCoreMain {
 				numberOfTags += user.getTagApplied().size();
 			}
 		}
-		System.out.println("# of tags" + numberOfTags);
-		System.out.println("# of users with at least one tag"
+		System.out.println("# of tags " + numberOfTags);
+		System.out.println("# of users with at least one tag "
 				+ numberOfUsersWithTags);
 		System.out.println("# of the average tag per user "
 				+ ((float) numberOfTags)
 				/ ((float) epnoiCore.getModel().getUsers().size()));
-		System.out.println("# of the average tag per user that has tags"
+		System.out.println("# of the average tag per user that has tags "
 				+ ((float) numberOfTags) / ((float) numberOfUsersWithTags));
+
+		System.out.println("# of packs "
+				+ epnoiCore.getModel().getPacks().size());
 
 	}
 
@@ -171,5 +188,4 @@ public class EpnoiCoreMain {
 
 	}
 
-	
 }

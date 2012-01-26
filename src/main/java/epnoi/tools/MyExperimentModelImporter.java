@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import epnoi.model.File;
 import epnoi.model.Model;
+import epnoi.model.Pack;
 import epnoi.model.Rating;
 import epnoi.model.User;
 import epnoi.model.Workflow;
@@ -27,7 +28,8 @@ import epnoi.model.Workflow;
 public class MyExperimentModelImporter {
 
 	public static void main(String[] args) {
-		String FILE_NAME = "/lastImportedModel.xml";
+		String FILE_NAME = "/packs.xml";
+		//String FILE_NAME = "/lastImportedModel.xml";
 		System.out.println("Extracting the myExperiment model");
 		MyExperimentModelImporter importer = new MyExperimentModelImporter();
 		importer.extractModel();
@@ -52,10 +54,13 @@ public class MyExperimentModelImporter {
 	public void extractModel() {
 
 		this._extractWorkflows();
+		
 		this._extractUsers();
 
 		this._extractRatings();
 		this._extractFiles();
+	
+		this._extractPacks();
 	}
 
 	private void _extractUsers() {
@@ -381,14 +386,10 @@ public class MyExperimentModelImporter {
 		String userURI = userURIBase + "user.xml?id=" + userID;
 		user.setURI(userURI);
 		System.out.println("Extracting user" + user.getURI());
-		if (user.getID() < 100) {
+		
 			try {
 				Document doc = null;
-				/*
-				 * DocumentBuilderFactory dbf = null; dbf =
-				 * DocumentBuilderFactory.newInstance(); DocumentBuilder db =
-				 * dbf.newDocumentBuilder();
-				 */
+			
 				doc = documentBuilder
 						.parse(user.getURI() + "&all_elements=yes");
 				doc.getDocumentElement().normalize();
@@ -477,6 +478,28 @@ public class MyExperimentModelImporter {
 								firstWorkflowElement.getAttribute("uri"));
 					}
 				}
+				
+				// User packs
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("packs");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
+
+					NodeList packsNodeList = ((Element) nameNode)
+							.getElementsByTagName("pack");
+					for (int s = 0; s < packsNodeList.getLength(); s++) {
+						Node fstNode = packsNodeList.item(s);
+						Element firstPackElement = (Element) fstNode;
+						user.getPacks().add(
+								firstPackElement.getAttribute("uri"));
+					}
+				}
+				
 
 				// User favourites
 				nodeList = null;
@@ -509,7 +532,7 @@ public class MyExperimentModelImporter {
 
 				}
 
-				// User files
+		
 				nodeList = null;
 				try {
 					nodeList = doc.getElementsByTagName("taggings-applied");
@@ -544,10 +567,21 @@ public class MyExperimentModelImporter {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		
 		return user;
 	}
 
+	private String _convertWorkflowResourceToURI(String workflowResource){
+		int indexOfWorkflows = workflowResource.indexOf("/workflows/");
+		String workflowID = workflowResource.substring(indexOfWorkflows + 11,
+				workflowResource.length());
+		
+
+		String workflowURI = "http://www.myexperiment.org/workflow.xml?id="
+				+ workflowID;
+		return workflowURI;
+	}
+	
 	private Workflow _extractWorkflow(Element workflowElement) {
 		/*
 		 * Long id; String URI; String resource; String description; String
@@ -604,6 +638,19 @@ public class MyExperimentModelImporter {
 		return workflow;
 	}
 
+	private String _convertFileResourceToURI(String fileResource){
+		int indexOfFiles = fileResource.indexOf("/files/");
+		String fileID = fileResource.substring(indexOfFiles + 7,
+				fileResource.length());
+		
+
+		String fileURIBase = fileResource.substring(0,
+				indexOfFiles + 1);
+		String fileURI = fileURIBase + "file.xml?id=" + fileID;
+		return fileURI;
+		
+	}
+	
 	private File _extractFile(Element workflowElement) {
 		/*
 		 * Long id; String URI; String resource; String description; String
@@ -620,31 +667,12 @@ public class MyExperimentModelImporter {
 				workflowResource.length());
 		workflow.setId(new Long(workflowID));
 
-		String workflowURIBase = workflowResource.substring(0,
+		String fileURIBase = workflowResource.substring(0,
 				indexOfWorkflows + 1);
-		String workflowURI = workflowURIBase + "file.xml?id=" + workflowID;
+		String workflowURI = fileURIBase + "file.xml?id=" + workflowID;
 
 		workflow.setUri(workflowURI);
-		/*
-		 * try { Document doc = null; DocumentBuilderFactory dbf = null; dbf =
-		 * DocumentBuilderFactory.newInstance(); DocumentBuilder db =
-		 * dbf.newDocumentBuilder();
-		 * 
-		 * doc = db.parse(workflow.getUri()+"&all_elements=yes");
-		 * doc.getDocumentElement().normalize();
-		 * 
-		 * // Workflow title extraction NodeList nodeList = null; try { nodeList
-		 * = doc.getElementsByTagName("title"); } catch (Exception e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 * 
-		 * Node nameNode = nodeList.item(0); workflow.setTitle(((Element)
-		 * nameNode).getTextContent());
-		 * 
-		 * } catch (ParserConfigurationException e) { // TODO Auto-generated
-		 * catch block e.printStackTrace(); } catch (SAXException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } catch (IOException
-		 * e) { // TODO Auto-generated catch block e.printStackTrace(); }
-		 */
+
 		return workflow;
 	}
 
@@ -677,6 +705,133 @@ public class MyExperimentModelImporter {
 			e.printStackTrace();
 		}
 	}
+		
+		private void _extractPacks() {
+			String packsQueryService = "http://rdf.myexperiment.org/sparql?query=PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0D%0Aselect+distinct+%3Fx+where+%7B%3Fx+rdf%3Atype+%3Chttp%3A%2F%2Frdf.myexperiment.org%2Fontologies%2Fpacks%2FPack%3E%7D%0D%0A&formatting=XML&softlimit=5";
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			Document doc = null;
+			try {
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				doc = db.parse(packsQueryService);
+				doc.getDocumentElement().normalize();
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			NodeList nodeList = null;
+			try {
+				nodeList = doc.getElementsByTagName("uri");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			for (int s = 0; s < nodeList.getLength(); s++) {
+				Node fstNode = nodeList.item(s);
+				Element firstUserElement = (Element) fstNode;
+				Pack file = this._extractPack(firstUserElement);
+				model.getPacks().add(file);
+			}
+		}
+	
+		private Pack _extractPack(Element packElement) {
+			/*
+			 * Long id; String URI; String resource; String description; String
+			 * title; String contentType; String contentURI; String uploaderURI;
+			 * ArrayList<String> tags;
+			 */
+
+			Pack pack = new Pack();
+			String packResource = packElement.getTextContent();
+			pack.setResource(packResource);
+
+			int indexOfPacks = packResource.indexOf("/packs/");
+			String packID = packResource.substring(indexOfPacks + 7,
+					packResource.length());
+			pack.setId(new Long(packID));
+
+			String packURI = "http://www.myexperiment.org/pack.xml?id="
+					+ packID;
+
+			pack.setURI(packURI);
+
+			System.out.println("Extracting pack" + pack.getURI());
+
+			try {
+				Document doc = null;
+				DocumentBuilderFactory dbf = null;
+				dbf = DocumentBuilderFactory.newInstance();
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				doc = db.parse(pack.getURI() + "&all_elements=yes");
+				// doc.getDocumentElement().normalize();
+
+				// Workflow title extraction
+				NodeList nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("title");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				pack.setTitle(((Element) nodeList.item(0)).getTextContent());
+				
+				
+				// User favourites
+				nodeList = null;
+				try {
+					nodeList = doc.getElementsByTagName("internal-pack-items");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if (nodeList.getLength() > 0) {
+					Node nameNode = nodeList.item(0);
+
+					NodeList workflowsNodeList = ((Element) nameNode)
+							.getElementsByTagName("workflow");
+					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
+						Node fstNode = workflowsNodeList.item(s);
+						Element firstWorkflowElement = (Element) fstNode;
+						
+						String workflowResource = firstWorkflowElement.getAttribute("resource");
+						pack.getInternalWorkflows().add(this._convertWorkflowResourceToURI(workflowResource));
+								
+					}
+
+					NodeList filesNodeList = ((Element) nameNode)
+							.getElementsByTagName("file");
+					for (int s = 0; s < filesNodeList.getLength(); s++) {
+						Node fstNode = filesNodeList.item(s);
+						Element firsFileElement = (Element) fstNode;
+						String fileResource = firsFileElement.getAttribute("resource");
+						pack.getInternalFiles().add(this._convertFileResourceToURI(fileResource));
+					}
+
+				}
+
+				
+
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return pack;
+		}
 
 	/*
 	 * Cosas que extraer de workflow

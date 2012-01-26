@@ -16,5 +16,10 @@ public class Activation {
 	public void setActivationValue(float activationValue) {
 		this.activationValue = activationValue;
 	}
+	
+	@Override
+	public String toString(){
+		return "A["+this.nodeURI+","+this.activationValue+"]";
+	}
 
 }

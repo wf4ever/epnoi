@@ -31,7 +31,7 @@ public class InferenceEngineTestMain {
 
 		
 		InferenceResult inferenceResult = inferenceEngine.perfomInferenceProcess(inferenceParameters);
-		System.out.println(inferenceResult.getActiveNodes());
+		System.out.println(inferenceResult.getActivations());
 		
 		
 		

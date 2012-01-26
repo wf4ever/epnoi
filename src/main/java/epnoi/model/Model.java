@@ -12,14 +12,18 @@ public class Model {
 	private ArrayList<File> files;
 	private ArrayList<Rating> ratings;
 	private ArrayList<Group> groups;
+	private ArrayList<Pack> packs;
 
 	private HashMap<String, HashMap<String, ArrayList<Rating>>> ratingsByUser;
 	private HashMap<String, Workflow> workflowsByURI;
 	private HashMap<String, User> usersByURI;
 	private HashMap<String, File> filesByURI;
-
+	private HashMap<String, Pack> packsByURI;
+	
 	private HashMap<Long, Workflow> workflowsByID;
 	private HashMap<Long, File> filesByID;
+	private HashMap<Long, Pack> packsByID;
+	
 
 	public Model() {
 		this.users = new ArrayList<User>();
@@ -33,6 +37,9 @@ public class Model {
 		this.workflowsByID = new HashMap<Long, Workflow>();
 		this.filesByID = new HashMap<Long, File>();
 		this.filesByURI = new HashMap<String, File>();
+		this.packs = new ArrayList<Pack>();
+		this.packsByID = new HashMap<Long, Pack>();
+		this.packsByURI = new HashMap<String, Pack>();
 	}
 
 	public void init() {
@@ -79,6 +86,11 @@ public class Model {
 		for (File file : this.files) {
 			this.filesByURI.put(file.getUri(), file);
 			this.filesByID.put(file.getId(), file);
+		}
+		
+		for (Pack pack : this.packs) {
+			this.packsByURI.put(pack.getURI(), pack);
+			this.packsByID.put(pack.getId(), pack);
 		}
 
 	}
@@ -149,5 +161,34 @@ public class Model {
 		return this.filesByID.get(id);
 	}
 
+	public ArrayList<Pack> getPacks() {
+		return packs;
+	}
+
+	public void setPacks(ArrayList<Pack> packs) {
+		this.packs = packs;
+	}
+
+	public Pack getPackByURI(String packURI) {
+		return this.packsByURI.get(packURI);
+	}
+
+	public Pack getPackByID(Long id) {
+		return this.packsByID.get(id);
+	}
+	
+	public boolean isWorkflow(String URI){
+		return this.workflowsByURI.containsKey(URI);
+	}
+	
+	public boolean isPack(String URI){
+		return this.packsByURI.containsKey(URI);
+	}
+	
+	public boolean isFile(String URI){
+		return this.filesByURI.containsKey(URI);
+	}
+	
+	
 
 }

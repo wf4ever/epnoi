@@ -28,5 +28,10 @@ public class Link {
 	public void setWeight(float weight) {
 		this.weight = weight;
 	}
+	
+@Override
+public String toString(){
+	return "L["+this.origin+"->"+this.destination+"]";
+}
 
 }

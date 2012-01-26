@@ -18,6 +18,7 @@ public class User {
 	ArrayList<String> groups;
 	ArrayList<String> files;
 	ArrayList<String> workflows;
+	ArrayList<String> packs;
 
 	public User() {
 		this.tagApplied = new ArrayList<Tagging>();
@@ -27,6 +28,7 @@ public class User {
 		this.files = new ArrayList<String>();
 		this.workflows = new ArrayList<String>();
 		this.friends = new ArrayList<String>();
+		this.packs = new ArrayList<String>();
 	}
 
 	public ArrayList<String> getFavouritedFiles() {
@@ -145,6 +147,14 @@ public class User {
 			this.tagApplied.add(newTagging);
 
 		}
+	}
+
+	public ArrayList<String> getPacks() {
+		return packs;
+	}
+
+	public void setPacks(ArrayList<String> packs) {
+		this.packs = packs;
 	}
 
 }
