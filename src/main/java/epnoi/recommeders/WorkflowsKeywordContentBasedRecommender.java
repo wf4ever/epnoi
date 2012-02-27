@@ -113,7 +113,7 @@ public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 									
 									Workflow workflow = this.model.getWorkflowByURI(itemURI);
 									if (workflow!=null)
-										itemID = workflow.getId();
+										itemID = workflow.getID();
 									
 									newRecommendation.setItemID(itemID);
 

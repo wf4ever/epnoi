@@ -1,25 +1,25 @@
 package epnoi.model;
 
-public class File {
-	Long id;
-	String uri;
+public class File implements Resource{
+	Long ID;
+	String URI;
 	String resource;
 	String title;
 
-	public Long getId() {
-		return id;
+	public Long getID() {
+		return ID;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setID(Long id) {
+		this.ID = id;
 	}
 
-	public String getUri() {
-		return uri;
+	public String getURI() {
+		return URI;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	public void setURI(String uri) {
+		this.URI = uri;
 	}
 
 	public String getResource() {

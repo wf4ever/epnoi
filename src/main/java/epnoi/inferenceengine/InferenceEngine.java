@@ -44,20 +44,23 @@ public class InferenceEngine {
 		int inferenceStep = 0;
 		float conservationConstant = this
 				._calculateTotalActivation(currentActiveNodes);
+		/*
 		System.out.println();
 		System.out.println();
 		
 		System.out.println("-----------------------------------------------------------------------");
 		System.out.println("Inference parameters "+parameters);
 		System.out.println("Activation Constant " + conservationConstant);
-
+*/
+		
 		while (!currentActiveNodes.isEmpty()
 				&& inferenceStep < numberOfIterations) {
+			/*
 			System.out.println("Inference Engine (step " + inferenceStep
 					+ ")-------------------------");
 			System.out.println("A)Curren active nodes> " + currentActiveNodes);
 			System.out.println("A)Active nodes> " + activeNodes);
-
+*/
 			// For each step of the inference process
 			// A) We expand the
 			this._expandActivationSet(currentActiveNodes, activeNodes,
@@ -71,9 +74,10 @@ public class InferenceEngine {
 			_filterNodes(currentActiveNodes);
 			// E) We increase the algorithm step
 			inferenceStep++;
+			/*
 			System.out.println("B)Curren active nodes> " + currentActiveNodes);
 			System.out.println("B)Active nodes> " + activeNodes);
-
+*/
 		}
 		InferenceResult inferenceResults = _generateInferenceResults(
 				activeNodes, conservationConstant);
@@ -115,6 +119,10 @@ public class InferenceEngine {
 		for (Activation activation : parameters.getInitialActivations()) {
 			String URI = activation.getNodeURI();
 			Node node = this.extendedModel.getGraph().getNodeByURI(URI);
+		/*
+		System.out.println("workflow------> "+this.extendedModel.getModel().getWorkflowByURI(URI));
+			System.out.println("node------> "+node+" >> "+URI);
+			*/
 			ActiveNode activeNode = new ActiveNode(node);
 			activeNode.setActivation(activation.getActivationValue());
 
@@ -170,9 +178,10 @@ public class InferenceEngine {
 			}
 			currentActiveNodes.remove(activeNode.getMirroedNode().getURI());
 		}
-
+/*
 		System.out.println("Estos son los updatedCurrentActiveNodes "
 				+ updatedCurrentActiveNodes);
+	*/
 		currentActiveNodes.putAll(updatedCurrentActiveNodes);
 	}
 
@@ -287,12 +296,13 @@ public class InferenceEngine {
 				inferenceParameters.setInitialActivations(initialActivations);
 				InferenceResult inferenceResult = this
 						.perfomInferenceProcess(inferenceParameters);
-
+/*
 				System.out.println("The result is"+inferenceResult.getActivations());
 				System.out.println("-----------------------------------------------------------");
 				System.out.println();
 				System.out.println();
 				System.out.println();
+	*/
 			}
 		}
 		return inferredRecommendationSpace;

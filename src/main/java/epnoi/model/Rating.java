@@ -1,6 +1,6 @@
 package epnoi.model;
 
-public class Rating {
+public class Rating implements Resource {
 	public static final String WORKFLOW_RATING ="WORKFLOW";
 	public static final String FILE_RATING ="FILE";
 	

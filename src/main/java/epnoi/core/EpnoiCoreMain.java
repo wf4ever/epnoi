@@ -52,7 +52,7 @@ public class EpnoiCoreMain {
 		System.out.println("# of users> "
 				+ epnoiCore.getModel().getUsers().size());
 		System.out.println("# of workflows> "
-				+ epnoiCore.getModel().getWorflows().size());
+				+ epnoiCore.getModel().getWorkflows().size());
 		System.out.println("# of files> "
 				+ epnoiCore.getModel().getFiles().size());
 		System.out.println("# of users with at least one rating "

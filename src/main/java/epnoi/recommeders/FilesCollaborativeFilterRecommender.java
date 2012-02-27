@@ -72,7 +72,7 @@ public class FilesCollaborativeFilterRecommender implements
 					recommendation.setItemID(recommendedItem.getItemID());
 					File file = this.model.getFileByID(recommendation
 							.getItemID());
-					recommendation.setItemURI(file.getUri());
+					recommendation.setItemURI(file.getURI());
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
 				}
@@ -123,7 +123,7 @@ public class FilesCollaborativeFilterRecommender implements
 
 		for (String fileURI : user.getFavouritedFiles()) {
 			File file = this.model.getFileByURI(fileURI);
-			userPreferences.setItemID(ratingIndex, file.getId());
+			userPreferences.setItemID(ratingIndex, file.getID());
 
 			userPreferences.setValue(ratingIndex, 5);
 			ratingIndex++;
@@ -131,9 +131,14 @@ public class FilesCollaborativeFilterRecommender implements
 
 		for (String fileURI : user.getFiles()) {
 			File file = this.model.getFileByURI(fileURI);
-			userPreferences.setItemID(ratingIndex, file.getId());
+			if(file==null){
+				System.out.println("PROBLEM FILE "+file);
+			}
+			else{
+			userPreferences.setItemID(ratingIndex, file.getID());
 			userPreferences.setValue(ratingIndex, 5);
 			ratingIndex++;
+			}
 		}
 
 		return userPreferences;

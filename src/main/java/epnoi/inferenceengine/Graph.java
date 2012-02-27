@@ -33,6 +33,8 @@ public class Graph {
 	}
 	
 	public Node getNodeByURI(String URI) {
+		//System.out.println("Esta es la URI "+URI+" lo que encuentra "+this.nodesByURI.get(URI));
+		
 		return this.nodesByURI.get(URI);
 	}
 	

@@ -6,7 +6,8 @@ import epnoi.model.Pack;
 import epnoi.model.Workflow;
 
 public class Wf4EverGraphBuilder {
-	 public static Graph buildGraph(){
+	/*
+	public static Graph buildGraph(){
 		 Graph newGraph = new Graph();
 		 Node nodeA = newGraph.createNode("NodeA");
 		 Node nodeB = newGraph.createNode("NodeB");
@@ -34,19 +35,25 @@ public class Wf4EverGraphBuilder {
 		 return newGraph;
 		 
 	 }
-	 
+	 */
 	 public static Graph buildGraph(Model model){
 		 Graph newGraph = new Graph();
 		 //We need to add to the graph all the relevant elements in the model
 		 //Workflows
-		 for(Workflow workflow: model.getWorflows()){
+		 
+//		 System.out.println(">>>>>>>>>>>>>>"+model.getWorkflowByURI("http://www.myexperiment.org/workflow.xml?id=2049"));
+		 for(Workflow workflow: model.getWorkflows()){
+			 if (workflow.getURI().equals("http://www.myexperiment.org/workflow.xml?id=2049")){
+				 System.out.println("EEEEEEEEEEE--------------------------------------STA");
+			 }
+			// System.out.println(">> "+workflow.getURI());
 			 Node nodeA = newGraph.createNode(workflow.getURI());
 		 }
 		 
 		 
 		 //Files
 		 for(File file: model.getFiles()){
-			 Node nodeA = newGraph.createNode(file.getUri());
+			 Node nodeA = newGraph.createNode(file.getURI());
 		 }
 		 
 		 for(Pack pack: model.getPacks()){
@@ -60,7 +67,7 @@ public class Wf4EverGraphBuilder {
 					 newGraph.connect(fileNode, packNode, newLink);
 				 }
 				 else{
-					 System.out.println("AQUI                                "+fileURI);
+					// System.out.println("AQUI                                "+fileURI);
 				 }
 			 }
 			 //Addition of the ore:isAggregatedBy ore->http://www.openarchives.org/ore/terms/ 
@@ -70,7 +77,7 @@ public class Wf4EverGraphBuilder {
 					 Link newLink = newGraph.createLink("http://www.openarchives.org/ore/terms/isAggregatedBy");
 					 newLink.setWeight(0.8f);
 					 newGraph.connect(workflowNode, packNode, newLink);	}else{
-						 System.out.println("AQUI                                "+workflowURI);
+						// System.out.println("AQUI                                "+workflowURI);
 					 }
 					 
 			 }

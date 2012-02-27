@@ -37,6 +37,7 @@ public class EpnoiCore {
 
 		this._initRecommeders();
 		this._initRecommendationSpace();
+		
 		this._initInferenceEngine();
 		
 		this._initInferredRecommendationSpace();

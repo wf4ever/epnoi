@@ -150,7 +150,7 @@ public class MyExperimentIndexer {
   
   public int index() throws Exception{
 	  int indexedResources = 0;
-	  for(Workflow workflow : model.getWorflows()){
+	  for(Workflow workflow : model.getWorkflows()){
 		  //if (workflow.getId()<200){
 			  
 			  try {

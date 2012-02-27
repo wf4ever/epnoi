@@ -2,10 +2,10 @@ package epnoi.model;
 
 import java.util.ArrayList;
 
-public class Group {
+public class Group implements Resource {
 	boolean autoAccept;
 	String description;
-	Long id;
+	Long ID;
 	String owner;
 	String resource;
 	String title;
@@ -32,12 +32,12 @@ public class Group {
 		this.description = description;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getID() {
+		return this.ID;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setID(Long id) {
+		this.ID = id;
 	}
 
 	public String getOwner() {

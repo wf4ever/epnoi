@@ -131,7 +131,7 @@ public class WorkflowsCollaborativeFilterRecommender implements
 
 		for (String workflowURI : user.getFavouritedWorkflows()) {
 			Workflow workflow = this.model.getWorkflowByURI(workflowURI);
-			userPreferences.setItemID(ratingIndex, workflow.getId());
+			userPreferences.setItemID(ratingIndex, workflow.getID());
 
 			userPreferences.setValue(ratingIndex, 5);
 			ratingIndex++;
@@ -139,9 +139,14 @@ public class WorkflowsCollaborativeFilterRecommender implements
 
 		for (String workflowURI : user.getWorkflows()) {
 			Workflow workflow = this.model.getWorkflowByURI(workflowURI);
-			userPreferences.setItemID(ratingIndex, workflow.getId());
+			if (workflow==null){
+				System.out.println("PROBLEMA "+workflowURI);
+			}
+			else{
+			userPreferences.setItemID(ratingIndex, workflow.getID());
 			userPreferences.setValue(ratingIndex, 5);
 			ratingIndex++;
+			}
 		}
 		// System.out.println(user.getID() + "UserPreferences for "+
 		// userPreferences);

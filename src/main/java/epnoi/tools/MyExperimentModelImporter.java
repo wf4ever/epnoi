@@ -18,6 +18,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import wrappers.myexperiment.FileWrapper;
+import wrappers.myexperiment.PackWrapper;
+import wrappers.myexperiment.WorkflowWrapper;
 import epnoi.model.File;
 import epnoi.model.Model;
 import epnoi.model.Pack;
@@ -28,8 +31,8 @@ import epnoi.model.Workflow;
 public class MyExperimentModelImporter {
 
 	public static void main(String[] args) {
-		String FILE_NAME = "/packs.xml";
-		//String FILE_NAME = "/lastImportedModel.xml";
+		//String FILE_NAME = "/packs.xml";
+		String FILE_NAME = "/lastImportedModel.xml";
 		System.out.println("Extracting the myExperiment model");
 		MyExperimentModelImporter importer = new MyExperimentModelImporter();
 		importer.extractModel();
@@ -54,7 +57,7 @@ public class MyExperimentModelImporter {
 	public void extractModel() {
 
 		this._extractWorkflows();
-		
+		//Users must be extracted after workflows
 		this._extractUsers();
 
 		this._extractRatings();
@@ -137,7 +140,7 @@ public class MyExperimentModelImporter {
 			Node fstNode = nodeList.item(s);
 			Element firstUserElement = (Element) fstNode;
 			Workflow workflow = this._extractWorkflow(firstUserElement);
-			model.getWorflows().add(workflow);
+			this.model.addWorkflow(workflow);
 		}
 
 	}
@@ -212,7 +215,7 @@ public class MyExperimentModelImporter {
 			Node fstNode = nodeList.item(s);
 			Element firstUserElement = (Element) fstNode;
 			File file = this._extractFile(firstUserElement);
-			model.getFiles().add(file);
+			model.addFile(file);
 		}
 
 	}
@@ -434,7 +437,9 @@ public class MyExperimentModelImporter {
 				for (int s = 0; s < nodeList.getLength(); s++) {
 					Node fstNode = nodeList.item(s);
 					Element firstUserElement = (Element) fstNode;
-					user.getFriends().add(firstUserElement.getAttribute("uri"));
+					String friendURI= firstUserElement.getAttribute("uri");
+					user.getFriends().add(friendURI);
+					
 				}
 
 				// User workflows
@@ -453,8 +458,13 @@ public class MyExperimentModelImporter {
 					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
 						Node fstNode = workflowsNodeList.item(s);
 						Element firstWorkflowElement = (Element) fstNode;
-						user.getWorkflows().add(
-								firstWorkflowElement.getAttribute("uri"));
+						String workflowURI= firstWorkflowElement.getAttribute("uri");
+						user.getWorkflows().add(workflowURI);
+						
+						if (this.model.getWorkflowByURI(workflowURI)==null){
+							Workflow workflow = WorkflowWrapper.extractWorkflow(workflowURI);
+							this.model.addWorkflow(workflow);
+						}
 					}
 				}
 
@@ -474,6 +484,16 @@ public class MyExperimentModelImporter {
 					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
 						Node fstNode = workflowsNodeList.item(s);
 						Element firstWorkflowElement = (Element) fstNode;
+						
+						String fileURI= firstWorkflowElement.getAttribute("uri");
+						user.getFiles().add(fileURI);
+						
+						if (this.model.getFileByURI(fileURI)==null){
+							File file = FileWrapper.extractFile(fileURI);
+							this.model.addFile(file);
+						}
+						
+						
 						user.getFiles().add(
 								firstWorkflowElement.getAttribute("uri"));
 					}
@@ -495,8 +515,15 @@ public class MyExperimentModelImporter {
 					for (int s = 0; s < packsNodeList.getLength(); s++) {
 						Node fstNode = packsNodeList.item(s);
 						Element firstPackElement = (Element) fstNode;
-						user.getPacks().add(
-								firstPackElement.getAttribute("uri"));
+						
+						String packURI= firstPackElement.getAttribute("uri");
+						user.getPacks().add(packURI);
+					
+						if (this.model.getPackByURI(packURI)==null){
+							Pack pack = PackWrapper.extractPack(packURI);
+							this.model.addPack(pack);
+						}
+					
 					}
 				}
 				
@@ -517,8 +544,17 @@ public class MyExperimentModelImporter {
 					for (int s = 0; s < workflowsNodeList.getLength(); s++) {
 						Node fstNode = workflowsNodeList.item(s);
 						Element firstWorkflowElement = (Element) fstNode;
-						user.getFavouritedWorkflows().add(
-								firstWorkflowElement.getAttribute("uri"));
+						String workflowURI= firstWorkflowElement.getAttribute("uri");
+						user.getFavouritedWorkflows().add(workflowURI);
+						
+						if (this.model.getWorkflowByURI(workflowURI)==null){
+							Workflow workflow = WorkflowWrapper.extractWorkflow(workflowURI);
+							this.model.addWorkflow(workflow);
+						}
+						
+						
+						
+						
 					}
 
 					NodeList filesNodeList = ((Element) nameNode)
@@ -528,6 +564,16 @@ public class MyExperimentModelImporter {
 						Element firsFileElement = (Element) fstNode;
 						user.getFavouritedFiles().add(
 								firsFileElement.getAttribute("uri"));
+						
+						String fileURI= firsFileElement.getAttribute("uri");
+						
+						if (this.model.getFileByURI(fileURI)==null){
+							File file = FileWrapper.extractFile(fileURI);
+							this.model.addFile(file);
+						}
+						
+						
+						
 					}
 
 				}
@@ -596,7 +642,7 @@ public class MyExperimentModelImporter {
 		int indexOfWorkflows = workflowResource.indexOf("/workflows/");
 		String workflowID = workflowResource.substring(indexOfWorkflows + 11,
 				workflowResource.length());
-		workflow.setId(new Long(workflowID));
+		workflow.setID(new Long(workflowID));
 
 		String workflowURI = "http://www.myexperiment.org/workflow.xml?id="
 				+ workflowID;
@@ -665,13 +711,13 @@ public class MyExperimentModelImporter {
 		int indexOfWorkflows = workflowResource.indexOf("/files/");
 		String workflowID = workflowResource.substring(indexOfWorkflows + 7,
 				workflowResource.length());
-		workflow.setId(new Long(workflowID));
+		workflow.setID(new Long(workflowID));
 
 		String fileURIBase = workflowResource.substring(0,
 				indexOfWorkflows + 1);
 		String workflowURI = fileURIBase + "file.xml?id=" + workflowID;
 
-		workflow.setUri(workflowURI);
+		workflow.setURI(workflowURI);
 
 		return workflow;
 	}
@@ -736,8 +782,8 @@ public class MyExperimentModelImporter {
 			for (int s = 0; s < nodeList.getLength(); s++) {
 				Node fstNode = nodeList.item(s);
 				Element firstUserElement = (Element) fstNode;
-				Pack file = this._extractPack(firstUserElement);
-				model.getPacks().add(file);
+				Pack pack = this._extractPack(firstUserElement);
+				model.addPack(pack);
 			}
 		}
 	
@@ -755,7 +801,7 @@ public class MyExperimentModelImporter {
 			int indexOfPacks = packResource.indexOf("/packs/");
 			String packID = packResource.substring(indexOfPacks + 7,
 					packResource.length());
-			pack.setId(new Long(packID));
+			pack.setID(new Long(packID));
 
 			String packURI = "http://www.myexperiment.org/pack.xml?id="
 					+ packID;
@@ -803,6 +849,7 @@ public class MyExperimentModelImporter {
 						
 						String workflowResource = firstWorkflowElement.getAttribute("resource");
 						pack.getInternalWorkflows().add(this._convertWorkflowResourceToURI(workflowResource));
+						
 								
 					}
 

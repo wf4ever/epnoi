@@ -2,8 +2,8 @@ package epnoi.model;
 
 import java.util.ArrayList;
 
-public class Pack {
-	Long id;
+public class Pack implements Resource{
+	Long ID;
 	String URI;
 	String resource;
 	String title;
@@ -48,12 +48,12 @@ public class Pack {
 		this.description = description;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getID() {
+		return ID;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setID(Long id) {
+		this.ID = id;
 	}
 
 	public String getURI() {

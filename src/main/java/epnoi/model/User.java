@@ -3,7 +3,7 @@ package epnoi.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class User {
+public class User implements Resource{
 
 	Long ID;
 	String URI;

@@ -2,9 +2,9 @@ package epnoi.model;
 
 import java.util.ArrayList;
 
-public class Workflow {
+public class Workflow implements Resource{
 
-	Long id;
+	Long ID;
 	String URI;
 	String resource;
 	String description;
@@ -82,12 +82,12 @@ public class Workflow {
 		this.description = description;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getID() {
+		return this.ID;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setID(Long id) {
+		this.ID = id;
 	}
 
 }

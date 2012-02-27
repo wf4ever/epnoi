@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "model", namespace = "http://www.wf4ever-project.org/wp3/recommendersystem")
 public class Model {
 	private ArrayList<User> users;
-	private ArrayList<Workflow> worflows;
+	private ArrayList<Workflow> workflows;
 	private ArrayList<File> files;
 	private ArrayList<Rating> ratings;
 	private ArrayList<Group> groups;
@@ -27,7 +27,7 @@ public class Model {
 
 	public Model() {
 		this.users = new ArrayList<User>();
-		this.worflows = new ArrayList<Workflow>();
+		this.workflows = new ArrayList<Workflow>();
 		this.files = new ArrayList<File>();
 		this.ratings = new ArrayList<Rating>();
 		this.groups = new ArrayList<Group>();
@@ -78,19 +78,19 @@ public class Model {
 			this.usersByURI.put(user.getURI(), user);
 		}
 
-		for (Workflow workflow : this.worflows) {
+		for (Workflow workflow : this.workflows) {
 			this.workflowsByURI.put(workflow.getURI(), workflow);
-			this.workflowsByID.put(workflow.getId(), workflow);
+			this.workflowsByID.put(workflow.getID(), workflow);
 		}
 
 		for (File file : this.files) {
-			this.filesByURI.put(file.getUri(), file);
-			this.filesByID.put(file.getId(), file);
+			this.filesByURI.put(file.getURI(), file);
+			this.filesByID.put(file.getID(), file);
 		}
 		
 		for (Pack pack : this.packs) {
 			this.packsByURI.put(pack.getURI(), pack);
-			this.packsByID.put(pack.getId(), pack);
+			this.packsByID.put(pack.getID(), pack);
 		}
 
 	}
@@ -111,12 +111,12 @@ public class Model {
 		this.ratings = ratings;
 	}
 
-	public ArrayList<Workflow> getWorflows() {
-		return worflows;
+	public ArrayList<Workflow> getWorkflows() {
+		return workflows;
 	}
 
-	public void setWorflows(ArrayList<Workflow> workflows) {
-		this.worflows = workflows;
+	public void setWorkflows(ArrayList<Workflow> workflows) {
+		this.workflows = workflows;
 	}
 
 	public ArrayList<User> getUsers() {
@@ -146,6 +146,7 @@ public class Model {
 	}
 
 	public Workflow getWorkflowByURI(String workflowURI) {
+		
 		return this.workflowsByURI.get(workflowURI);
 	}
 
@@ -188,7 +189,38 @@ public class Model {
 	public boolean isFile(String URI){
 		return this.filesByURI.containsKey(URI);
 	}
-	
-	
 
+	public HashMap<String, Workflow> getWorkflowsByURI() {
+		return workflowsByURI;
+	}
+
+	public void setWorkflowsByURI(HashMap<String, Workflow> workflowsByURI) {
+		this.workflowsByURI = workflowsByURI;
+	}
+
+	public HashMap<Long, Workflow> getWorkflowsByID() {
+		return workflowsByID;
+	}
+
+	public void setWorkflowsByID(HashMap<Long, Workflow> workflowsByID) {
+		this.workflowsByID = workflowsByID;
+	}
+	
+	public void addWorkflow(Workflow workflow){
+		this.workflows.add(workflow);
+		this.workflowsByURI.put(workflow.getURI(), workflow);
+		this.workflowsByID.put(workflow.getID(), workflow);
+	}
+	
+	public void addFile(File file){
+		this.files.add(file);
+		this.filesByURI.put(file.getURI(), file);
+		this.filesByID.put(file.getID(), file);
+	}
+	
+	public void addPack(Pack file){
+		this.packs.add(file);
+		this.packsByURI.put(file.getURI(), file);
+		this.packsByID.put(file.getID(), file);
+	}
 }
