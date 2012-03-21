@@ -1,9 +1,12 @@
 package epnoi.model.parameterization;
 
+import java.util.Date;
+
 import epnoi.recommeders.Recommender;
 
 public class ParametersModelReaderMain {
  public static void main(String[] args){
+
 	 System.out.println("(START) Testing the parameterization of recommendation algorithms");
 	String parametersModelPath = "/parametersModelPath.xml";
 	 ParametersModel parametersModel = new ParametersModel();

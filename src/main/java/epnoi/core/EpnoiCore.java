@@ -58,7 +58,7 @@ public class EpnoiCore {
 		// System.out.println("-----------------------------------------The model is in "+modelPath);
 		this.model = ModelReader.read(modelPath);
 
-		this._initRecommeders();
+		this._initRecommenders();
 		this._initRecommendationSpace();
 
 		this._initInferenceEngine();

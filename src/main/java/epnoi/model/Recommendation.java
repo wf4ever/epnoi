@@ -10,6 +10,7 @@ public class Recommendation implements Comparable {
 	Long itemID;
 	String itemURI;
 	Provenance provenance;
+	Explanation explanation;
 
 	public Recommendation() {
 		this.provenance = new Provenance();
