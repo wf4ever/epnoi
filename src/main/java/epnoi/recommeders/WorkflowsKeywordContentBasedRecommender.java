@@ -48,14 +48,7 @@ public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 	public void recommend(RecommendationSpace recommedationSpace) {
 
 		for (User user : this.model.getUsers()) {
-			/*
-			if (user.getTagApplied().size() > 0) {
-				System.out.println("-----------------------------------------");
-				System.out.println(" >>" + user.getName());
-				System.out.println(" >>" + user.getURI());
-				System.out.println("-----------------------------------------");
-			}
-			*/
+			
 			HashMap<String, Recommendation> recommendationsByItemURI = new HashMap<String, Recommendation>();
 			if (user.getTagApplied().size() > 0) {
 				
@@ -121,34 +114,13 @@ public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 											.setStrength(estimatedStrength);
 									newRecommendation.setUserURI(user.getURI());
 									recommendationsByItemURI.put(itemURI,newRecommendation);
-								/*
-									System.out
-											.println("The recommendation for "
-													+ itemURI
-													+ "is added with strenght of"
-													+ estimatedStrength
-													+ " and length"
-													+ queryTermsList.size());
-													*/
+						
 								} else {
 									Recommendation recommendation = recommendationsByItemURI
 											.get(itemURI);
 									if (recommendation.getStrength() > estimatedStrength) {
-										/*
-										System.out
-												.println("The strenght of the recommendation for "
-														+ itemURI
-														+ "was greater than "
-														+ estimatedStrength);
-														*/
 									} else {
-										/*
-										System.out
-												.println("The strenght is updated from "+recommendation.getStrength()+" to "
-														+ estimatedStrength+ " for "+itemURI);
-														*/
-
-										recommendation
+																recommendation
 												.setStrength(estimatedStrength);
 									}
 								}
