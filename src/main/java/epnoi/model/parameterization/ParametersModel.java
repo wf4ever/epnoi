@@ -9,7 +9,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "parametersModel")
 public class ParametersModel {
 
-	/*
+	/*	
+	 * public static final String HOSTNAME_PROPERTY = "server.hostname";
+	public static final String PORT_PROPERTY = "server.port";
+	public static final String PATH_PROPERTY = "server.path";
+	public static final String MODEL_PATH_PROPERTY = "model.path";
+	public static final String INDEX_PATH_PROPERTY = "index.path";
 	 * Como un arraylist de propiedases public static final String
 	 * MODEL_PATH_PROPERTY = "model.path"; public static final String
 	 * INDEX_PATH_PROPERTY = "index.path";
@@ -17,21 +22,28 @@ public class ParametersModel {
 
 	private String modelPath;
 	private String indexPath;
-	private Date timestamp;
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
+	
+	//Server related properties
+	private String hostname;
+	private String port;
+	private String path;
+	
 
 	private ArrayList<CollaborativeFilterRecommenderParameters> collaborativeFilteringRecommender;
+	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
 
 	public ParametersModel() {
 		this.collaborativeFilteringRecommender = new ArrayList<CollaborativeFilterRecommenderParameters>();
-		this.timestamp = new Date(System.currentTimeMillis());
+		this.keywordBasedRecommender = new ArrayList<KeywordRecommenderParameters>();
+	}
+
+	public ArrayList<KeywordRecommenderParameters> getKeywordBasedRecommender() {
+		return keywordBasedRecommender;
+	}
+
+	public void setKeywordBasedRecommender(
+			ArrayList<KeywordRecommenderParameters> keywordBasedRecommender) {
+		this.keywordBasedRecommender = keywordBasedRecommender;
 	}
 
 	public ArrayList<CollaborativeFilterRecommenderParameters> getCollaborativeFilteringRecommender() {
@@ -59,4 +71,28 @@ public class ParametersModel {
 		this.indexPath = indexPath;
 	}
 
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
 }

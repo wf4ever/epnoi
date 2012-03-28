@@ -24,7 +24,7 @@ public class EpnoiCoreMain {
 		initializationProperties.setProperty(EpnoiCore.MODEL_PATH_PROPERTY,
 				"/wf4ever/lastImportedModel.xml");
 
-		epnoiCore.init(initializationProperties);
+//		epnoiCore.init(initializationProperties);
 		ArrayList<String> differentRaters = new ArrayList<String>();
 		for (Rating rating : epnoiCore.getModel().getRatings()) {
 			if (!differentRaters.contains(rating.getOwnerURI())

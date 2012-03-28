@@ -75,4 +75,12 @@ public class Recommendation implements Comparable {
 	public String toString() {
 		return "R [" + this.strength + "]";
 	}
+
+	public Explanation getExplanation() {
+		return explanation;
+	}
+
+	public void setExplanation(Explanation explanation) {
+		this.explanation = explanation;
+	}
 }

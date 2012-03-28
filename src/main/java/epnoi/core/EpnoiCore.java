@@ -1,14 +1,16 @@
 package epnoi.core;
 
-import java.util.Properties;
+import java.util.HashMap;
 
 import epnoi.inferenceengine.InferenceEngine;
 import epnoi.model.Model;
 import epnoi.model.ModelReader;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.parameterization.CollaborativeFilterRecommenderParameters;
+import epnoi.model.parameterization.KeywordRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.recommeders.CollaborativeFilterRecommender;
+import epnoi.recommeders.KeywordContentBasedRecommender;
 import epnoi.recommeders.Recommender;
 import epnoi.recommeders.RecommendersFactory;
 import epnoi.recommeders.WorkflowsKeywordContentBasedRecommender;
@@ -27,7 +29,8 @@ public class EpnoiCore {
 	RecommendationSpace recommendationSpace;
 	RecommendationSpace inferredRecommendationSpace;
 
-	private Properties initializationProperties = null;
+	private HashMap<String, Recommender> recommenders;
+
 	private ParametersModel parametersModel = null;
 
 	/**
@@ -37,26 +40,15 @@ public class EpnoiCore {
 	 *            The properties that define the characteristics of the
 	 *            epnoiCore.
 	 */
-	public void init(Properties initializationProperties) {
-		this.initializationProperties = initializationProperties;
-		String modelPath = this.initializationProperties
-				.getProperty(EpnoiCore.MODEL_PATH_PROPERTY);
-		// System.out.println("-----------------------------------------The model is in "+modelPath);
-		this.model = ModelReader.read(modelPath);
-
-		this._initRecommeders();
-		this._initRecommendationSpace();
-
-		this._initInferenceEngine();
-
-		this._initInferredRecommendationSpace();
-	}
 
 	public void init(ParametersModel parametersModel) {
 		this.parametersModel = parametersModel;
 		String modelPath = this.parametersModel.getModelPath();
-		// System.out.println("-----------------------------------------The model is in "+modelPath);
+		System.out
+				.println("-----------------------------------------The model is in "
+						+ modelPath);
 		this.model = ModelReader.read(modelPath);
+		this.recommenders = new HashMap<String, Recommender>();
 
 		this._initRecommenders();
 		this._initRecommendationSpace();
@@ -79,13 +71,20 @@ public class EpnoiCore {
 	 */
 	private void _initRecommendationSpace() {
 		this.recommendationSpace = new RecommendationSpace();
-		// All the recommenders offer the first round of recommendations
 
-		this.workflowsCollaborativeFilteringRecommender
-				.recommend(this.recommendationSpace);
-		this.filesCollaborativeFilteringRecommender
-				.recommend(this.recommendationSpace);
-		this.kewyordContentBasedRecommender.recommend(this.recommendationSpace);
+		for (Recommender recommender : this.recommenders.values()) {
+			recommender.recommend(this.recommendationSpace);
+		}
+
+		// All the recommenders offer the first round of recommendations
+		/*
+		 * this.workflowsCollaborativeFilteringRecommender
+		 * .recommend(this.recommendationSpace);
+		 * this.filesCollaborativeFilteringRecommender
+		 * .recommend(this.recommendationSpace);
+		 * this.kewyordContentBasedRecommender
+		 * .recommend(this.recommendationSpace);
+		 */
 	}
 
 	/**
@@ -101,59 +100,63 @@ public class EpnoiCore {
 	 * Recommenders initialization
 	 */
 
-	private void _initRecommeders() {
-		// Workflow collaborative filtering recommender
-		this.workflowsCollaborativeFilteringRecommender = (CollaborativeFilterRecommender) RecommendersFactory
-				.buildRecommender(Recommender.WORKFLOWS_COLLABORATIVE_FILTER);
-		this.workflowsCollaborativeFilteringRecommender.init(this.model,
-				new Properties());
-
-		// Files collaborative filtering recommender
-		this.filesCollaborativeFilteringRecommender = (CollaborativeFilterRecommender) RecommendersFactory
-				.buildRecommender(Recommender.FILES_COLLABORATIVE_FILTER);
-		this.filesCollaborativeFilteringRecommender.init(this.model,
-				new Properties());
-
-		// Workflow keyword based recommender
-		this.kewyordContentBasedRecommender = (WorkflowsKeywordContentBasedRecommender) RecommendersFactory
-				.buildRecommender(Recommender.KEYWORD_CONTENT_BASED);
-		Properties workflowKeywordContentBasedProperties = new Properties();
-		workflowKeywordContentBasedProperties.setProperty(
-				WorkflowsKeywordContentBasedRecommender.INDEX_PATH_PROPERTY,
-				this.initializationProperties
-						.getProperty(EpnoiCore.INDEX_PATH_PROPERTY));
-		this.kewyordContentBasedRecommender.init(this.model,
-				workflowKeywordContentBasedProperties);
-	}
-
 	private void _initRecommenders() {
 
 		for (CollaborativeFilterRecommenderParameters collaborativeFilterRecommenderParameters : this.parametersModel
 				.getCollaborativeFilteringRecommender()) {
 
-			// Workflow collaborative filtering recommender
-			this.workflowsCollaborativeFilteringRecommender = (CollaborativeFilterRecommender) RecommendersFactory
+			CollaborativeFilterRecommender collaborativeFilterRecommender = (CollaborativeFilterRecommender) RecommendersFactory
 					.buildRecommender(collaborativeFilterRecommenderParameters);
-			this.workflowsCollaborativeFilteringRecommender.init(this.model,
-					new Properties());
-		}
+			collaborativeFilterRecommender.init(model);
+			this.recommenders.put(
+					collaborativeFilterRecommenderParameters.getURI(),
+					collaborativeFilterRecommender);
 
-	///Este deberia estar en el nearfuture cubierto por lo anterior
-		 this.filesCollaborativeFilteringRecommender =
-		 (CollaborativeFilterRecommender) RecommendersFactory.buildRecommender(Recommender.FILES_COLLABORATIVE_FILTER);
-		 this.filesCollaborativeFilteringRecommender.init(this.model, new
-		 Properties());
-		 
+		}
+		/*
+		 * // Workflow collaborative filtering recommender
+		 * this.workflowsCollaborativeFilteringRecommender =
+		 * (CollaborativeFilterRecommender) RecommendersFactory
+		 * .buildRecommender(collaborativeFilterRecommenderParameters);
+		 * this.workflowsCollaborativeFilteringRecommender.init(this.model);
+		 */
+
+		/*
+		 * this.filesCollaborativeFilteringRecommender =
+		 * (CollaborativeFilterRecommender)
+		 * RecommendersFactory.buildRecommender(
+		 * Recommender.FILES_COLLABORATIVE_FILTER);
+		 * this.filesCollaborativeFilteringRecommender.init(this.model, new
+		 * Properties());
+		 */
 		// Workflow keyword based recommender
-		this.kewyordContentBasedRecommender = (WorkflowsKeywordContentBasedRecommender) RecommendersFactory
-				.buildRecommender(Recommender.KEYWORD_CONTENT_BASED);
-		Properties workflowKeywordContentBasedProperties = new Properties();
-		workflowKeywordContentBasedProperties.setProperty(
-				WorkflowsKeywordContentBasedRecommender.INDEX_PATH_PROPERTY,
-				this.initializationProperties
-						.getProperty(EpnoiCore.INDEX_PATH_PROPERTY));
-		this.kewyordContentBasedRecommender.init(this.model,
-				workflowKeywordContentBasedProperties);
+		for (KeywordRecommenderParameters keyword : this.parametersModel
+				.getKeywordBasedRecommender()) {
+			KeywordContentBasedRecommender keywordContentBasedRecommender = (KeywordContentBasedRecommender) RecommendersFactory
+					.buildRecommender(keyword);
+			keywordContentBasedRecommender.init(model);
+			this.recommenders.put(keyword.getURI(),
+					keywordContentBasedRecommender);
+
+			/*
+			 * this.kewyordContentBasedRecommender =
+			 * (WorkflowsKeywordContentBasedRecommender) RecommendersFactory
+			 * .buildRecommender(keyword);
+			 * 
+			 * this.kewyordContentBasedRecommender.init(this.model);
+			 */
+
+			System.out
+					.println("The following recommenders have been initialized");
+			for (Recommender recommender : this.recommenders.values()) {
+				System.out.println("	> ("
+						+ recommender.getInitializationParameters().getURI());
+				
+				System.out.println(recommender.getInitializationParameters());
+			}
+			
+
+		}
 	}
 
 	public RecommendationSpace getRecommendationSpace() {

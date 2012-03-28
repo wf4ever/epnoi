@@ -18,7 +18,8 @@ public class EpnoiCoreParameterizedMain {
 		EpnoiCore epnoiCore = new EpnoiCore();
 		
 		ParametersModel parametersModel =  ParametersModelWrapper.read("/parametersModelPath.xml");
-/*		
+
+		/*		
 		Properties initializationProperties = new Properties();
 
 		initializationProperties.setProperty(EpnoiCore.INDEX_PATH_PROPERTY,

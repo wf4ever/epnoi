@@ -6,6 +6,7 @@ public class RecommenderParameters {
 	private String URI;
 	private String type;
 
+
 	public String getURI() {
 		return this.URI;
 	}

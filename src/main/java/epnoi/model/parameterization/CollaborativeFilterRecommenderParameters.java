@@ -11,6 +11,7 @@ public class CollaborativeFilterRecommenderParameters extends
 	private String neighbourhoodType;
 	private Integer neighbourhoohdSize;
 	private Float neighbourhoodThreshold;
+	private Integer numberOfRecommendations;
 
 
 	public String getSimilarity() {
@@ -43,6 +44,14 @@ public class CollaborativeFilterRecommenderParameters extends
 
 	public void setNeighbourhoodThreshold(Float neighbourhoodThreshold) {
 		this.neighbourhoodThreshold = neighbourhoodThreshold;
+	}
+
+	public Integer getNumberOfRecommendations() {
+		return numberOfRecommendations;
+	}
+
+	public void setNumberOfRecommendations(Integer numberOfRecommendations) {
+		this.numberOfRecommendations = numberOfRecommendations;
 	}
 
 	

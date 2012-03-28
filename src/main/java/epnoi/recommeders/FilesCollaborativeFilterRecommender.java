@@ -1,5 +1,9 @@
 package epnoi.recommeders;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -8,8 +12,10 @@ import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
@@ -17,17 +23,20 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
+import epnoi.model.Explanation;
 import epnoi.model.File;
 import epnoi.model.Model;
 import epnoi.model.Rating;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.User;
+import epnoi.model.parameterization.CollaborativeFilterRecommenderParameters;
+import epnoi.model.parameterization.RecommenderParameters;
 
 public class FilesCollaborativeFilterRecommender implements
 		CollaborativeFilterRecommender {
 	// In the near future this constants should be parameters
-	int NEIGHBORHODD_SIZE = 5;
+
 	int NUMBER_OF_RECOMMENDATION = 5;
 
 	Model model = null;
@@ -35,20 +44,43 @@ public class FilesCollaborativeFilterRecommender implements
 	UserNeighborhood neighborhood = null;
 	Recommender recommender = null;
 	DataModel dataModel = null;
-	private Properties initializationProperties;
+	CollaborativeFilterRecommenderParameters recommenderParameters = null;
 
-	public void init(Model model, Properties inizializationProperties) {
+	public FilesCollaborativeFilterRecommender(
+			RecommenderParameters recommenderParameters) {
+		this.recommenderParameters = (CollaborativeFilterRecommenderParameters) recommenderParameters;
+	}
+
+	public void init(Model model) {
+
 		this.model = model;
-		this.initializationProperties= inizializationProperties;
-		//System.out.println("(model)> " + model);
-		_initData();
+		this.recommenderParameters = (CollaborativeFilterRecommenderParameters) recommenderParameters;
+		this._initData();
 
 		try {
-			similarity = new EuclideanDistanceSimilarity(dataModel);
+			if (epnoi.recommeders.Recommender.SIMILARITY_EUCLIDEAN
+					.equals(this.recommenderParameters.getSimilarity())) {
 
-			neighborhood = new NearestNUserNeighborhood(this.NEIGHBORHODD_SIZE,
-					similarity, dataModel);
+				this.similarity = new EuclideanDistanceSimilarity(dataModel);
 
+			} else if (epnoi.recommeders.Recommender.SIMILARITY_PEARSON_CORRELATION
+					.equals(this.recommenderParameters.getSimilarity())) {
+				this.similarity = new PearsonCorrelationSimilarity(dataModel);
+			}
+
+			if (epnoi.recommeders.Recommender.NEIGHBOURHOOD_TYPE_NEAREST
+					.equals(this.recommenderParameters.getNeighbourhoodType())) {
+				Integer size = this.recommenderParameters
+						.getNeighbourhoohdSize();
+				neighborhood = new NearestNUserNeighborhood(size, similarity,
+						dataModel);
+			} else if (epnoi.recommeders.Recommender.NEIGHBOURHOOD_TYPE_THRESHOLD
+					.equals(this.recommenderParameters.getNeighbourhoodType())) {
+				Float threshold = this.recommenderParameters
+						.getNeighbourhoodThreshold();
+				neighborhood = new ThresholdUserNeighborhood(threshold,
+						similarity, dataModel);
+			}
 			recommender = new GenericUserBasedRecommender(dataModel,
 					neighborhood, similarity);
 		} catch (TasteException e) {
@@ -73,6 +105,50 @@ public class FilesCollaborativeFilterRecommender implements
 					File file = this.model.getFileByID(recommendation
 							.getItemID());
 					recommendation.setItemURI(file.getURI());
+					
+					
+					ArrayList<UserSimilarityValue> similarUsers = new ArrayList<UserSimilarityValue>();
+					for (Long neighbourhoodUserID : neighborhood
+							.getUserNeighborhood(user.getID())) {
+						User neighbourhoodUser = this.model
+								.getUserByID(neighbourhoodUserID);
+						UserSimilarityValue userSimilarityValue = new UserSimilarityValue();
+						userSimilarityValue.setUserURI(neighbourhoodUser
+								.getName());
+						userSimilarityValue.setSimilarity(this.similarity
+								.userSimilarity(user.getID(),
+										neighbourhoodUser.getID()));
+						similarUsers.add(userSimilarityValue);
+
+					}
+					Collections.sort(similarUsers);
+					Collections.reverse(similarUsers);
+					String similarUsersNames = "";
+					Iterator<UserSimilarityValue> similarUsersIt = similarUsers
+							.iterator();
+					while (similarUsersIt.hasNext()) {
+						UserSimilarityValue userSimilarityValue = similarUsersIt
+								.next();
+						if (similarUsersIt.hasNext()) {
+							similarUsersNames += (" "
+									+ userSimilarityValue.getUserURI() + ", ");
+						} else {
+							similarUsersNames += userSimilarityValue
+									.getUserURI();
+
+						}
+					}
+
+					Explanation explanation = new Explanation();
+					String explanationText = "The file entitled "
+							+ file.getTitle()
+							+ ("(URI:")
+							+ file.getURI()
+							+ ") is recommended to you since users with similar tastes and intrests as yours (such as "
+							+ similarUsersNames + ")" + " found it usefull";
+					explanation.setExplanation(explanationText);
+					recommendation.setExplanation(explanation);
+					explanation.setTimestamp(new Date(System.currentTimeMillis()));
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
 				}
@@ -131,13 +207,12 @@ public class FilesCollaborativeFilterRecommender implements
 
 		for (String fileURI : user.getFiles()) {
 			File file = this.model.getFileByURI(fileURI);
-			if(file==null){
-				System.out.println("PROBLEM FILE "+file);
-			}
-			else{
-			userPreferences.setItemID(ratingIndex, file.getID());
-			userPreferences.setValue(ratingIndex, 5);
-			ratingIndex++;
+			if (file == null) {
+				System.out.println("PROBLEM FILE " + file);
+			} else {
+				userPreferences.setItemID(ratingIndex, file.getID());
+				userPreferences.setValue(ratingIndex, 5);
+				ratingIndex++;
 			}
 		}
 
@@ -146,6 +221,10 @@ public class FilesCollaborativeFilterRecommender implements
 
 	public void close() {
 
+	}
+	
+	public RecommenderParameters getInitializationParameters(){
+		return this.recommenderParameters;
 	}
 
 }

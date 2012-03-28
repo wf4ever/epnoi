@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
@@ -21,6 +22,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
 import epnoi.model.Recommendation;
@@ -28,53 +30,58 @@ import epnoi.model.RecommendationSpace;
 import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.Workflow;
+import epnoi.model.parameterization.KeywordRecommenderParameters;
+import epnoi.model.parameterization.RecommenderParameters;
 
-public class WorkflowsKeywordContentBasedRecommender implements Recommender {
+public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBasedRecommender {
 
-	//Recommedender parameters
-	public static final String INDEX_PATH_PROPERTY = "INDEX_PATH";
-	//Consider to make every parameter of the algorithm externally accessible
-	
-	static final int NUMBER_OF_QUERY_HITS = 10;
 
+	//static final int NUMBER_OF_QUERY_HITS = 10;
 
 	Model model = null;
-	Directory dir = null;
-	IndexSearcher is = null;
+	Directory directory = null;
+	IndexSearcher indexSearcher = null;
 	QueryParser parser = null;
 
-	private Properties initializationProperties = null;
+	private KeywordRecommenderParameters initializationParameters;
+
+	public WorkflowsKeywordContentBasedRecommender(
+			RecommenderParameters initializationParameters) {
+		this.initializationParameters = (KeywordRecommenderParameters)initializationParameters;
+	}
 
 	public void recommend(RecommendationSpace recommedationSpace) {
 
 		for (User user : this.model.getUsers()) {
-			
+
 			HashMap<String, Recommendation> recommendationsByItemURI = new HashMap<String, Recommendation>();
 			if (user.getTagApplied().size() > 0) {
-				
+
+				System.out.println("User "+user.getName()+" tags "+ _determineQueryTerms(user));
 				for (ArrayList<String> queryTermsList : _determineQueryTerms(user)) {
 					try {
 						String queryExpression = _buildQuery(queryTermsList);
 
 						Query query = parser.parse(queryExpression);
 
-						TopDocs hits = is.search(query, NUMBER_OF_QUERY_HITS);
-/*
-						System.out.println("(q:" + queryExpression
-								+ ") Recommendations for user "
-								+ user.getName() + " #> " + hits.totalHits);
-*/
-						float maxScore = _scoreMax(hits.scoreDocs);
-						for (ScoreDoc scoreDoc : hits.scoreDocs) {
+						TopDocs topHits = indexSearcher.search(query, this.initializationParameters.getNumberOfQueryHits());
+						/*
+						 * System.out.println("(q:" + queryExpression +
+						 * ") Recommendations for user " + user.getName() +
+						 * " #> " + hits.totalHits);
+						 */
+						float maxScore = _scoreMax(topHits.scoreDocs);
+						
+						//Each of the top hits correspond to a recommendation.
+						for (ScoreDoc scoreDocument : topHits.scoreDocs) {
 
-							// System.out.print(">" + scoreDoc.score / maxScore+
-							// " ");
-							Document doc = is.doc(scoreDoc.doc);
+							//System.out.print(">" + scoreDocument.+" ");
+							Document doc = indexSearcher.doc(scoreDocument.doc);
 							// System.out.println(doc.get("filename"));
 
 							String itemURI = doc.get("filename");
 
-							float normalizedScore = (scoreDoc.score / maxScore);
+							float normalizedScore = (scoreDocument.score / maxScore);
 							float estimatedStrength = 0;
 							int numberOfQueryTerms = queryTermsList.size();
 							switch (numberOfQueryTerms) {
@@ -90,37 +97,44 @@ public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 							}
 							if (user.getWorkflows().contains(itemURI)) {
 								/*
-								System.out
-										.println("The user was the owner of "
-												+ itemURI
-												+ "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-												*/
-							} else {
+								 * System.out
+								 * .println("The user was the owner of " +
+								 * itemURI +
+								 * "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+								 * );
+								 */
+							} else {//If the item is not part of the user's catalogue
 
 								if (!recommendationsByItemURI
 										.containsKey(itemURI)) {
 									Recommendation newRecommendation = new Recommendation();
 									newRecommendation.setItemURI(itemURI);
+									Explanation explanation = new Explanation();
 									
+									explanation.setExplanation("");
+									explanation.setTimestamp(new Date(System.currentTimeMillis()));
+									newRecommendation.setExplanation(explanation);
 									Long itemID = null;
-									
-									Workflow workflow = this.model.getWorkflowByURI(itemURI);
-									if (workflow!=null)
+
+									Workflow workflow = this.model
+											.getWorkflowByURI(itemURI);
+									if (workflow != null)
 										itemID = workflow.getID();
-									
+
 									newRecommendation.setItemID(itemID);
 
 									newRecommendation
 											.setStrength(estimatedStrength);
 									newRecommendation.setUserURI(user.getURI());
-									recommendationsByItemURI.put(itemURI,newRecommendation);
-						
+									recommendationsByItemURI.put(itemURI,
+											newRecommendation);
+
 								} else {
 									Recommendation recommendation = recommendationsByItemURI
 											.get(itemURI);
 									if (recommendation.getStrength() > estimatedStrength) {
 									} else {
-																recommendation
+										recommendation
 												.setStrength(estimatedStrength);
 									}
 								}
@@ -137,24 +151,24 @@ public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					
-				
+
 				}
-				// Finally all the recommendations are added to the recommendation
+				// Finally all the recommendations are added to the
+				// recommendation
 				// space
-				//System.out.println(">>>>"+recommendationsByItemURI.values());
+				// System.out.println(">>>>"+recommendationsByItemURI.values());
 				for (Recommendation recommendation : recommendationsByItemURI
 						.values()) {
 					Parameter parameter = new Parameter();
 					parameter.setName("technique");
 					parameter.setValue("keyword-based");
-					recommendation.getProvenance().getParameters().add(parameter);
+					recommendation.getProvenance().getParameters()
+							.add(parameter);
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
 				}
 			}
-			
-		
+
 		}
 
 	}
@@ -178,14 +192,15 @@ public class WorkflowsKeywordContentBasedRecommender implements Recommender {
 		return max;
 	}
 
-	public void init(Model model, Properties inizializationProperties) {
+	public void init(Model model) {
 		this.model = model;
-this.initializationProperties=inizializationProperties;
+
 		this.parser = null;
 		try {
-			String indexDirectory = this.initializationProperties.getProperty(WorkflowsKeywordContentBasedRecommender.INDEX_PATH_PROPERTY);
+			String indexDirectory = this.initializationParameters
+					.getIndexPath();
 			Directory dir = FSDirectory.open(new File(indexDirectory)); // 3
-			this.is = new IndexSearcher(dir);
+			this.indexSearcher = new IndexSearcher(dir);
 			this.parser = new QueryParser(Version.LUCENE_30, // 4
 					"contents", // 4
 					new StandardAnalyzer( // 4
@@ -270,7 +285,7 @@ this.initializationProperties=inizializationProperties;
 	}
 
 	public String _buildQuery(ArrayList<String> terms) {
-		//System.out.println("Este es el que entra " + terms);
+		// System.out.println("Este es el que entra " + terms);
 		Iterator<String> termsIt = terms.iterator();
 		String queryExpression = termsIt.next();
 		while (termsIt.hasNext()) {
@@ -280,10 +295,14 @@ this.initializationProperties=inizializationProperties;
 
 		return queryExpression;
 	}
+	
+	public RecommenderParameters getInitializationParameters(){
+		return this.initializationParameters;
+	}
 
 	public void close() {
 		try {
-			is.close();
+			indexSearcher.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

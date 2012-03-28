@@ -17,13 +17,13 @@ public class Model {
 	private HashMap<String, HashMap<String, ArrayList<Rating>>> ratingsByUser;
 	private HashMap<String, Workflow> workflowsByURI;
 	private HashMap<String, User> usersByURI;
+	private HashMap<Long, User> userByID;
 	private HashMap<String, File> filesByURI;
 	private HashMap<String, Pack> packsByURI;
-	
+
 	private HashMap<Long, Workflow> workflowsByID;
 	private HashMap<Long, File> filesByID;
 	private HashMap<Long, Pack> packsByID;
-	
 
 	public Model() {
 		this.users = new ArrayList<User>();
@@ -34,6 +34,7 @@ public class Model {
 		this.ratingsByUser = new HashMap<String, HashMap<String, ArrayList<Rating>>>();
 		this.workflowsByURI = new HashMap<String, Workflow>();
 		this.usersByURI = new HashMap<String, User>();
+		this.userByID = new HashMap<Long, User>();
 		this.workflowsByID = new HashMap<Long, Workflow>();
 		this.filesByID = new HashMap<Long, File>();
 		this.filesByURI = new HashMap<String, File>();
@@ -76,6 +77,7 @@ public class Model {
 
 		for (User user : this.users) {
 			this.usersByURI.put(user.getURI(), user);
+			this.userByID.put(user.getID(), user);
 		}
 
 		for (Workflow workflow : this.workflows) {
@@ -87,7 +89,7 @@ public class Model {
 			this.filesByURI.put(file.getURI(), file);
 			this.filesByID.put(file.getID(), file);
 		}
-		
+
 		for (Pack pack : this.packs) {
 			this.packsByURI.put(pack.getURI(), pack);
 			this.packsByID.put(pack.getID(), pack);
@@ -144,9 +146,13 @@ public class Model {
 	public User getUserByURI(String userURI) {
 		return this.usersByURI.get(userURI);
 	}
+	
+	public User getUserByID(Long userID){
+		return this.userByID.get(userID);
+	}
 
 	public Workflow getWorkflowByURI(String workflowURI) {
-		
+
 		return this.workflowsByURI.get(workflowURI);
 	}
 
@@ -177,16 +183,16 @@ public class Model {
 	public Pack getPackByID(Long id) {
 		return this.packsByID.get(id);
 	}
-	
-	public boolean isWorkflow(String URI){
+
+	public boolean isWorkflow(String URI) {
 		return this.workflowsByURI.containsKey(URI);
 	}
-	
-	public boolean isPack(String URI){
+
+	public boolean isPack(String URI) {
 		return this.packsByURI.containsKey(URI);
 	}
-	
-	public boolean isFile(String URI){
+
+	public boolean isFile(String URI) {
 		return this.filesByURI.containsKey(URI);
 	}
 
@@ -205,20 +211,20 @@ public class Model {
 	public void setWorkflowsByID(HashMap<Long, Workflow> workflowsByID) {
 		this.workflowsByID = workflowsByID;
 	}
-	
-	public void addWorkflow(Workflow workflow){
+
+	public void addWorkflow(Workflow workflow) {
 		this.workflows.add(workflow);
 		this.workflowsByURI.put(workflow.getURI(), workflow);
 		this.workflowsByID.put(workflow.getID(), workflow);
 	}
-	
-	public void addFile(File file){
+
+	public void addFile(File file) {
 		this.files.add(file);
 		this.filesByURI.put(file.getURI(), file);
 		this.filesByID.put(file.getID(), file);
 	}
-	
-	public void addPack(Pack file){
+
+	public void addPack(Pack file) {
 		this.packs.add(file);
 		this.packsByURI.put(file.getURI(), file);
 		this.packsByID.put(file.getID(), file);

@@ -1,7 +1,10 @@
 package epnoi.recommeders;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
@@ -19,6 +22,7 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
+import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
 import epnoi.model.Rating;
@@ -37,10 +41,15 @@ public class WorkflowsCollaborativeFilterRecommender implements
 	UserNeighborhood neighborhood = null;
 	Recommender recommender = null;
 	DataModel dataModel = null;
-	Properties inizializationProperties = null;
+
 	CollaborativeFilterRecommenderParameters recommenderParameters = null;
 
-	public void init(Model model, RecommenderParameters recommenderParameters) {
+	public WorkflowsCollaborativeFilterRecommender(
+			RecommenderParameters recommenderParameters) {
+		this.recommenderParameters = (CollaborativeFilterRecommenderParameters) recommenderParameters;
+	}
+
+	public void init(Model model) {
 
 		this.model = model;
 		this.recommenderParameters = (CollaborativeFilterRecommenderParameters) recommenderParameters;
@@ -57,35 +66,19 @@ public class WorkflowsCollaborativeFilterRecommender implements
 				this.similarity = new PearsonCorrelationSimilarity(dataModel);
 			}
 
-			if (epnoi.recommeders.Recommender.NEIGHBOURHOOD_TYPE_NEAREST.equals(this.recommenderParameters.getNeighbourhoodType())){
-			Integer size = this.recommenderParameters.getNeighbourhoohdSize();
+			if (epnoi.recommeders.Recommender.NEIGHBOURHOOD_TYPE_NEAREST
+					.equals(this.recommenderParameters.getNeighbourhoodType())) {
+				Integer size = this.recommenderParameters
+						.getNeighbourhoohdSize();
 				neighborhood = new NearestNUserNeighborhood(size, similarity,
-					dataModel);
-			}else if (epnoi.recommeders.Recommender.NEIGHBOURHOOD_TYPE_THRESHOLD.equals(this.recommenderParameters.getNeighbourhoodType())){
-				Float threshold = this.recommenderParameters.getNeighbourhoodThreshold();
-				neighborhood = new ThresholdUserNeighborhood(threshold, similarity, dataModel);
+						dataModel);
+			} else if (epnoi.recommeders.Recommender.NEIGHBOURHOOD_TYPE_THRESHOLD
+					.equals(this.recommenderParameters.getNeighbourhoodType())) {
+				Float threshold = this.recommenderParameters
+						.getNeighbourhoodThreshold();
+				neighborhood = new ThresholdUserNeighborhood(threshold,
+						similarity, dataModel);
 			}
-			recommender = new GenericUserBasedRecommender(dataModel,
-					neighborhood, similarity);
-		} catch (TasteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	public void init(Model model, Properties initializationProperties) {
-		this.inizializationProperties = initializationProperties;
-		this.model = model;
-		System.out.println("(model)> " + model);
-		_initData();
-
-		try {
-			similarity = new EuclideanDistanceSimilarity(dataModel);
-
-			neighborhood = new NearestNUserNeighborhood(5, similarity,
-					dataModel);
-
 			recommender = new GenericUserBasedRecommender(dataModel,
 					neighborhood, similarity);
 		} catch (TasteException e) {
@@ -100,9 +93,11 @@ public class WorkflowsCollaborativeFilterRecommender implements
 		try {
 			for (User user : this.model.getUsers()) {
 				List<RecommendedItem> recommendations = recommender.recommend(
-						user.getID(), 5);
+						user.getID(),
+						this.recommenderParameters.getNeighbourhoohdSize());
 
 				for (RecommendedItem recommendedItem : recommendations) {
+
 					Recommendation recommendation = new Recommendation();
 					recommendation.setUserURI(user.getURI());
 					recommendation.setStrength(recommendedItem.getValue());
@@ -117,6 +112,49 @@ public class WorkflowsCollaborativeFilterRecommender implements
 					Workflow workflow = this.model
 							.getWorkflowByID(recommendation.getItemID());
 					recommendation.setItemURI(workflow.getURI());
+
+					ArrayList<UserSimilarityValue> similarUsers = new ArrayList<UserSimilarityValue>();
+					for (Long neighbourhoodUserID : neighborhood
+							.getUserNeighborhood(user.getID())) {
+						User neighbourhoodUser = this.model
+								.getUserByID(neighbourhoodUserID);
+						UserSimilarityValue userSimilarityValue = new UserSimilarityValue();
+						userSimilarityValue.setUserURI(neighbourhoodUser
+								.getName());
+						userSimilarityValue.setSimilarity(this.similarity
+								.userSimilarity(user.getID(),
+										neighbourhoodUser.getID()));
+						similarUsers.add(userSimilarityValue);
+
+					}
+					Collections.sort(similarUsers);
+					Collections.reverse(similarUsers);
+					String similarUsersNames = "";
+					Iterator<UserSimilarityValue> similarUsersIt = similarUsers
+							.iterator();
+					while (similarUsersIt.hasNext()) {
+						UserSimilarityValue userSimilarityValue = similarUsersIt
+								.next();
+						if (similarUsersIt.hasNext()) {
+							similarUsersNames += (" "
+									+ userSimilarityValue.getUserURI() + ", ");
+						} else {
+							similarUsersNames += userSimilarityValue
+									.getUserURI();
+
+						}
+					}
+
+					Explanation explanation = new Explanation();
+					String explanationText = "The workflow entitled "
+							+ workflow.getTitle()
+							+ ("(URI:")
+							+ workflow.getURI()
+							+ ") is recommended to you since users with similar tastes and intrests as yours (such as "
+							+ similarUsersNames + ")" + " found it usefull";
+					explanation.setExplanation(explanationText);
+					explanation.setTimestamp(new Date(System.currentTimeMillis()));
+					recommendation.setExplanation(explanation);
 
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
@@ -169,10 +207,14 @@ public class WorkflowsCollaborativeFilterRecommender implements
 
 		for (String workflowURI : user.getFavouritedWorkflows()) {
 			Workflow workflow = this.model.getWorkflowByURI(workflowURI);
+			if (workflow == null) {
+				System.out.println("PROBLEMA " + workflowURI);
+			} else {
 			userPreferences.setItemID(ratingIndex, workflow.getID());
 
 			userPreferences.setValue(ratingIndex, 5);
 			ratingIndex++;
+			}
 		}
 
 		for (String workflowURI : user.getWorkflows()) {
@@ -188,6 +230,10 @@ public class WorkflowsCollaborativeFilterRecommender implements
 		// System.out.println(user.getID() + "UserPreferences for "+
 		// userPreferences);
 		return userPreferences;
+	}
+
+	public RecommenderParameters getInitializationParameters() {
+		return this.recommenderParameters;
 	}
 
 	public void close() {
