@@ -33,10 +33,10 @@ import epnoi.model.Workflow;
 import epnoi.model.parameterization.KeywordRecommenderParameters;
 import epnoi.model.parameterization.RecommenderParameters;
 
-public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBasedRecommender {
+public class WorkflowsKeywordContentBasedRecommender implements
+		KeywordContentBasedRecommender {
 
-
-	//static final int NUMBER_OF_QUERY_HITS = 10;
+	// static final int NUMBER_OF_QUERY_HITS = 10;
 
 	Model model = null;
 	Directory directory = null;
@@ -47,7 +47,7 @@ public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBa
 
 	public WorkflowsKeywordContentBasedRecommender(
 			RecommenderParameters initializationParameters) {
-		this.initializationParameters = (KeywordRecommenderParameters)initializationParameters;
+		this.initializationParameters = (KeywordRecommenderParameters) initializationParameters;
 	}
 
 	public void recommend(RecommendationSpace recommedationSpace) {
@@ -56,26 +56,30 @@ public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBa
 
 			HashMap<String, Recommendation> recommendationsByItemURI = new HashMap<String, Recommendation>();
 			if (user.getTagApplied().size() > 0) {
-
-				System.out.println("User "+user.getName()+" tags "+ _determineQueryTerms(user));
+/*
+				System.out.println("User " + user.getName() + " tags "
+						+ _determineQueryTerms(user));
+	*/
 				for (ArrayList<String> queryTermsList : _determineQueryTerms(user)) {
 					try {
 						String queryExpression = _buildQuery(queryTermsList);
 
 						Query query = parser.parse(queryExpression);
 
-						TopDocs topHits = indexSearcher.search(query, this.initializationParameters.getNumberOfQueryHits());
+						TopDocs topHits = indexSearcher.search(query,
+								this.initializationParameters
+										.getNumberOfQueryHits());
 						/*
 						 * System.out.println("(q:" + queryExpression +
 						 * ") Recommendations for user " + user.getName() +
 						 * " #> " + hits.totalHits);
 						 */
 						float maxScore = _scoreMax(topHits.scoreDocs);
-						
-						//Each of the top hits correspond to a recommendation.
+
+						// Each of the top hits correspond to a recommendation.
 						for (ScoreDoc scoreDocument : topHits.scoreDocs) {
 
-							//System.out.print(">" + scoreDocument.+" ");
+							// System.out.print(">" + scoreDocument.+" ");
 							Document doc = indexSearcher.doc(scoreDocument.doc);
 							// System.out.println(doc.get("filename"));
 
@@ -103,21 +107,47 @@ public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBa
 								 * "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 								 * );
 								 */
-							} else {//If the item is not part of the user's catalogue
+							} else {// If the item is not part of the user's
+									// catalogue
 
 								if (!recommendationsByItemURI
 										.containsKey(itemURI)) {
 									Recommendation newRecommendation = new Recommendation();
 									newRecommendation.setItemURI(itemURI);
-									Explanation explanation = new Explanation();
-									
-									explanation.setExplanation("");
-									explanation.setTimestamp(new Date(System.currentTimeMillis()));
-									newRecommendation.setExplanation(explanation);
+
 									Long itemID = null;
 
 									Workflow workflow = this.model
 											.getWorkflowByURI(itemURI);
+
+									String explanationText = "The workflow entitled "
+											+ workflow.getTitle()
+											+ ("(URI:")
+											+ workflow.getURI()
+											+ ") is recommended to you since you used the following";
+
+									if (numberOfQueryTerms == 1) {
+										explanationText += " tag: ";
+									} else {
+										explanationText += " tags: ";
+									}
+									explanationText += (queryExpression
+											.replace("contents:", "")).replace(
+											"and", ",");
+
+									if (numberOfQueryTerms == 1) {
+										explanationText += "; and it partially describes its content";
+									} else {
+										explanationText += "; and they partially describes its content";
+									}
+
+									Explanation explanation = new Explanation();
+
+									explanation.setExplanation(explanationText);
+									explanation.setTimestamp(new Date(System
+											.currentTimeMillis()));
+									newRecommendation
+											.setExplanation(explanation);
 									if (workflow != null)
 										itemID = workflow.getID();
 
@@ -133,9 +163,44 @@ public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBa
 									Recommendation recommendation = recommendationsByItemURI
 											.get(itemURI);
 									if (recommendation.getStrength() > estimatedStrength) {
+										// The sugg
 									} else {
+										Workflow workflow = this.model
+												.getWorkflowByURI(recommendation
+														.getItemURI());
+
+										String explanationText = "The workflow entitled "
+												+ workflow.getTitle()
+												+ ("(URI:")
+												+ workflow.getURI()
+												+ ") is recommended to you since you used the following";
+
+										if (numberOfQueryTerms == 1) {
+											explanationText += " tag: ";
+										} else {
+											explanationText += " tags: ";
+										}
+										explanationText += (queryExpression
+												.replace("contents:", "")).replace(
+												"and", ",");
+
+										if (numberOfQueryTerms == 1) {
+											explanationText += "; and it partially describes its content";
+										} else {
+											explanationText += "; and they partially describe its content";
+										}
+										recommendation
+												.getExplanation()
+												.setExplanation(explanationText);
+										recommendation
+												.getExplanation()
+												.setTimestamp(
+														new Date(
+																System.currentTimeMillis()));
+
 										recommendation
 												.setStrength(estimatedStrength);
+
 									}
 								}
 							}
@@ -295,8 +360,8 @@ public class WorkflowsKeywordContentBasedRecommender implements KeywordContentBa
 
 		return queryExpression;
 	}
-	
-	public RecommenderParameters getInitializationParameters(){
+
+	public RecommenderParameters getInitializationParameters() {
 		return this.initializationParameters;
 	}
 
