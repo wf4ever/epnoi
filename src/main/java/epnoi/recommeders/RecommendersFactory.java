@@ -19,6 +19,8 @@ public class RecommendersFactory {
 		} else if (recommenderParameters.getType().equals(
 				Recommender.KEYWORD_CONTENT_BASED)) {
 			return new WorkflowsKeywordContentBasedRecommender(recommenderParameters);
+		} else if (recommenderParameters.getType().equals(Recommender.USERS_SOCIAL_NETWORK)){
+			return new UsersSocialNetworkRecommender(recommenderParameters);
 		}
 		return null;
 	}

@@ -16,17 +16,18 @@ public class EpnoiCoreParameterizedMain {
 	public static void main(String[] args) {
 		System.out.println("Starting the EpnoiCoreMain");
 		EpnoiCore epnoiCore = new EpnoiCore();
-		
-		ParametersModel parametersModel =  ParametersModelWrapper.read("/parametersModelPath.xml");
 
-		/*		
-		Properties initializationProperties = new Properties();
+		ParametersModel parametersModel = ParametersModelWrapper
+				.read("/parametersModelPath.xml");
 
-		initializationProperties.setProperty(EpnoiCore.INDEX_PATH_PROPERTY,
-				"/wf4ever/indexMyExperiment");
-		initializationProperties.setProperty(EpnoiCore.MODEL_PATH_PROPERTY,
-				"/wf4ever/lastImportedModel.xml");
-*/
+		/*
+		 * Properties initializationProperties = new Properties();
+		 * 
+		 * initializationProperties.setProperty(EpnoiCore.INDEX_PATH_PROPERTY,
+		 * "/wf4ever/indexMyExperiment");
+		 * initializationProperties.setProperty(EpnoiCore.MODEL_PATH_PROPERTY,
+		 * "/wf4ever/lastImportedModel.xml");
+		 */
 		epnoiCore.init(parametersModel);
 		ArrayList<String> differentRaters = new ArrayList<String>();
 		for (Rating rating : epnoiCore.getModel().getRatings()) {
@@ -120,8 +121,9 @@ public class EpnoiCoreParameterizedMain {
 		System.out.println("# of items that have been recommended "
 				+ differentRatedWorkflow.size());
 
-		System.out.println("# of recommendations by collaborative filtering algorithm "
-				+ collaborativeBased);
+		System.out
+				.println("# of recommendations by collaborative filtering algorithm "
+						+ collaborativeBased);
 		System.out.println("# of recommendations by content based algorithm "
 				+ contentBased);
 
@@ -181,6 +183,12 @@ public class EpnoiCoreParameterizedMain {
 		System.out.println("# of packs "
 				+ epnoiCore.getModel().getPacks().size());
 
+		for (Recommendation recommendation : epnoiCore.getRecommendationSpace()
+				.getAllRecommendations()) {
+			System.out.println(">>>>> " + recommendation);
+		}
+
+		epnoiCore.close();
 	}
 
 	public ArrayList<Tagging> orderByFrequency(ArrayList<Tagging> taggingsList) {
@@ -192,4 +200,3 @@ public class EpnoiCoreParameterizedMain {
 	}
 
 }
-

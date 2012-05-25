@@ -113,6 +113,8 @@ public class WorkflowsKeywordContentBasedRecommender implements
 								if (!recommendationsByItemURI
 										.containsKey(itemURI)) {
 									Recommendation newRecommendation = new Recommendation();
+									newRecommendation.setRecommenderURI(this.initializationParameters.getURI());
+								
 									newRecommendation.setItemURI(itemURI);
 
 									Long itemID = null;

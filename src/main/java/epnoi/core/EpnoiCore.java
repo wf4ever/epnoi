@@ -9,10 +9,12 @@ import epnoi.model.RecommendationSpace;
 import epnoi.model.parameterization.CollaborativeFilterRecommenderParameters;
 import epnoi.model.parameterization.KeywordRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
+import epnoi.model.parameterization.SocialNetworkRecommenderParameters;
 import epnoi.recommeders.CollaborativeFilterRecommender;
 import epnoi.recommeders.KeywordContentBasedRecommender;
 import epnoi.recommeders.Recommender;
 import epnoi.recommeders.RecommendersFactory;
+import epnoi.recommeders.UsersSocialNetworkRecommender;
 import epnoi.recommeders.WorkflowsKeywordContentBasedRecommender;
 
 public class EpnoiCore {
@@ -90,10 +92,11 @@ public class EpnoiCore {
 	/**
 	 * Inferred recommendation space initialization. This method asumes that the
 	 */
-	private void _initInferredRecommendationSpace() {
-
+	private void _initInferredRecommendationSpace() {//---------------------------------------------
+/*
 		this.inferredRecommendationSpace = this.inferenceEngine
 				.infer(this.recommendationSpace);
+*/
 	}
 
 	/**
@@ -113,22 +116,7 @@ public class EpnoiCore {
 					collaborativeFilterRecommender);
 
 		}
-		/*
-		 * // Workflow collaborative filtering recommender
-		 * this.workflowsCollaborativeFilteringRecommender =
-		 * (CollaborativeFilterRecommender) RecommendersFactory
-		 * .buildRecommender(collaborativeFilterRecommenderParameters);
-		 * this.workflowsCollaborativeFilteringRecommender.init(this.model);
-		 */
-
-		/*
-		 * this.filesCollaborativeFilteringRecommender =
-		 * (CollaborativeFilterRecommender)
-		 * RecommendersFactory.buildRecommender(
-		 * Recommender.FILES_COLLABORATIVE_FILTER);
-		 * this.filesCollaborativeFilteringRecommender.init(this.model, new
-		 * Properties());
-		 */
+	
 		// Workflow keyword based recommender
 		for (KeywordRecommenderParameters keyword : this.parametersModel
 				.getKeywordBasedRecommender()) {
@@ -138,14 +126,15 @@ public class EpnoiCore {
 			this.recommenders.put(keyword.getURI(),
 					keywordContentBasedRecommender);
 
-			/*
-			 * this.kewyordContentBasedRecommender =
-			 * (WorkflowsKeywordContentBasedRecommender) RecommendersFactory
-			 * .buildRecommender(keyword);
-			 * 
-			 * this.kewyordContentBasedRecommender.init(this.model);
-			 */
-
+		}
+			
+		for (SocialNetworkRecommenderParameters socialNetowrkRecommenderParameters:this.parametersModel.getSocialRecommender()){
+			UsersSocialNetworkRecommender userSocialRecommender = (UsersSocialNetworkRecommender)RecommendersFactory.buildRecommender(socialNetowrkRecommenderParameters);
+			userSocialRecommender.init(model);
+			this.recommenders.put(socialNetowrkRecommenderParameters.getURI(),
+					userSocialRecommender);
+		}
+			
 			System.out
 					.println("The following recommenders have been initialized");
 			for (Recommender recommender : this.recommenders.values()) {
@@ -153,10 +142,12 @@ public class EpnoiCore {
 						+ recommender.getInitializationParameters().getURI());
 				
 				System.out.println(recommender.getInitializationParameters());
+				
 			}
 			
 
-		}
+		
+		
 	}
 
 	public RecommendationSpace getRecommendationSpace() {
@@ -179,5 +170,11 @@ public class EpnoiCore {
 	 */
 	public void setModel(Model model) {
 		this.model = model;
+	}
+	
+	public void close(){
+		for (Recommender recommender: this.recommenders.values()){
+			recommender.close();
+		}
 	}
 }

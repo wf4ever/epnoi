@@ -11,6 +11,15 @@ public class Recommendation implements Comparable {
 	String itemURI;
 	Provenance provenance;
 	Explanation explanation;
+	String recommenderURI;
+
+	public String getRecommenderURI() {
+		return recommenderURI;
+	}
+
+	public void setRecommenderURI(String recommenderURI) {
+		this.recommenderURI = recommenderURI;
+	}
 
 	public Recommendation() {
 		this.provenance = new Provenance();
@@ -73,7 +82,7 @@ public class Recommendation implements Comparable {
 
 	@Override
 	public String toString() {
-		return "R [" + this.strength + "]";
+		return "R [" + this.strength + " Item (ID|URI)> ("+this.itemID+"|"+this.itemURI+")";
 	}
 
 	public Explanation getExplanation() {

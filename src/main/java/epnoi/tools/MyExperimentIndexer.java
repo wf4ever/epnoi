@@ -27,150 +27,138 @@ import epnoi.model.Model;
 import epnoi.model.ModelReader;
 import epnoi.model.Workflow;
 
-
-
 // From chapter 7
 public class MyExperimentIndexer {
-	
+
 	private Model model;
 	private String MODEL_PATH = "/model.xml";
 
-  private boolean DEBUG = false;                     //1
+	private boolean DEBUG = false; // 1
 
-  static Set<String> textualMetadataFields           //2
-        = new HashSet<String>();                     //2
-  static {                                           //2
-    textualMetadataFields.add(Metadata.TITLE);       //2
-    textualMetadataFields.add(Metadata.AUTHOR);      //2
-    textualMetadataFields.add(Metadata.COMMENTS);    //2
-    textualMetadataFields.add(Metadata.KEYWORDS);    //2
-    textualMetadataFields.add(Metadata.DESCRIPTION); //2
-    textualMetadataFields.add(Metadata.SUBJECT);     //2
-  }
+	static Set<String> textualMetadataFields // 2
+	= new HashSet<String>(); // 2
+	static { // 2
+		textualMetadataFields.add(Metadata.TITLE); // 2
+		textualMetadataFields.add(Metadata.AUTHOR); // 2
+		textualMetadataFields.add(Metadata.COMMENTS); // 2
+		textualMetadataFields.add(Metadata.KEYWORDS); // 2
+		textualMetadataFields.add(Metadata.DESCRIPTION); // 2
+		textualMetadataFields.add(Metadata.SUBJECT); // 2
+	}
 
 	private IndexWriter writer;
-  
-  public static void main(String[] args) throws Exception {
 
-	  System.out.println("Indexing the myExperiment data ");
-	   
-	  TikaConfig config = TikaConfig.getDefaultConfig();  
-    String indexDir = "/indexMyExperiment";
-    //String dataDir = "/proofs/lucene/dataTika";
-   
+	public static void main(String[] args) throws Exception {
 
-    long start = new Date().getTime();
-    MyExperimentIndexer indexer = new MyExperimentIndexer(indexDir);
-    int numIndexed = indexer.index();
-    indexer.close();
-    long end = new Date().getTime();
+		System.out.println("Indexing the myExperiment data ");
 
-    System.out.println("Indexing " + numIndexed + " files took "
-      + (end - start) + " milliseconds");
-  }
+		TikaConfig config = TikaConfig.getDefaultConfig();
+		String indexDir = "/indexMyExperiment";
+		// String dataDir = "/proofs/lucene/dataTika";
 
-  public MyExperimentIndexer(String indexDir) throws IOException {
+		long start = new Date().getTime();
+		MyExperimentIndexer indexer = new MyExperimentIndexer(indexDir);
+		int numIndexed = indexer.index();
+		indexer.close();
+		long end = new Date().getTime();
+
+		System.out.println("Indexing " + numIndexed + " files took "
+				+ (end - start) + " milliseconds");
+	}
+
+	public MyExperimentIndexer(String indexDir) throws IOException {
 		Directory dir = FSDirectory.open(new File(indexDir));
 		writer = new IndexWriter(dir, // 3
 				new StandardAnalyzer( // 3
 						Version.LUCENE_30),// 3
 				true, // 3
 				IndexWriter.MaxFieldLength.UNLIMITED); // 3
-		
-		
-		
-	try {
-		this.model = ModelReader.read(this.MODEL_PATH);
-	} catch (Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+
+		try {
+			this.model = ModelReader.read(this.MODEL_PATH);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	}
-  
-  public void indexURL(String URL) throws Exception{
-	
-		
+
+	public void indexURL(String URL) throws Exception {
+
 		System.out.println("Indexing " + URL);
 		Document doc = getDocument(URL);
-		writer.addDocument(doc); 
+		writer.addDocument(doc);
 	}
-  protected Document getDocument(String URL) throws Exception {
 
-    Metadata metadata = new Metadata();
-    metadata.set(Metadata.RESOURCE_NAME_KEY, URL);   
+	protected Document getDocument(String URL) throws Exception {
 
-    
-    InputStream is = new URL(URL+"&all_elements=yes").openStream();
+		Metadata metadata = new Metadata();
+		metadata.set(Metadata.RESOURCE_NAME_KEY, URL);
 
-    Parser parser = new AutoDetectParser();       
-    ContentHandler handler = new BodyContentHandler(-1);     
-    
-    ParseContext context = new ParseContext();  
-    context.set(Parser.class, parser);          
-    try {
-      parser.parse(is, handler, metadata,      
-                   new ParseContext());        
-    } finally {
-      is.close();
-    }
+		InputStream is = new URL(URL + "&all_elements=yes").openStream();
 
-    Document doc = new Document();
+		Parser parser = new AutoDetectParser();
+		ContentHandler handler = new BodyContentHandler(-1);
 
-    doc.add(new Field("contents", handler.toString(),          
-                      Field.Store.NO, Field.Index.ANALYZED));  
-    if (DEBUG) {
-      System.out.println("  all text: " + handler.toString());
-    }
-    
-    for(String name : metadata.names()) {         //11
-      String value = metadata.get(name);
+		ParseContext context = new ParseContext();
+		context.set(Parser.class, parser);
+		try {
+			parser.parse(is, handler, metadata, new ParseContext());
+		} finally {
+			is.close();
+		}
 
-      if (textualMetadataFields.contains(name)) {
-        doc.add(new Field("contents", value,      //12
-                          Field.Store.NO, Field.Index.ANALYZED));
-      }
+		Document doc = new Document();
 
-      doc.add(new Field(name, value, Field.Store.YES, Field.Index.NO)); //13
+		doc.add(new Field("contents", handler.toString(), Field.Store.NO,
+				Field.Index.ANALYZED));
+		if (DEBUG) {
+			System.out.println("  all text: " + handler.toString());
+		}
 
-      if (DEBUG) {
-        System.out.println("  " + name + ": " + value);
-      }
-    }
+		for (String name : metadata.names()) { // 11
+			String value = metadata.get(name);
 
-    if (DEBUG) {
-      System.out.println();
-    }
+			if (textualMetadataFields.contains(name)) {
+				doc.add(new Field("contents", value, // 12
+						Field.Store.NO, Field.Index.ANALYZED));
+			}
 
-    doc.add(new Field("filename", URL,     //14
-             Field.Store.YES, Field.Index.NOT_ANALYZED));
+			doc.add(new Field(name, value, Field.Store.YES, Field.Index.NO)); // 13
 
-    return doc;
-  }
-  
-  
-  public int index() throws Exception{
-	  int indexedResources = 0;
-	  for(Workflow workflow : model.getWorkflows()){
-		  //if (workflow.getId()<200){
-			  
-			  try {
+			if (DEBUG) {
+				System.out.println("  " + name + ": " + value);
+			}
+		}
+
+		if (DEBUG) {
+			System.out.println();
+		}
+
+		doc.add(new Field("filename", URL, // 14
+				Field.Store.YES, Field.Index.NOT_ANALYZED));
+
+		return doc;
+	}
+
+	public int index() throws Exception {
+		int indexedResources = 0;
+		for (Workflow workflow : model.getWorkflows()) {
+			// if (workflow.getId()<200){
+
+			try {
 				indexURL(workflow.getURI());
-				  indexedResources++;
+				indexedResources++;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		  //}
-		
-	  }
+			// }
+
+		}
 		return indexedResources;
 	}
-  
-  
-  public void close() throws IOException {
+
+	public void close() throws IOException {
 		writer.close(); // 4
 	}
 }
-
-
-

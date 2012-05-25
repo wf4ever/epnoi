@@ -102,6 +102,7 @@ public class FilesCollaborativeFilterRecommender implements
 					recommendation.setUserURI(user.getURI());
 					recommendation.setStrength(recommendedItem.getValue());
 					recommendation.setItemID(recommendedItem.getItemID());
+					recommendation.setRecommenderURI(this.recommenderParameters.getURI());
 					File file = this.model.getFileByID(recommendation
 							.getItemID());
 					recommendation.setItemURI(file.getURI());

@@ -1,7 +1,6 @@
 package epnoi.model.parameterization;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -9,32 +8,32 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "parametersModel")
 public class ParametersModel {
 
-	/*	
-	 * public static final String HOSTNAME_PROPERTY = "server.hostname";
-	public static final String PORT_PROPERTY = "server.port";
-	public static final String PATH_PROPERTY = "server.path";
-	public static final String MODEL_PATH_PROPERTY = "model.path";
-	public static final String INDEX_PATH_PROPERTY = "index.path";
-	 * Como un arraylist de propiedases public static final String
+	/*
+	 * public static final String HOSTNAME_PROPERTY = "server.hostname"; public
+	 * static final String PORT_PROPERTY = "server.port"; public static final
+	 * String PATH_PROPERTY = "server.path"; public static final String
 	 * MODEL_PATH_PROPERTY = "model.path"; public static final String
-	 * INDEX_PATH_PROPERTY = "index.path";
+	 * INDEX_PATH_PROPERTY = "index.path"; Como un arraylist de propiedases
+	 * public static final String MODEL_PATH_PROPERTY = "model.path"; public
+	 * static final String INDEX_PATH_PROPERTY = "index.path";
 	 */
 
 	private String modelPath;
 	private String indexPath;
-	
-	//Server related properties
+
+	// Server related properties
 	private String hostname;
 	private String port;
 	private String path;
-	
 
 	private ArrayList<CollaborativeFilterRecommenderParameters> collaborativeFilteringRecommender;
 	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
+	private ArrayList<SocialNetworkRecommenderParameters> socialRecommender;
 
 	public ParametersModel() {
 		this.collaborativeFilteringRecommender = new ArrayList<CollaborativeFilterRecommenderParameters>();
 		this.keywordBasedRecommender = new ArrayList<KeywordRecommenderParameters>();
+		this.socialRecommender = new ArrayList<SocialNetworkRecommenderParameters>();
 	}
 
 	public ArrayList<KeywordRecommenderParameters> getKeywordBasedRecommender() {
@@ -55,6 +54,16 @@ public class ParametersModel {
 		this.collaborativeFilteringRecommender = collaborativeFilteringRecommender;
 	}
 
+	public ArrayList<SocialNetworkRecommenderParameters> getSocialRecommender() {
+		return socialRecommender;
+	}
+
+	public void setSocialRecommender(
+			ArrayList<SocialNetworkRecommenderParameters> socialRecommender) {
+		this.socialRecommender = socialRecommender;
+	}
+
+	
 	public String getModelPath() {
 		return modelPath;
 	}
@@ -94,5 +103,6 @@ public class ParametersModel {
 	public void setPath(String path) {
 		this.path = path;
 	}
+
 	
 }

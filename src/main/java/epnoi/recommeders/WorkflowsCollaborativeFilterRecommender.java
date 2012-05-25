@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
+import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
@@ -102,7 +103,8 @@ public class WorkflowsCollaborativeFilterRecommender implements
 					recommendation.setUserURI(user.getURI());
 					recommendation.setStrength(recommendedItem.getValue());
 					recommendation.setItemID(recommendedItem.getItemID());
-
+					recommendation.setRecommenderURI(this.recommenderParameters
+							.getURI());
 					Parameter parameter = new Parameter();
 					parameter.setName("technique");
 					parameter.setValue("collaborative-filtering");
@@ -153,7 +155,8 @@ public class WorkflowsCollaborativeFilterRecommender implements
 							+ ") is recommended to you since users with similar tastes and intrests as yours (such as "
 							+ similarUsersNames + ")" + " found it usefull";
 					explanation.setExplanation(explanationText);
-					explanation.setTimestamp(new Date(System.currentTimeMillis()));
+					explanation.setTimestamp(new Date(System
+							.currentTimeMillis()));
 					recommendation.setExplanation(explanation);
 
 					recommedationSpace.addRecommendationForUser(user,
@@ -210,10 +213,10 @@ public class WorkflowsCollaborativeFilterRecommender implements
 			if (workflow == null) {
 				System.out.println("PROBLEMA " + workflowURI);
 			} else {
-			userPreferences.setItemID(ratingIndex, workflow.getID());
+				userPreferences.setItemID(ratingIndex, workflow.getID());
 
-			userPreferences.setValue(ratingIndex, 5);
-			ratingIndex++;
+				userPreferences.setValue(ratingIndex, 5);
+				ratingIndex++;
 			}
 		}
 
@@ -237,7 +240,53 @@ public class WorkflowsCollaborativeFilterRecommender implements
 	}
 
 	public void close() {
+		for (User user : this.model.getUsers()) {
+			printUserSimilarities(user);
+		}
 
+	}
+
+	private void printUserSimilarities(User user) {
+		ArrayList<UserSimilarityValue> similarUsers = new ArrayList<UserSimilarityValue>();
+		LongPrimitiveIterator usersIterator = null;
+		try {
+			usersIterator = this.dataModel.getUserIDs();
+		} catch (TasteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		while (usersIterator.hasNext()) {
+			Long otherUserID = usersIterator.next();
+
+			User otherUser = this.model.getUserByID(otherUserID);
+			double similarity = 0.;
+			try {
+				similarity = this.similarity.userSimilarity(user.getID(),
+						otherUser.getID());
+			} catch (TasteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if ((similarity > 0) && (otherUser.getID() != user.getID())) {
+
+				
+				UserSimilarityValue userSimilarityValue = new UserSimilarityValue();
+				userSimilarityValue.setUserURI(otherUser.getName());
+				userSimilarityValue.setSimilarity(similarity);
+				similarUsers.add(userSimilarityValue);
+			}
+
+		}
+		if (similarUsers.size() > 0) {
+			System.out.println("* " + "*"+user.getName()+"*");
+			System.out.println("||User || Similarity Value||");
+			for (UserSimilarityValue similarity : similarUsers) {
+				System.out.println("|" + similarity.getUserURI() + "|"
+						+ similarity.getSimilarity() + "|");
+
+			}
+		}
 	}
 
 }
