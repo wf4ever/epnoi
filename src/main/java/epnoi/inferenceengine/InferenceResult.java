@@ -12,7 +12,5 @@ public class InferenceResult {
 	public void setActivations(ArrayList<Activation> activations) {
 		this.resultActivations = activations;
 	}
-	
-	
 
 }

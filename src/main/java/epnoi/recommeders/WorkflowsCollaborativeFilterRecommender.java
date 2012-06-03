@@ -26,6 +26,7 @@ import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
+import epnoi.model.Provenance;
 import epnoi.model.Rating;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
@@ -105,11 +106,17 @@ public class WorkflowsCollaborativeFilterRecommender implements
 					recommendation.setItemID(recommendedItem.getItemID());
 					recommendation.setRecommenderURI(this.recommenderParameters
 							.getURI());
+					Parameter parameterTechnique = new Parameter();
+					parameterTechnique.setName(Provenance.TECHNIQUE);
+					parameterTechnique.setValue(Provenance.TECHNIQUE_COLLABORATIVE);
 					Parameter parameter = new Parameter();
-					parameter.setName("technique");
-					parameter.setValue("collaborative-filtering");
+					
+					parameter.setName(Provenance.ITEM_TYPE);
+					parameter.setValue(Provenance.ITEM_TYPE_WORKFLOW);
 					recommendation.getProvenance().getParameters()
-							.add(parameter);
+					.add(parameter);
+					recommendation.getProvenance().getParameters()
+							.add(parameterTechnique);
 
 					Workflow workflow = this.model
 							.getWorkflowByID(recommendation.getItemID());
@@ -240,10 +247,10 @@ public class WorkflowsCollaborativeFilterRecommender implements
 	}
 
 	public void close() {
-		for (User user : this.model.getUsers()) {
-			printUserSimilarities(user);
-		}
-
+		/*
+		 * Part of the users similarity for (User user : this.model.getUsers())
+		 * { printUserSimilarities(user); }
+		 */
 	}
 
 	private void printUserSimilarities(User user) {
@@ -270,7 +277,6 @@ public class WorkflowsCollaborativeFilterRecommender implements
 			}
 			if ((similarity > 0) && (otherUser.getID() != user.getID())) {
 
-				
 				UserSimilarityValue userSimilarityValue = new UserSimilarityValue();
 				userSimilarityValue.setUserURI(otherUser.getName());
 				userSimilarityValue.setSimilarity(similarity);
@@ -278,8 +284,9 @@ public class WorkflowsCollaborativeFilterRecommender implements
 			}
 
 		}
+
 		if (similarUsers.size() > 0) {
-			System.out.println("* " + "*"+user.getName()+"*");
+			System.out.println("* " + "*" + user.getName() + "*");
 			System.out.println("||User || Similarity Value||");
 			for (UserSimilarityValue similarity : similarUsers) {
 				System.out.println("|" + similarity.getUserURI() + "|"

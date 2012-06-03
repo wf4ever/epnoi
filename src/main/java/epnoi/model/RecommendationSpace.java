@@ -39,6 +39,39 @@ public class RecommendationSpace {
 		else
 			return new ArrayList<Recommendation>();
 	}
+	
+	
+	public ArrayList<Recommendation> getRecommendationsForUserID(Long userID, String type) {
+		if (this.recommendationsByID.get(userID) != null){
+			ArrayList<Recommendation> recommendationsForUser = new ArrayList<Recommendation>();
+			for (Recommendation recommendation:this.recommendationsByID.get(userID)){
+				if (recommendation.getProvenance().getParameterByName(Provenance.ITEM_TYPE).equals(type)){
+					recommendationsForUser.add(recommendation);
+				}
+			}
+			return recommendationsForUser;
+		}
+			
+		else
+			return new ArrayList<Recommendation>();
+	}
+	
+	public ArrayList<Recommendation> getRecommendationsForUserURI(String userURI, String type) {
+		if (this.recommendationsByURI.get(userURI) != null){
+			ArrayList<Recommendation> recommendationsForUser = new ArrayList<Recommendation>();
+			for (Recommendation recommendation:this.recommendationsByURI.get(userURI)){
+				if (recommendation.getProvenance().getParameterByName(Provenance.ITEM_TYPE).equals(type)){
+					recommendationsForUser.add(recommendation);
+				}
+			}
+			return recommendationsForUser;
+		}
+			
+		else
+			return new ArrayList<Recommendation>();
+	}
+	
+	
 
 	public ArrayList<Recommendation> getRecommendationsForUserName(
 			String userName) {

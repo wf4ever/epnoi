@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -25,12 +24,14 @@ import org.apache.lucene.util.Version;
 import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
+import epnoi.model.Provenance;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.Workflow;
 import epnoi.model.parameterization.KeywordRecommenderParameters;
+import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
 public class WorkflowsKeywordContentBasedRecommender implements
@@ -42,12 +43,14 @@ public class WorkflowsKeywordContentBasedRecommender implements
 	Directory directory = null;
 	IndexSearcher indexSearcher = null;
 	QueryParser parser = null;
+	ParametersModel parametersModel =null;
 
 	private KeywordRecommenderParameters initializationParameters;
 
 	public WorkflowsKeywordContentBasedRecommender(
-			RecommenderParameters initializationParameters) {
+			RecommenderParameters initializationParameters, ParametersModel parametersModel) {
 		this.initializationParameters = (KeywordRecommenderParameters) initializationParameters;
+		this.parametersModel=parametersModel;
 	}
 
 	public void recommend(RecommendationSpace recommedationSpace) {
@@ -226,11 +229,19 @@ public class WorkflowsKeywordContentBasedRecommender implements
 				// System.out.println(">>>>"+recommendationsByItemURI.values());
 				for (Recommendation recommendation : recommendationsByItemURI
 						.values()) {
+					Parameter parameterTechnique = new Parameter();
+					parameterTechnique.setName(Provenance.TECHNIQUE);
+					parameterTechnique.setValue(Provenance.TECHNIQUE_KEYWORD_CONTENT_BASED);
 					Parameter parameter = new Parameter();
-					parameter.setName("technique");
-					parameter.setValue("keyword-based");
+					
+					parameter.setName(Provenance.ITEM_TYPE);
+					parameter.setValue(Provenance.ITEM_TYPE_WORKFLOW);
+					
+					recommendation.getProvenance().getParameters()
+					.add(parameterTechnique);
 					recommendation.getProvenance().getParameters()
 							.add(parameter);
+					
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
 				}
@@ -264,8 +275,9 @@ public class WorkflowsKeywordContentBasedRecommender implements
 
 		this.parser = null;
 		try {
-			String indexDirectory = this.initializationParameters
+			String indexDirectory = this.parametersModel
 					.getIndexPath();
+			System.out.println("---------------------------------------------------------------->"+indexDirectory);
 			Directory dir = FSDirectory.open(new File(indexDirectory)); // 3
 			this.indexSearcher = new IndexSearcher(dir);
 			this.parser = new QueryParser(Version.LUCENE_30, // 4
@@ -384,5 +396,8 @@ public class WorkflowsKeywordContentBasedRecommender implements
 		return taggingsListOrdered;
 
 	}
-
+@Override
+public String toString(){
+	return "WorkflowsKeywordContentBasedRecommender" +this.getInitializationParameters().getURI();
+}
 }

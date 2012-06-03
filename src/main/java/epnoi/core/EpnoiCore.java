@@ -5,6 +5,7 @@ import java.util.HashMap;
 import epnoi.inferenceengine.InferenceEngine;
 import epnoi.model.Model;
 import epnoi.model.ModelReader;
+import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.parameterization.CollaborativeFilterRecommenderParameters;
 import epnoi.model.parameterization.KeywordRecommenderParameters;
@@ -46,9 +47,7 @@ public class EpnoiCore {
 	public void init(ParametersModel parametersModel) {
 		this.parametersModel = parametersModel;
 		String modelPath = this.parametersModel.getModelPath();
-		System.out
-				.println("-----------------------------------------The model is in "
-						+ modelPath);
+		System.out.println("The model is in " + modelPath);
 		this.model = ModelReader.read(modelPath);
 		this.recommenders = new HashMap<String, Recommender>();
 
@@ -64,7 +63,7 @@ public class EpnoiCore {
 	 * Inference engine initialization
 	 */
 	private void _initInferenceEngine() {
-		this.inferenceEngine = new InferenceEngine();
+		this.inferenceEngine = new InferenceEngine(this.parametersModel);
 		this.inferenceEngine.init(model);
 	}
 
@@ -92,11 +91,10 @@ public class EpnoiCore {
 	/**
 	 * Inferred recommendation space initialization. This method asumes that the
 	 */
-	private void _initInferredRecommendationSpace() {//---------------------------------------------
-/*
+	private void _initInferredRecommendationSpace() {
 		this.inferredRecommendationSpace = this.inferenceEngine
 				.infer(this.recommendationSpace);
-*/
+
 	}
 
 	/**
@@ -109,45 +107,43 @@ public class EpnoiCore {
 				.getCollaborativeFilteringRecommender()) {
 
 			CollaborativeFilterRecommender collaborativeFilterRecommender = (CollaborativeFilterRecommender) RecommendersFactory
-					.buildRecommender(collaborativeFilterRecommenderParameters);
+					.buildRecommender(collaborativeFilterRecommenderParameters,parametersModel);
 			collaborativeFilterRecommender.init(model);
 			this.recommenders.put(
 					collaborativeFilterRecommenderParameters.getURI(),
 					collaborativeFilterRecommender);
 
 		}
-	
+
 		// Workflow keyword based recommender
 		for (KeywordRecommenderParameters keyword : this.parametersModel
 				.getKeywordBasedRecommender()) {
 			KeywordContentBasedRecommender keywordContentBasedRecommender = (KeywordContentBasedRecommender) RecommendersFactory
-					.buildRecommender(keyword);
+					.buildRecommender(keyword,parametersModel);
 			keywordContentBasedRecommender.init(model);
 			this.recommenders.put(keyword.getURI(),
 					keywordContentBasedRecommender);
 
 		}
-			
-		for (SocialNetworkRecommenderParameters socialNetowrkRecommenderParameters:this.parametersModel.getSocialRecommender()){
-			UsersSocialNetworkRecommender userSocialRecommender = (UsersSocialNetworkRecommender)RecommendersFactory.buildRecommender(socialNetowrkRecommenderParameters);
+
+		for (SocialNetworkRecommenderParameters socialNetowrkRecommenderParameters : this.parametersModel
+				.getSocialRecommender()) {
+			UsersSocialNetworkRecommender userSocialRecommender = (UsersSocialNetworkRecommender) RecommendersFactory
+					.buildRecommender(socialNetowrkRecommenderParameters,parametersModel);
 			userSocialRecommender.init(model);
 			this.recommenders.put(socialNetowrkRecommenderParameters.getURI(),
 					userSocialRecommender);
 		}
-			
-			System.out
-					.println("The following recommenders have been initialized");
-			for (Recommender recommender : this.recommenders.values()) {
-				System.out.println("	> ("
-						+ recommender.getInitializationParameters().getURI());
-				
-				System.out.println(recommender.getInitializationParameters());
-				
-			}
-			
 
-		
-		
+		System.out.println("The following recommenders have been initialized");
+		for (Recommender recommender : this.recommenders.values()) {
+			System.out.println("	> ("
+					+ recommender.getInitializationParameters().getURI());
+
+			System.out.println(recommender.getInitializationParameters());
+
+		}
+
 	}
 
 	public RecommendationSpace getRecommendationSpace() {
@@ -171,10 +167,24 @@ public class EpnoiCore {
 	public void setModel(Model model) {
 		this.model = model;
 	}
-	
-	public void close(){
-		for (Recommender recommender: this.recommenders.values()){
+
+	public void close() {
+		for (Recommender recommender : this.recommenders.values()) {
 			recommender.close();
 		}
+		/*
+		 * for (Recommendation recommendation:
+		 * this.inferredRecommendationSpace.getAllRecommendations()){
+		 * System.out.print(">>"+recommendation); }
+		 */
+	}
+
+	public RecommendationSpace getInferredRecommendationSpace() {
+		return inferredRecommendationSpace;
+	}
+
+	public void setInferredRecommendationSpace(
+			RecommendationSpace inferredRecommendationSpace) {
+		this.inferredRecommendationSpace = inferredRecommendationSpace;
 	}
 }

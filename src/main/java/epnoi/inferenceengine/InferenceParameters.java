@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class InferenceParameters {
 	private ArrayList<Activation> initialActivations;
 	private int numberOfIterations;
+	private float minimumActivation;
 
 	public int getNumberOfIterations() {
 		return numberOfIterations;
@@ -21,10 +22,19 @@ public class InferenceParameters {
 	public void setInitialActivations(ArrayList<Activation> initialActivations) {
 		this.initialActivations = initialActivations;
 	}
+
+	public float getMinimumActivation() {
+		return minimumActivation;
+	}
+
+	public void setMinimumActivation(float minimumActivation) {
+		this.minimumActivation = minimumActivation;
+	}
 	
-	@Override 
-	public String toString(){
-		return "# of iterations "+numberOfIterations+" Initial Activations:> "+this.initialActivations;
+	@Override
+	public String toString() {
+		return "# of iterations " + numberOfIterations
+				+ " Initial Activations:> " + this.initialActivations;
 	}
 
 }

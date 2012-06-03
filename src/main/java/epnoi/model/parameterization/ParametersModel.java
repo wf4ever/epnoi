@@ -20,15 +20,18 @@ public class ParametersModel {
 
 	private String modelPath;
 	private String indexPath;
+	private String graphPath;
 
 	// Server related properties
 	private String hostname;
 	private String port;
 	private String path;
+	
 
 	private ArrayList<CollaborativeFilterRecommenderParameters> collaborativeFilteringRecommender;
 	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
 	private ArrayList<SocialNetworkRecommenderParameters> socialRecommender;
+	private InferenceEngineParameters inferenceEngine;
 
 	public ParametersModel() {
 		this.collaborativeFilteringRecommender = new ArrayList<CollaborativeFilterRecommenderParameters>();
@@ -102,6 +105,22 @@ public class ParametersModel {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public String getGraphPath() {
+		return graphPath;
+	}
+
+	public void setGraphPath(String graphPath) {
+		this.graphPath = graphPath;
+	}
+
+	public InferenceEngineParameters getInferenceEngine() {
+		return inferenceEngine;
+	}
+
+	public void setInferenceEngine(InferenceEngineParameters inferenceEngine) {
+		this.inferenceEngine = inferenceEngine;
 	}
 
 	

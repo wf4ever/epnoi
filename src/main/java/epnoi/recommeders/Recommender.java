@@ -23,6 +23,6 @@ public interface Recommender {
 	public void init(Model model);
 
 	public void close();
-	
+
 	public RecommenderParameters getInitializationParameters();
 }

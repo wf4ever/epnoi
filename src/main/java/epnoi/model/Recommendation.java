@@ -82,7 +82,8 @@ public class Recommendation implements Comparable {
 
 	@Override
 	public String toString() {
-		return "R [" + this.strength + " Item (ID|URI)> ("+this.itemID+"|"+this.itemURI+")";
+		return "R [" + this.strength + " Item (ID|URI)> (" + this.itemID + "|"
+				+ this.itemURI + ")";
 	}
 
 	public Explanation getExplanation() {

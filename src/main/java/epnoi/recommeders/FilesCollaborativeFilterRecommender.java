@@ -26,6 +26,8 @@ import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import epnoi.model.Explanation;
 import epnoi.model.File;
 import epnoi.model.Model;
+import epnoi.model.Parameter;
+import epnoi.model.Provenance;
 import epnoi.model.Rating;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
@@ -150,6 +152,24 @@ public class FilesCollaborativeFilterRecommender implements
 					explanation.setExplanation(explanationText);
 					recommendation.setExplanation(explanation);
 					explanation.setTimestamp(new Date(System.currentTimeMillis()));
+					
+					Parameter parameterTechnique = new Parameter();
+					parameterTechnique.setName(Provenance.TECHNIQUE);
+					parameterTechnique.setValue(Provenance.TECHNIQUE_COLLABORATIVE);
+					Parameter parameter = new Parameter();
+					
+					parameter.setName(Provenance.ITEM_TYPE);
+					parameter.setValue(Provenance.ITEM_TYPE_FILE);
+					
+					recommendation.getProvenance().getParameters()
+					.add(parameterTechnique);
+					recommendation.getProvenance().getParameters()
+							.add(parameter);
+					
+					
+					
+					
+					
 					recommedationSpace.addRecommendationForUser(user,
 							recommendation);
 				}

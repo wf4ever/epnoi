@@ -195,6 +195,10 @@ public class Model {
 	public boolean isFile(String URI) {
 		return this.filesByURI.containsKey(URI);
 	}
+	
+	public boolean isUser(String URI){
+		return this.usersByURI.containsKey(URI);
+	}
 
 	public HashMap<String, Workflow> getWorkflowsByURI() {
 		return workflowsByURI;

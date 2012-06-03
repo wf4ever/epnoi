@@ -14,32 +14,39 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 
+import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
+import epnoi.model.Provenance;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.parameterization.KeywordRecommenderParameters;
+import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 import epnoi.model.parameterization.SocialNetworkRecommenderParameters;
 import epnoi.tools.MyExperimentSocialNetworkHarvester;
 
 public class UsersSocialNetworkRecommender implements Recommender {
 	SocialNetworkRecommenderParameters recommenderParameters = null;
+	ParametersModel parametersModel = null;
 	Model model = null;
 	private GraphDatabaseService database;
 
-	private String MODEL_PATH = "/proofs/lastImportedModel.xml";
-	private static final String DB_PATH = "/proofs/myexperimentgraphdb";
+	// private String MODEL_PATH = "/proofs/lastImportedModel.xml";
+	// private static final String DB_PATH = "/proofs/myexperimentgraphdb";
 	private static final String URI_KEY = "URI";
 	private static final String LABEL_KEY = "Label";
 	private static Index<Node> nodeIndex;
 	Node usersReferenceNode;
 
 	public UsersSocialNetworkRecommender(
-			RecommenderParameters initializationParameters) {
+			RecommenderParameters initializationParameters,
+			ParametersModel parametersModel) {
 		this.recommenderParameters = (SocialNetworkRecommenderParameters) initializationParameters;
+		this.parametersModel = parametersModel;
+
 	}
 
 	public void recommend(RecommendationSpace recommedationSpace) {
@@ -55,6 +62,7 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		HashMap<String, Long> mutualFriendsGraphCardinalityCache = new HashMap<String, Long>();
 		ExecutionEngine engine = new ExecutionEngine(this.database);
 		for (User user : model.getUsers()) {
+			//System.out.println("Aqui entra"+user);
 			ArrayList<Recommendation> recommendations = new ArrayList<Recommendation>();
 			// System.out.println(">" + user.getName());
 			if (user.getFriends().size() != 0) {
@@ -65,9 +73,9 @@ public class UsersSocialNetworkRecommender implements Recommender {
 				ArrayList<String> candidates = _getPossibleCandidates(user,
 						engine);
 				/*
-				System.out
-						.println("(" + candidates.size() + ">> " + candidates);
-				*/
+				 * System.out .println("(" + candidates.size() + ">> " +
+				 * candidates);
+				 */
 				for (String candidateURI : candidates) {
 					User candidateUser = this.model.getUserByURI(candidateURI);
 					// System.out.println("      candidate:"
@@ -86,22 +94,35 @@ public class UsersSocialNetworkRecommender implements Recommender {
 						recommendation
 								.setRecommenderURI(this.recommenderParameters
 										.getURI());
+						Parameter techniqueParameter = new Parameter();
+						techniqueParameter.setName(Provenance.TECHNIQUE);
+						techniqueParameter.setValue(Provenance.TECHNIQUE_SOCIAL);
 						Parameter parameter = new Parameter();
-						parameter.setName("technique");
-						parameter.setValue("social-network");
+						parameter.setName(Provenance.ITEM_TYPE);
+						parameter.setValue(Provenance.ITEM_TYPE_USER);
 						recommendation.getProvenance().getParameters()
 								.add(parameter);
+						recommendation.getProvenance().getParameters()
+						.add(techniqueParameter);
+						
+						Explanation explanation = new Explanation();
+
+						explanation.setExplanation("TO BE DONE");
+						explanation.setTimestamp(new Date(System
+								.currentTimeMillis()));
+						recommendation
+								.setExplanation(explanation);
 
 						recommendations.add(recommendation);
 						/*
-						 * System.out.println(">     >(user, similarity)> (" +
-						 * user.getName() + ", " + candidateUser.getName() +
-						 * ") >" + similarity);
-						 */
+						  System.out.println(">     >(user, similarity)> (" +
+						  user.getName() + ", " + candidateUser.getName() +
+						  ") >" + similarity);
+						  */
 					}
 
 				}
-				
+
 				ArrayList<Recommendation> orderedRecommendations = _orderAndNormalize(recommendations);
 				if (orderedRecommendations.size() > 0) {
 					Float maxStrength = orderedRecommendations.get(0)
@@ -110,11 +131,11 @@ public class UsersSocialNetworkRecommender implements Recommender {
 					while (index < this.recommenderParameters
 							.getNumberOfRecommendations()
 							&& index < recommendations.size()) {
-						System.out.println(user.getName() + "> "
-								+ orderedRecommendations.get(index));
+						
 						numberOfRecommendations++;
-						orderedRecommendations.get(index).
-						setStrength(orderedRecommendations.get(index).getStrength()/maxStrength);	
+						orderedRecommendations.get(index).setStrength(
+								orderedRecommendations.get(index).getStrength()
+										/ maxStrength);
 						recommedationSpace.addRecommendationForUser(user,
 								orderedRecommendations.get(index));
 						index++;
@@ -125,11 +146,12 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		}
 
 		long start = new Date().getTime();
+		/*
 		System.out
 				.println("Harvesting took " + (end - start) + " milliseconds");
 		System.out.println("NUMBER OF RECOMMENDATIONS "
 				+ numberOfRecommendations);
-
+*/
 	}
 
 	private ArrayList<Recommendation> _orderAndNormalize(
@@ -152,10 +174,9 @@ public class UsersSocialNetworkRecommender implements Recommender {
 	public void init(Model model) {
 		this.model = model;
 		System.out.println("Database path "
-				+ this.recommenderParameters.getDatabasePath());
+				+ this.parametersModel.getGraphPath());
 		this.database = new GraphDatabaseFactory()
-				.newEmbeddedDatabase(this.recommenderParameters
-						.getDatabasePath());
+				.newEmbeddedDatabase(this.parametersModel.getGraphPath());
 		this.nodeIndex = database.index().forNodes("users");
 
 	}

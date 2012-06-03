@@ -2,14 +2,19 @@ package epnoi.inferenceengine;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import epnoi.model.Explanation;
 import epnoi.model.Model;
+import epnoi.model.Parameter;
+import epnoi.model.Provenance;
 import epnoi.model.Recommendation;
 import epnoi.model.RecommendationSpace;
 import epnoi.model.User;
+import epnoi.model.parameterization.ParametersModel;
 
 public class InferenceEngine {
 	/**
@@ -17,6 +22,16 @@ public class InferenceEngine {
 	 */
 
 	private ExtendedModel extendedModel = null;
+	private ParametersModel parametersModel = null;
+
+	
+	public InferenceEngine(){
+		
+	}
+	
+	public InferenceEngine(ParametersModel parametersModel) {
+		this.parametersModel = parametersModel;
+	}
 
 	public void init(Model model) {
 		this.extendedModel = ExtendedModelBuilder.buildExtendedModel(model);
@@ -45,22 +60,23 @@ public class InferenceEngine {
 		float conservationConstant = this
 				._calculateTotalActivation(currentActiveNodes);
 		/*
-		System.out.println();
-		System.out.println();
-		
-		System.out.println("-----------------------------------------------------------------------");
-		System.out.println("Inference parameters "+parameters);
-		System.out.println("Activation Constant " + conservationConstant);
-*/
-		
+		 * System.out.println(); System.out.println();
+		 * 
+		 * System.out.println(
+		 * "-----------------------------------------------------------------------"
+		 * ); System.out.println("Inference parameters "+parameters);
+		 * System.out.println("Activation Constant " + conservationConstant);
+		 */
+
 		while (!currentActiveNodes.isEmpty()
 				&& inferenceStep < numberOfIterations) {
 			/*
-			System.out.println("Inference Engine (step " + inferenceStep
-					+ ")-------------------------");
-			System.out.println("A)Curren active nodes> " + currentActiveNodes);
-			System.out.println("A)Active nodes> " + activeNodes);
-*/
+			 * System.out.println("Inference Engine (step " + inferenceStep +
+			 * ")-------------------------");
+			 * System.out.println("A)Curren active nodes> " +
+			 * currentActiveNodes); System.out.println("A)Active nodes> " +
+			 * activeNodes);
+			 */
 			// For each step of the inference process
 			// A) We expand the
 			this._expandActivationSet(currentActiveNodes, activeNodes,
@@ -75,40 +91,41 @@ public class InferenceEngine {
 			// E) We increase the algorithm step
 			inferenceStep++;
 			/*
-			System.out.println("B)Curren active nodes> " + currentActiveNodes);
-			System.out.println("B)Active nodes> " + activeNodes);
-*/
+			 * System.out.println("B)Curren active nodes> " +
+			 * currentActiveNodes); System.out.println("B)Active nodes> " +
+			 * activeNodes);
+			 */
 		}
 		InferenceResult inferenceResults = _generateInferenceResults(
 				activeNodes, conservationConstant);
-		_fitlerInitiallyActivated (inferenceResults, parameters);
+		_fitlerInitiallyActivated(inferenceResults, parameters);
 		return inferenceResults;
 	}
-/**
- * 
- * @param inferenceResult
- * @param inferenceParameters
- */
-	private void _fitlerInitiallyActivated(InferenceResult inferenceResult, InferenceParameters inferenceParameters){
-		
+
+	/**
+	 * 
+	 * @param inferenceResult
+	 * @param inferenceParameters
+	 */
+	private void _fitlerInitiallyActivated(InferenceResult inferenceResult,
+			InferenceParameters inferenceParameters) {
+
 		Set<String> initiallyActiveNodes = new HashSet<String>();
- 		for (Activation activation:inferenceParameters.getInitialActivations()){
+		for (Activation activation : inferenceParameters
+				.getInitialActivations()) {
 			initiallyActiveNodes.add(activation.getNodeURI());
 		}
- 		ArrayList<Activation> activationsToRemove = new ArrayList<Activation>();
- 		for (Activation activation:inferenceResult.getActivations()){
- 			if(initiallyActiveNodes.contains(activation.getNodeURI())){
- 				activationsToRemove.add(activation);
- 			}
- 		}
- 		for(Activation activation:activationsToRemove){
- 			inferenceResult.getActivations().remove(activation);
- 		}
+		ArrayList<Activation> activationsToRemove = new ArrayList<Activation>();
+		for (Activation activation : inferenceResult.getActivations()) {
+			if (initiallyActiveNodes.contains(activation.getNodeURI())) {
+				activationsToRemove.add(activation);
+			}
+		}
+		for (Activation activation : activationsToRemove) {
+			inferenceResult.getActivations().remove(activation);
+		}
 	}
-	 
-	 
-	
-	
+
 	/*
 	 * Function that initializes the set of current active nodes
 	 */
@@ -119,14 +136,13 @@ public class InferenceEngine {
 		for (Activation activation : parameters.getInitialActivations()) {
 			String URI = activation.getNodeURI();
 			Node node = this.extendedModel.getGraph().getNodeByURI(URI);
-		/*
-		System.out.println("workflow------> "+this.extendedModel.getModel().getWorkflowByURI(URI));
-			System.out.println("node------> "+node+" >> "+URI);
-			*/
-			ActiveNode activeNode = new ActiveNode(node);
-			activeNode.setActivation(activation.getActivationValue());
 
-			activeNodes.put(node.getURI(), activeNode);
+			if (node != null) {
+				ActiveNode activeNode = new ActiveNode(node);
+				activeNode.setActivation(activation.getActivationValue());
+
+				activeNodes.put(node.getURI(), activeNode);
+			}
 		}
 		return activeNodes;
 	}
@@ -178,10 +194,10 @@ public class InferenceEngine {
 			}
 			currentActiveNodes.remove(activeNode.getMirroedNode().getURI());
 		}
-/*
-		System.out.println("Estos son los updatedCurrentActiveNodes "
-				+ updatedCurrentActiveNodes);
-	*/
+		/*
+		 * System.out.println("Estos son los updatedCurrentActiveNodes " +
+		 * updatedCurrentActiveNodes);
+		 */
 		currentActiveNodes.putAll(updatedCurrentActiveNodes);
 	}
 
@@ -201,7 +217,7 @@ public class InferenceEngine {
 		for (Link link : currentActiveNode.getMirroedNode().getIncomingLinks()) {
 
 			Node originNode = link.getOrigin();
-			//System.out.println("origNode > " + originNode);
+			// System.out.println("origNode > " + originNode);
 			float originActivation = 0;
 			// If it is already in the active nodes, we need to retrieve the
 			// node
@@ -209,8 +225,9 @@ public class InferenceEngine {
 
 				ActiveNode originActiveNode = activeNodes.get(originNode
 						.getURI());
-			
-				//System.out.println("It was activated " + activationUpdate + " and it was " + originActiveNode);
+
+				// System.out.println("It was activated " + activationUpdate +
+				// " and it was " + originActiveNode);
 				originActivation = originActiveNode.getActivation();
 				if (inferenceStep == 0) {
 					originActiveNode.setActivation(0f);
@@ -219,7 +236,7 @@ public class InferenceEngine {
 
 			activationUpdate += originActivation * link.getWeight();
 		}
-		//System.out.println("The activation update is " + activationUpdate);
+		// System.out.println("The activation update is " + activationUpdate);
 		currentActiveNode.setActivation(currentActiveNode.getActivation()
 				+ activationUpdate);
 	}
@@ -253,7 +270,7 @@ public class InferenceEngine {
 		Collections.reverse(orderedActiveNodes);
 		this._normalizeAndFilter(orderedActiveNodes, conservationConstant);
 		ArrayList<Activation> activations = new ArrayList<Activation>();
-		for(ActiveNode activeNode: orderedActiveNodes){
+		for (ActiveNode activeNode : orderedActiveNodes) {
 			Activation activation = new Activation();
 			activation.setNodeURI(activeNode.getMirroedNode().getURI());
 			activation.setActivationValue(activeNode.getActivation());
@@ -282,6 +299,7 @@ public class InferenceEngine {
 
 	public RecommendationSpace infer(RecommendationSpace recommendationSpace) {
 		RecommendationSpace inferredRecommendationSpace = new RecommendationSpace();
+		float minimumActivation = this.parametersModel.getInferenceEngine().getMinimumActivation();
 		for (User user : this.extendedModel.getModel().getUsers()) {
 			ArrayList<Recommendation> recommendationsForUser = recommendationSpace
 					.getRecommendationsForUserURI(user.getURI());
@@ -290,19 +308,56 @@ public class InferenceEngine {
 			if (recommendationsForUser.size() > 0) {
 
 				InferenceParameters inferenceParameters = new InferenceParameters();
-				inferenceParameters.setNumberOfIterations(50);
+				inferenceParameters.setNumberOfIterations(this.parametersModel
+						.getInferenceEngine().getNumberOfInteractions());
+				inferenceParameters.setMinimumActivation(this.parametersModel
+						.getInferenceEngine().getMinimumActivation());
 				ArrayList<Activation> initialActivations = _generateActivation(recommendationsForUser);
-				//System.out.println(":.......>  " + initialActivations);
+				// System.out.println(":.......>  " + initialActivations);
 				inferenceParameters.setInitialActivations(initialActivations);
 				InferenceResult inferenceResult = this
 						.perfomInferenceProcess(inferenceParameters);
-/*
-				System.out.println("The result is"+inferenceResult.getActivations());
-				System.out.println("-----------------------------------------------------------");
-				System.out.println();
-				System.out.println();
-				System.out.println();
-	*/
+
+				// System.out.println("The result for user " + user.getURI()+
+				// " is " + inferenceResult.getActivations());
+				
+				for (Activation activation : inferenceResult.getActivations()) {
+					
+					if (activation.getActivationValue() > minimumActivation) {
+						//System.out.println(">> URI >"+user.getURI());
+						Recommendation recommendation = new Recommendation();
+						recommendation.setUserURI(user.getURI());
+						recommendation.setStrength(activation
+								.getActivationValue());
+						recommendation.setItemURI(activation.getNodeURI());
+						recommendation.setRecommenderURI("InferenceEngine");
+						Parameter parameterTechnique = new Parameter();
+						parameterTechnique.setName(Provenance.TECHNIQUE);
+						parameterTechnique.setValue(Provenance.TECHNIQUE_INFERRED);
+						
+						Parameter parameter = new Parameter();
+						parameter.setName(Provenance.ITEM_TYPE);
+						parameter.setValue(Provenance.ITEM_TYPE_PACK);
+						
+						Explanation explanation = new Explanation();
+
+						explanation.setExplanation("TO BE DONE");
+						explanation.setTimestamp(new Date(System
+								.currentTimeMillis()));
+						recommendation
+								.setExplanation(explanation);
+						
+						
+						recommendation.getProvenance().getParameters()
+								.add(parameter);
+						inferredRecommendationSpace.addRecommendationForUser(
+								user, recommendation);
+					}
+				}
+
+				// System.out.println("The result for user " + user.getURI()+
+				// " is " + inferenceResult.getActivations());
+
 			}
 		}
 		return inferredRecommendationSpace;

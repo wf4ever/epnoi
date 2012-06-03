@@ -1,12 +1,13 @@
 package epnoi.recommeders;
 
+import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
 public class RecommendersFactory {
 
 
 	public static Recommender buildRecommender(
-			RecommenderParameters recommenderParameters) {
+			RecommenderParameters recommenderParameters, ParametersModel parametersModel) {
 		//System.out.println(">>>>>> "+recommenderParameters.getType());
 		if (recommenderParameters.getType().equals(
 				Recommender.WORKFLOWS_COLLABORATIVE_FILTER)) {
@@ -18,9 +19,9 @@ public class RecommendersFactory {
 
 		} else if (recommenderParameters.getType().equals(
 				Recommender.KEYWORD_CONTENT_BASED)) {
-			return new WorkflowsKeywordContentBasedRecommender(recommenderParameters);
+			return new WorkflowsKeywordContentBasedRecommender(recommenderParameters,parametersModel);
 		} else if (recommenderParameters.getType().equals(Recommender.USERS_SOCIAL_NETWORK)){
-			return new UsersSocialNetworkRecommender(recommenderParameters);
+			return new UsersSocialNetworkRecommender(recommenderParameters, parametersModel);
 		}
 		return null;
 	}

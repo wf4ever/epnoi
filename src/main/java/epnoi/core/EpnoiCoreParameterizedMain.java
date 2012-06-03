@@ -10,6 +10,7 @@ import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.ParametersModelWrapper;
+import epnoi.recommeders.Recommender;
 
 public class EpnoiCoreParameterizedMain {
 
@@ -31,8 +32,7 @@ public class EpnoiCoreParameterizedMain {
 		epnoiCore.init(parametersModel);
 		ArrayList<String> differentRaters = new ArrayList<String>();
 		for (Rating rating : epnoiCore.getModel().getRatings()) {
-			if (!differentRaters.contains(rating.getOwnerURI())
-					&& rating.WORKFLOW_RATING.equals(rating.getType())) {
+			if (!differentRaters.contains(rating.getOwnerURI())){
 				differentRaters.add(rating.getOwnerURI());
 			}
 		}
@@ -97,6 +97,7 @@ public class EpnoiCoreParameterizedMain {
 		ArrayList<Long> differentRatedWorkflow = new ArrayList<Long>();
 		int contentBased = 0;
 		int collaborativeBased = 0;
+		int socialbased = 0;
 
 		for (Recommendation recommendation : epnoiCore.getRecommendationSpace()
 				.getAllRecommendations()) {
@@ -112,7 +113,15 @@ public class EpnoiCoreParameterizedMain {
 					.equals("collaborative-filtering")) {
 				collaborativeBased++;
 			} else {
-				contentBased++;
+				
+				if (recommendation.getProvenance().getParameterByName("technique")
+						.equals("social-based")) {
+					socialbased++;
+				} else {
+					contentBased++;	
+				}
+				
+				
 			}
 		}
 
@@ -182,12 +191,12 @@ public class EpnoiCoreParameterizedMain {
 
 		System.out.println("# of packs "
 				+ epnoiCore.getModel().getPacks().size());
-
+/*
 		for (Recommendation recommendation : epnoiCore.getRecommendationSpace()
 				.getAllRecommendations()) {
 			System.out.println(">>>>> " + recommendation);
 		}
-
+*/
 		epnoiCore.close();
 	}
 
