@@ -62,7 +62,7 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		HashMap<String, Long> mutualFriendsGraphCardinalityCache = new HashMap<String, Long>();
 		ExecutionEngine engine = new ExecutionEngine(this.database);
 		for (User user : model.getUsers()) {
-			//System.out.println("Aqui entra"+user);
+			// System.out.println("Aqui entra"+user);
 			ArrayList<Recommendation> recommendations = new ArrayList<Recommendation>();
 			// System.out.println(">" + user.getName());
 			if (user.getFriends().size() != 0) {
@@ -96,29 +96,30 @@ public class UsersSocialNetworkRecommender implements Recommender {
 										.getURI());
 						Parameter techniqueParameter = new Parameter();
 						techniqueParameter.setName(Provenance.TECHNIQUE);
-						techniqueParameter.setValue(Provenance.TECHNIQUE_SOCIAL);
+						techniqueParameter
+								.setValue(Provenance.TECHNIQUE_SOCIAL);
 						Parameter parameter = new Parameter();
 						parameter.setName(Provenance.ITEM_TYPE);
 						parameter.setValue(Provenance.ITEM_TYPE_USER);
 						recommendation.getProvenance().getParameters()
 								.add(parameter);
 						recommendation.getProvenance().getParameters()
-						.add(techniqueParameter);
-						
-						Explanation explanation = new Explanation();
+								.add(techniqueParameter);
 
-						explanation.setExplanation("TO BE DONE");
+						Explanation explanation = new Explanation();
+						String explanationText = _generateExaplanation(
+								user.getURI(), candidateUser, engine);
+						explanation.setExplanation(explanationText);
 						explanation.setTimestamp(new Date(System
 								.currentTimeMillis()));
-						recommendation
-								.setExplanation(explanation);
+						recommendation.setExplanation(explanation);
 
 						recommendations.add(recommendation);
 						/*
-						  System.out.println(">     >(user, similarity)> (" +
-						  user.getName() + ", " + candidateUser.getName() +
-						  ") >" + similarity);
-						  */
+						 * System.out.println(">     >(user, similarity)> (" +
+						 * user.getName() + ", " + candidateUser.getName() +
+						 * ") >" + similarity);
+						 */
 					}
 
 				}
@@ -131,7 +132,7 @@ public class UsersSocialNetworkRecommender implements Recommender {
 					while (index < this.recommenderParameters
 							.getNumberOfRecommendations()
 							&& index < recommendations.size()) {
-						
+
 						numberOfRecommendations++;
 						orderedRecommendations.get(index).setStrength(
 								orderedRecommendations.get(index).getStrength()
@@ -147,11 +148,50 @@ public class UsersSocialNetworkRecommender implements Recommender {
 
 		long start = new Date().getTime();
 		/*
-		System.out
-				.println("Harvesting took " + (end - start) + " milliseconds");
-		System.out.println("NUMBER OF RECOMMENDATIONS "
-				+ numberOfRecommendations);
-*/
+		 * System.out .println("Harvesting took " + (end - start) +
+		 * " milliseconds"); System.out.println("NUMBER OF RECOMMENDATIONS " +
+		 * numberOfRecommendations);
+		 */
+	}
+
+	private String _generateExaplanation(String userURI, User candidateUser,
+			ExecutionEngine engine) {
+		String explanation = "The user " + candidateUser.getName()
+				+ " is recommended to you since you share";
+
+		ArrayList<String> mutualFriends = _usersMutualFriends(userURI,
+				candidateUser.getURI(), engine);
+
+		if (mutualFriends.size() > 1) {
+
+			if (mutualFriends.size() == 2) {
+				explanation += " friends like " + mutualFriends.get(0)
+						+ " and " + mutualFriends.get(1);
+			} else {
+
+				explanation += " some common friends such as ";
+				int index = 0;
+				Iterator<String> mutualFriendsIt = mutualFriends.iterator();
+
+				while (mutualFriendsIt.hasNext() && index < 2) {
+					explanation += mutualFriendsIt.next();
+
+					if (mutualFriendsIt.hasNext()) {
+						explanation += ", ";
+					}
+					index++;
+
+				}
+				if (mutualFriendsIt.hasNext()) {
+					explanation += " etc.";
+				}
+			}
+
+		} else {
+			explanation += " the friend " + mutualFriends.get(0);
+		}
+
+		return explanation;
 	}
 
 	private ArrayList<Recommendation> _orderAndNormalize(
@@ -308,8 +348,31 @@ public class UsersSocialNetworkRecommender implements Recommender {
 			numberOfTs = (Long) result.iterator().next().get("numberOfTs");
 		}
 
-		// System.out.println("out Rs> "+numberOfRs+" Ss> "+numberOfSs+" Ts> "+numberOfTs);
-
 		return numberOfRs + numberOfSs + numberOfTs;
+	}
+
+	private ArrayList<String> _usersMutualFriends(String originUser,
+			String destinationUser, ExecutionEngine engine) {
+		ArrayList<String> commonFriends = new ArrayList<String>();
+
+		String query = "START originUser=node:users(URI = {originUser}), destinationUser=node:users(URI = {destinationUser}) "
+				+ "MATCH originUser-[:FRIEND]-x-[:FRIEND]-destinationUser "
+				+ "RETURN distinct(x) as commonFriend";
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("originUser", originUser);
+		params.put("destinationUser", destinationUser);
+		// System.out.println("..................> "+params);
+		ExecutionResult result = engine.execute(query, params);
+
+		while (result.iterator().hasNext()) {
+			Map resultMap = result.iterator().next();
+			Node commonFriendNode = (Node) resultMap.get("commonFriend");
+			String commonFriendURI = (String) commonFriendNode
+					.getProperty(this.LABEL_KEY);
+			commonFriends.add(commonFriendURI);
+		}
+
+		return commonFriends;
 	}
 }
