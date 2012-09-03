@@ -52,7 +52,8 @@ public class ParametersModelWrapper {
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
 			Unmarshaller um = context.createUnmarshaller();
-			model = (ParametersModel) um.unmarshal(new FileReader(modelFilePath));
+			model = (ParametersModel) um
+					.unmarshal(new FileReader(modelFilePath));
 		} catch (PropertyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -54,5 +54,9 @@ public class CollaborativeFilterRecommenderParameters extends
 		this.numberOfRecommendations = numberOfRecommendations;
 	}
 
+	@Override
+	public String toString(){
+		return "Collaborative Filter Recommender[ItemType:"+super.getType()+", #Recommendations:"+this.numberOfRecommendations+", NeighbourhoodType: "+this.neighbourhoodType+", NeighbourhoodSize: "+this.neighbourhoohdSize +" , NeighbourhoodThreshold:"+this.neighbourhoodThreshold+"]";
+	}
 	
 }

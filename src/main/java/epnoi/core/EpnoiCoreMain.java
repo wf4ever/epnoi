@@ -1,20 +1,15 @@
 package epnoi.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Properties;
-
-import epnoi.model.Rating;
+import epnoi.logging.EpnoiLogger;
 import epnoi.model.Recommendation;
-import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.ParametersModelWrapper;
-import epnoi.recommeders.Recommender;
 
 public class EpnoiCoreMain {
 
 	public static void main(String[] args) {
+		EpnoiLogger.setup();
 		System.out.println("Starting the EpnoiCoreMain");
 		EpnoiCore epnoiCore = new EpnoiCore();
 
@@ -31,9 +26,12 @@ public class EpnoiCoreMain {
 		 */
 		epnoiCore.init(parametersModel);
 
+		
+		
+		
 		for (User user : epnoiCore.getModel().getUsers()) {
-			if ((epnoiCore.getInferredRecommendationSpace()
-					.getRecommendationsForUserURI(user.getURI())).size() > 0) {
+		//	if ((epnoiCore.getInferredRecommendationSpace()
+		//			.getRecommendationsForUserURI(user.getURI())).size() > 0) {
 				System.out.println("Recommedations for user " + user.getName()
 						+ "--------------------------------");
 				for (Recommendation recommendation : epnoiCore
@@ -50,7 +48,7 @@ public class EpnoiCoreMain {
 							+ recommendation.getItemURI());
 
 				}
-			}
+			//}
 
 			epnoiCore.close();
 		}

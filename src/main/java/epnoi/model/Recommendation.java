@@ -73,7 +73,7 @@ public class Recommendation implements Comparable {
 		Recommendation recommendation = (Recommendation) object;
 		if (this.strength > recommendation.getStrength())
 			return 1;
-		if (this.strength == recommendation.getStrength())
+		else if (this.strength.equals(recommendation.getStrength()))
 			return 0;
 
 		return -1;

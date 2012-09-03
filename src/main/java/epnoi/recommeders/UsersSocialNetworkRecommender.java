@@ -89,7 +89,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 
 						Recommendation recommendation = new Recommendation();
 						recommendation.setUserURI(user.getURI());
-						recommendation.setStrength(similarity.floatValue());
+						//The recommendation strength ranges from 0 to 5
+						recommendation.setStrength(5*similarity.floatValue());
 						recommendation.setItemURI(candidateURI);
 						recommendation
 								.setRecommenderURI(this.recommenderParameters
@@ -115,11 +116,7 @@ public class UsersSocialNetworkRecommender implements Recommender {
 						recommendation.setExplanation(explanation);
 
 						recommendations.add(recommendation);
-						/*
-						 * System.out.println(">     >(user, similarity)> (" +
-						 * user.getName() + ", " + candidateUser.getName() +
-						 * ") >" + similarity);
-						 */
+						
 					}
 
 				}
@@ -198,7 +195,10 @@ public class UsersSocialNetworkRecommender implements Recommender {
 			ArrayList<Recommendation> recomendations) {
 		ArrayList<Recommendation> orderedRecommendations = (ArrayList<Recommendation>) recomendations
 				.clone();
+		System.out.println(orderedRecommendations);
+		
 		Collections.sort(orderedRecommendations);
+		
 		Collections.reverse(orderedRecommendations);
 		if (orderedRecommendations.size() > 0) {
 			Recommendation firstRecommnedation = orderedRecommendations.get(0);
@@ -222,7 +222,7 @@ public class UsersSocialNetworkRecommender implements Recommender {
 	}
 
 	public void close() {
-
+		this.database.shutdown();
 	}
 
 	public RecommenderParameters getInitializationParameters() {

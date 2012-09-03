@@ -19,4 +19,9 @@ public class KeywordRecommenderParameters extends RecommenderParameters {
 	public void setNumberOfQueryHits(Integer numberOfQueryHits) {
 		this.numberOfQueryHits = numberOfQueryHits;
 	}
+	
+	@Override
+	public String toString(){
+		return "Keyword Recommender[#QueryHits:"+this.numberOfQueryHits+", IndexPath"+this.indexPath+"]";
+	}
 }

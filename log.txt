@@ -1,0 +1,22 @@
+25-jul-2012 11:23:10 epnoi.core.EpnoiCore init
+INFO: Initializing the epnoi core
+25-jul-2012 11:23:12 epnoi.core.EpnoiCore _initRecommenders
+INFO: Initializing recommenders
+25-jul-2012 11:23:14 org.neo4j.kernel.impl.transaction.xaframework.XaLogicalLog doInternalRecovery
+INFO: Non clean shutdown detected on log [/proofs/myexperimentgraphdb/nioneo_logical.log.1]. Recovery started ...
+25-jul-2012 11:23:15 org.neo4j.kernel.impl.transaction.xaframework.XaLogicalLog doInternalRecovery
+INFO: Non clean shutdown detected on log [/proofs/myexperimentgraphdb/index/lucene.log.1]. Recovery started ...
+25-jul-2012 11:23:15 epnoi.core.EpnoiCore _initRecommenders
+INFO: The following recommenders have been initialized: 
+	> (recommenderDSocial Recommender[#Recommendations:5]
+
+25-jul-2012 11:23:15 epnoi.core.EpnoiCore _initRecommendationSpace
+INFO: Initializing the Recommendations Space
+25-jul-2012 11:23:55 epnoi.core.EpnoiCore _initRecommendationSpace
+INFO: The recommendation space has been initialized with 1799 recommendations
+25-jul-2012 11:23:55 epnoi.core.EpnoiCore _initInferenceEngine
+INFO: Initializing the Inference Engine
+25-jul-2012 11:23:55 epnoi.core.EpnoiCore _initInferredRecommendationSpace
+INFO: Initializing the inferred recommendations space
+25-jul-2012 11:23:55 epnoi.core.EpnoiCore _initInferredRecommendationSpace
+INFO: The inferred recommend space has been initialized with 0
