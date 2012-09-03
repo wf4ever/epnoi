@@ -12,7 +12,7 @@ import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.ParametersModelWrapper;
 import epnoi.recommeders.Recommender;
 
-public class EpnoiCoreParameterizedMain {
+public class EpnoiCoreMainWithInfo {
 
 	public static void main(String[] args) {
 		System.out.println("Starting the EpnoiCoreMain");

@@ -30,12 +30,12 @@ public class EpnoiCoreMain {
 		
 		
 		for (User user : epnoiCore.getModel().getUsers()) {
-		//	if ((epnoiCore.getInferredRecommendationSpace()
-		//			.getRecommendationsForUserURI(user.getURI())).size() > 0) {
+			if ((epnoiCore.getRecommendationSpace()
+					.getRecommendationsForUserURI(user.getURI())).size() > 0) {
 				System.out.println("Recommedations for user " + user.getName()
 						+ "--------------------------------");
 				for (Recommendation recommendation : epnoiCore
-						.getInferredRecommendationSpace()
+						.getRecommendationSpace()
 						.getRecommendationsForUserURI(user.getURI())) {
 					// System.out.println("Recommendation for "
 					// + recommendation.getUserURI());
@@ -48,7 +48,7 @@ public class EpnoiCoreMain {
 							+ recommendation.getItemURI());
 
 				}
-			//}
+			}
 
 			epnoiCore.close();
 		}
