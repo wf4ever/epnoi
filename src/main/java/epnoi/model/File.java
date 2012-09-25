@@ -5,6 +5,7 @@ public class File implements Resource{
 	String URI;
 	String resource;
 	String title;
+	String uploaderURI;
 
 	public Long getID() {
 		return ID;
@@ -36,6 +37,14 @@ public class File implements Resource{
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getUploaderURI() {
+		return uploaderURI;
+	}
+
+	public void setUploaderURI(String uploaderURI) {
+		this.uploaderURI = uploaderURI;
 	}
 	
 	

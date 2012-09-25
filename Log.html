@@ -1,28 +1,34 @@
 <HTML>
 <HEAD>
-Tue Sep 04 00:25:26 CEST 2012
+Fri Sep 21 17:33:05 CEST 2012
 </HEAD>
 <BODY>
 <PRE>
 <table border>
   <tr><th>Level</th><th>Timestamp</th><th>Log Message</th><th>Source class</th><th>Source method</th></tr>
-<tr><td>INFO</td><td>sep 04,2012 00:25</td><td>Initializing the epnoi core</td><td>epnoi.core.EpnoiCore</td><td>init</td>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing the epnoi core</td><td>epnoi.core.EpnoiCore</td><td>init</td>
 </tr>
-<tr><td>INFO</td><td>sep 04,2012 00:25</td><td>Initializing recommenders</td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing recommenders</td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
 </tr>
-<tr><td>INFO</td><td>sep 04,2012 00:25</td><td>The following recommenders have been initialized: 
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing collaborative filtering recommenders</td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
+</tr>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing keyword content based recommenders</td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
+</tr>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing group based recommenders</td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
+</tr>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Index directory for the recommender/wf4ever/data/indexMyExperiment</td><td>epnoi.recommeders.WorkflowsGroupBasedRecommender</td><td>init</td>
+</tr>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing social recommenders</td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
+</tr>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>The following recommenders have been initialized: 
+	> (recommenderEGroup Based Recommender[#QueryHits:10, IndexPath/wf4ever/indexMyExperiment]
+	> (recommenderACollaborative Filter Recommender[ItemType:WORKFLOWS_COLLABORATIVE_FILTER, #Recommendations:5, NeighbourhoodType: NEIGHBOURHOOD_TYPE_NEAREST, NeighbourhoodSize: 5 , NeighbourhoodThreshold:null]
+	> (recommenderBCollaborative Filter Recommender[ItemType:FILES_COLLABORATIVE_FILTER, #Recommendations:5, NeighbourhoodType: NEIGHBOURHOOD_TYPE_NEAREST, NeighbourhoodSize: 5 , NeighbourhoodThreshold:null]
+	> (recommenderCKeyword Recommender[#QueryHits:10, IndexPath/wf4ever/indexMyExperiment]
 	> (recommenderDSocial Recommender[#Recommendations:5]
 </td><td>epnoi.core.EpnoiCore</td><td>_initRecommenders</td>
 </tr>
-<tr><td>INFO</td><td>sep 04,2012 00:25</td><td>Initializing the Recommendations Space</td><td>epnoi.core.EpnoiCore</td><td>_initRecommendationSpace</td>
-</tr>
-<tr><td>INFO</td><td>sep 04,2012 00:26</td><td>The recommendation space has been initialized with 1799 recommendations</td><td>epnoi.core.EpnoiCore</td><td>_initRecommendationSpace</td>
-</tr>
-<tr><td>INFO</td><td>sep 04,2012 00:26</td><td>Initializing the Inference Engine</td><td>epnoi.core.EpnoiCore</td><td>_initInferenceEngine</td>
-</tr>
-<tr><td>INFO</td><td>sep 04,2012 00:26</td><td>Initializing the inferred recommendations space</td><td>epnoi.core.EpnoiCore</td><td>_initInferredRecommendationSpace</td>
-</tr>
-<tr><td>INFO</td><td>sep 04,2012 00:26</td><td>The inferred recommend space has been initialized with 0</td><td>epnoi.core.EpnoiCore</td><td>_initInferredRecommendationSpace</td>
+<tr><td>INFO</td><td>sep 21,2012 17:33</td><td>Initializing the Recommendations Space</td><td>epnoi.core.EpnoiCore</td><td>_initRecommendationSpace</td>
 </tr>
 </table>
   </PRE></BODY>

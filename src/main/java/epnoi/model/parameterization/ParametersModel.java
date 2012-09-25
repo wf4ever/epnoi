@@ -31,12 +31,14 @@ public class ParametersModel {
 	private ArrayList<CollaborativeFilterRecommenderParameters> collaborativeFilteringRecommender;
 	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
 	private ArrayList<SocialNetworkRecommenderParameters> socialRecommender;
+	private ArrayList<GroupBasedRecommenderParameters> groupBasedRecommender;
 	private InferenceEngineParameters inferenceEngine;
 
 	public ParametersModel() {
 		this.collaborativeFilteringRecommender = new ArrayList<CollaborativeFilterRecommenderParameters>();
 		this.keywordBasedRecommender = new ArrayList<KeywordRecommenderParameters>();
 		this.socialRecommender = new ArrayList<SocialNetworkRecommenderParameters>();
+		this.groupBasedRecommender = new ArrayList<GroupBasedRecommenderParameters>();
 	}
 
 	public ArrayList<KeywordRecommenderParameters> getKeywordBasedRecommender() {
@@ -64,6 +66,15 @@ public class ParametersModel {
 	public void setSocialRecommender(
 			ArrayList<SocialNetworkRecommenderParameters> socialRecommender) {
 		this.socialRecommender = socialRecommender;
+	}
+
+	public ArrayList<GroupBasedRecommenderParameters> getGroupBasedRecommender() {
+		return groupBasedRecommender;
+	}
+
+	public void setGroupBasedRecommender(
+			ArrayList<GroupBasedRecommenderParameters> groupBasedRecommender) {
+		this.groupBasedRecommender = groupBasedRecommender;
 	}
 
 	
@@ -122,6 +133,7 @@ public class ParametersModel {
 	public void setInferenceEngine(InferenceEngineParameters inferenceEngine) {
 		this.inferenceEngine = inferenceEngine;
 	}
+
 
 	
 }

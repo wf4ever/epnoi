@@ -56,9 +56,9 @@ public class ParametersModelReaderMain {
 
 		parametersModel.getKeywordBasedRecommender().add(recommenderC);
 
-		ParametersModelWrapper.write(parametersModel, parametersModelPath);
+		ParametersModelReader.write(parametersModel, parametersModelPath);
 
-		ParametersModel readedParametersModel = ParametersModelWrapper
+		ParametersModel readedParametersModel = ParametersModelReader
 				.read("/parametersModelPath.xml");
 		for (CollaborativeFilterRecommenderParameters recommenderParameters : readedParametersModel
 				.getCollaborativeFilteringRecommender()) {

@@ -1,5 +1,5 @@
 package epnoi.recommeders;
 
-public interface KeywordContentBasedRecommender extends Recommender {
+public interface KeywordContentBasedRecommender extends BatchRecommender {
 
 }

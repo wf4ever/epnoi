@@ -86,4 +86,9 @@ public class Rating implements Resource {
 		URI = uRI;
 	}
 
+	@Override
+	public String toString() {
+		return "Rating[ "+this.getURI()+" ]";
+	}
+	
 }

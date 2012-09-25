@@ -1,18 +1,24 @@
-04-sep-2012 0:25:26 epnoi.core.EpnoiCore init
+21-sep-2012 17:33:05 epnoi.core.EpnoiCore init
 INFO: Initializing the epnoi core
-04-sep-2012 0:25:28 epnoi.core.EpnoiCore _initRecommenders
+21-sep-2012 17:33:07 epnoi.core.EpnoiCore _initRecommenders
 INFO: Initializing recommenders
-04-sep-2012 0:25:28 epnoi.core.EpnoiCore _initRecommenders
+21-sep-2012 17:33:07 epnoi.core.EpnoiCore _initRecommenders
+INFO: Initializing collaborative filtering recommenders
+21-sep-2012 17:33:07 epnoi.core.EpnoiCore _initRecommenders
+INFO: Initializing keyword content based recommenders
+21-sep-2012 17:33:08 epnoi.core.EpnoiCore _initRecommenders
+INFO: Initializing group based recommenders
+21-sep-2012 17:33:08 epnoi.recommeders.WorkflowsGroupBasedRecommender init
+INFO: Index directory for the recommender/wf4ever/data/indexMyExperiment
+21-sep-2012 17:33:08 epnoi.core.EpnoiCore _initRecommenders
+INFO: Initializing social recommenders
+21-sep-2012 17:33:09 epnoi.core.EpnoiCore _initRecommenders
 INFO: The following recommenders have been initialized: 
+	> (recommenderEGroup Based Recommender[#QueryHits:10, IndexPath/wf4ever/indexMyExperiment]
+	> (recommenderACollaborative Filter Recommender[ItemType:WORKFLOWS_COLLABORATIVE_FILTER, #Recommendations:5, NeighbourhoodType: NEIGHBOURHOOD_TYPE_NEAREST, NeighbourhoodSize: 5 , NeighbourhoodThreshold:null]
+	> (recommenderBCollaborative Filter Recommender[ItemType:FILES_COLLABORATIVE_FILTER, #Recommendations:5, NeighbourhoodType: NEIGHBOURHOOD_TYPE_NEAREST, NeighbourhoodSize: 5 , NeighbourhoodThreshold:null]
+	> (recommenderCKeyword Recommender[#QueryHits:10, IndexPath/wf4ever/indexMyExperiment]
 	> (recommenderDSocial Recommender[#Recommendations:5]
 
-04-sep-2012 0:25:28 epnoi.core.EpnoiCore _initRecommendationSpace
+21-sep-2012 17:33:09 epnoi.core.EpnoiCore _initRecommendationSpace
 INFO: Initializing the Recommendations Space
-04-sep-2012 0:26:05 epnoi.core.EpnoiCore _initRecommendationSpace
-INFO: The recommendation space has been initialized with 1799 recommendations
-04-sep-2012 0:26:05 epnoi.core.EpnoiCore _initInferenceEngine
-INFO: Initializing the Inference Engine
-04-sep-2012 0:26:05 epnoi.core.EpnoiCore _initInferredRecommendationSpace
-INFO: Initializing the inferred recommendations space
-04-sep-2012 0:26:05 epnoi.core.EpnoiCore _initInferredRecommendationSpace
-INFO: The inferred recommend space has been initialized with 0

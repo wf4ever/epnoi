@@ -10,6 +10,7 @@ public class Pack implements Resource{
 	String description;
 	ArrayList<String> internalWorkflows;
 	ArrayList<String> internalFiles;
+	String uploaderURI;
 
 	public Pack() {
 		this.internalWorkflows = new ArrayList<String>();
@@ -70,6 +71,14 @@ public class Pack implements Resource{
 
 	public void setResource(String resource) {
 		this.resource = resource;
+	}
+
+	public String getUploaderURI() {
+		return uploaderURI;
+	}
+
+	public void setUploaderURI(String uploaderURI) {
+		this.uploaderURI = uploaderURI;
 	}
 
 }

@@ -31,7 +31,7 @@ import epnoi.model.Workflow;
 public class MyExperimentIndexer {
 
 	private Model model;
-	private String MODEL_PATH = "/model.xml";
+	private String MODEL_PATH = "/lastImportedModel.xml";
 
 	private boolean DEBUG = false; // 1
 
@@ -53,7 +53,7 @@ public class MyExperimentIndexer {
 		System.out.println("Indexing the myExperiment data ");
 
 		TikaConfig config = TikaConfig.getDefaultConfig();
-		String indexDir = "/indexMyExperiment";
+		String indexDir = "/JUNK/indexMyExperiment";
 		// String dataDir = "/proofs/lucene/dataTika";
 
 		long start = new Date().getTime();

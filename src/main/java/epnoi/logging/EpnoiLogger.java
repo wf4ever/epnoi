@@ -1,7 +1,5 @@
 package epnoi.logging;
 
-
-
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -22,7 +20,7 @@ public class EpnoiLogger {
 		logger.setLevel(Level.INFO);
 		try {
 			fileTxt = new FileHandler("log.txt");
-			fileHTML = new FileHandler("Log.html");
+			fileHTML = new FileHandler("log.html");
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -37,8 +35,8 @@ public class EpnoiLogger {
 		logger.addHandler(fileTxt);
 
 		// Create HTML Formatter
-				formatterHTML = new HtmlFormatter();
-				fileHTML.setFormatter(formatterHTML);
-				logger.addHandler(fileHTML);
+		formatterHTML = new HtmlFormatter();
+		fileHTML.setFormatter(formatterHTML);
+		logger.addHandler(fileHTML);
 	}
 }

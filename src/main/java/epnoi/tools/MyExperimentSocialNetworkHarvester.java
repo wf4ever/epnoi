@@ -25,8 +25,8 @@ public class MyExperimentSocialNetworkHarvester {
 	private GraphDatabaseService database;
 	private Model model;
 
-	private String MODEL_PATH = "/proofs/lastImportedModel.xml";
-	private static final String DB_PATH = "/proofs/myexperimentgraphdb";
+	private String MODEL_PATH = "/wf4ever/data/lastImportedModel.xml";
+	private static final String DB_PATH = "/JUNK/myexperimentgraphdb";
 	private static final String URI_KEY = "URI";
 	private static final String LABEL_KEY = "Label";
 	private static Index<Node> nodeIndex;
@@ -45,24 +45,30 @@ public class MyExperimentSocialNetworkHarvester {
 			}
 
 			for (User user : this.model.getUsers()) {
-
+				System.out.println("Adding user " + user.getURI()
+						+ " to the graph");
 				Node userNode = _getNodeFromIndex(user.getURI());
 				for (String friendURI : user.getFriends()) {
 					Node friendNode = _getNodeFromIndex(friendURI);
+					// Since there can be some friends that could not be stored
+					// in the model
+					// we must check whether there is no node that represent
+					// that user (i.e. friendNode != null)
+					if (friendNode != null) {
+						Iterator<Relationship> relationsIt = friendNode
+								.getRelationships().iterator();
+						boolean finded = false;
+						while (relationsIt.hasNext() && (!finded)) {
+							Relationship relationship = relationsIt.next();
+							finded = relationship.getEndNode().equals(userNode)
+									&& relationship.getType().equals(
+											RelTypes.FRIEND);
 
-					Iterator<Relationship> relationsIt = friendNode
-							.getRelationships().iterator();
-					boolean finded = false;
-					while (relationsIt.hasNext() && (!finded)) {
-						Relationship relationship = relationsIt.next();
-						finded = relationship.getEndNode().equals(userNode)
-								&& relationship.getType().equals(
-										RelTypes.FRIEND);
-
-					}
-					if (!finded) {
-						userNode.createRelationshipTo(friendNode,
-								RelTypes.FRIEND);
+						}
+						if (!finded) {
+							userNode.createRelationshipTo(friendNode,
+									RelTypes.FRIEND);
+						}
 					}
 				}
 
@@ -142,6 +148,7 @@ public class MyExperimentSocialNetworkHarvester {
 	}
 
 	public Node _getNodeFromIndex(String URI) {
+		
 		IndexHits<Node> hits = this.nodeIndex.get(URI_KEY, URI);
 		Node node = hits.getSingle();
 		hits.close();
@@ -220,17 +227,17 @@ public class MyExperimentSocialNetworkHarvester {
 
 		MyExperimentSocialNetworkHarvester harvester = new MyExperimentSocialNetworkHarvester();
 		harvester.init();
-		//harvester.run();
+		harvester.run();
 
 		long end = new Date().getTime();
 
-		System.out.println("Detecting candidates ");
-		//System.exit(0);
-		
+		// System.out.println("Detecting candidates ");
+		System.exit(0);
+
 		HashMap<String, Long> mutualFriendsGraphCardinalityCache = new HashMap<String, Long>();
 		ExecutionEngine engine = new ExecutionEngine(harvester.getDatabase());
 		for (User user : harvester.getModel().getUsers()) {
-			//System.out.println(">" + user.getName());
+			// System.out.println(">" + user.getName());
 			if (user.getFriends().size() != 0) {
 				Long numberOfEdgesFriendsGraph = harvester
 						.userFriendsGraphEdgesCardinalityOptimized(
@@ -239,8 +246,8 @@ public class MyExperimentSocialNetworkHarvester {
 						.getPossibleCandidates(user)) {
 					User candidateUser = harvester.getModel().getUserByURI(
 							candidateURI);
-					//System.out.println("      candidate:"
-					//		+ candidateUser.getName());
+					// System.out.println("      candidate:"
+					// + candidateUser.getName());
 					if (!candidateURI.equals(user.getURI())) {
 
 						Double similarity = harvester
@@ -407,16 +414,17 @@ public class MyExperimentSocialNetworkHarvester {
 			String destinationUser, Long numberOfEdgesFriendsGraph,
 			HashMap<String, Long> mfgCache, ExecutionEngine engine) {
 		Double similarity = 0.;
-		
+
 		Long numberOfEdgesMutualFriendsGraph = 0L;
-		
+
 		if (mfgCache.containsKey(originUser + destinationUser)) {
 			numberOfEdgesMutualFriendsGraph = mfgCache.get(originUser
 					+ destinationUser);
-		} else if (mfgCache.containsKey(destinationUser+originUser))
-			numberOfEdgesMutualFriendsGraph = mfgCache.get(destinationUser+originUser);
-		
-		else{
+		} else if (mfgCache.containsKey(destinationUser + originUser))
+			numberOfEdgesMutualFriendsGraph = mfgCache.get(destinationUser
+					+ originUser);
+
+		else {
 
 			numberOfEdgesMutualFriendsGraph = usersMutualFriendsGraphEdgesCardinalityOptimized(
 					originUser, destinationUser, engine);
@@ -428,11 +436,12 @@ public class MyExperimentSocialNetworkHarvester {
 		}
 
 		/*
-		numberOfEdgesMutualFriendsGraph = usersMutualFriendsGraphEdgesCardinalityOptimized(
-				originUser, destinationUser, engine);
-*/
-		System.out.println("#FG " + (numberOfEdgesFriendsGraph));
-		System.out.println("#MFG " + (numberOfEdgesMutualFriendsGraph));
+		 * numberOfEdgesMutualFriendsGraph =
+		 * usersMutualFriendsGraphEdgesCardinalityOptimized( originUser,
+		 * destinationUser, engine);
+		 */
+		// System.out.println("#FG " + (numberOfEdgesFriendsGraph));
+		// System.out.println("#MFG " + (numberOfEdgesMutualFriendsGraph));
 		// double similarity =
 		// Math.log(numberOfEdgesMutualFriendsGraph)/Math.log(2*numberOfEdgesFriendsGraph);
 		similarity = ((double) Math.log(numberOfEdgesMutualFriendsGraph) / ((double) Math

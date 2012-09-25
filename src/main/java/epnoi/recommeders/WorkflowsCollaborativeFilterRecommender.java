@@ -23,6 +23,7 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
+import epnoi.core.EpnoiCore;
 import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
@@ -51,9 +52,9 @@ public class WorkflowsCollaborativeFilterRecommender implements
 		this.recommenderParameters = (CollaborativeFilterRecommenderParameters) recommenderParameters;
 	}
 
-	public void init(Model model) {
+	public void init(EpnoiCore epnoiCore) {
 
-		this.model = model;
+		this.model = epnoiCore.getModel();
 		this.recommenderParameters = (CollaborativeFilterRecommenderParameters) recommenderParameters;
 		_initData();
 

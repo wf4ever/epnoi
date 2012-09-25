@@ -14,6 +14,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 
+import epnoi.core.EpnoiCore;
 import epnoi.model.Explanation;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
@@ -28,7 +29,7 @@ import epnoi.model.parameterization.RecommenderParameters;
 import epnoi.model.parameterization.SocialNetworkRecommenderParameters;
 import epnoi.tools.MyExperimentSocialNetworkHarvester;
 
-public class UsersSocialNetworkRecommender implements Recommender {
+public class UsersSocialNetworkRecommender implements BatchRecommender {
 	SocialNetworkRecommenderParameters recommenderParameters = null;
 	ParametersModel parametersModel = null;
 	Model model = null;
@@ -41,6 +42,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 	private static Index<Node> nodeIndex;
 	Node usersReferenceNode;
 
+	// -------------------------------------------------------------------------------------------------
+	
 	public UsersSocialNetworkRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
@@ -48,15 +51,17 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		this.parametersModel = parametersModel;
 
 	}
+	
+	// -------------------------------------------------------------------------------------------------
 
 	public void recommend(RecommendationSpace recommedationSpace) {
-		System.out.println("Harvesting the myExperiment social network");
+		//System.out.println("Harvesting the myExperiment social network");
 
 		int numberOfRecommendations = 0;
 
 		long end = new Date().getTime();
 
-		System.out.println("Detecting candidates ");
+		//System.out.println("Detecting candidates ");
 		// System.exit(0);
 
 		HashMap<String, Long> mutualFriendsGraphCardinalityCache = new HashMap<String, Long>();
@@ -151,6 +156,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		 */
 	}
 
+	// -------------------------------------------------------------------------------------------------
+	
 	private String _generateExaplanation(String userURI, User candidateUser,
 			ExecutionEngine engine) {
 		String explanation = "The user " + candidateUser.getName()
@@ -191,11 +198,13 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		return explanation;
 	}
 
+	// -------------------------------------------------------------------------------------------------
+	
 	private ArrayList<Recommendation> _orderAndNormalize(
 			ArrayList<Recommendation> recomendations) {
 		ArrayList<Recommendation> orderedRecommendations = (ArrayList<Recommendation>) recomendations
 				.clone();
-		System.out.println(orderedRecommendations);
+		//System.out.println(orderedRecommendations);
 		
 		Collections.sort(orderedRecommendations);
 		
@@ -211,25 +220,33 @@ public class UsersSocialNetworkRecommender implements Recommender {
 
 	}
 
-	public void init(Model model) {
-		this.model = model;
-		System.out.println("Database path "
-				+ this.parametersModel.getGraphPath());
+	// -------------------------------------------------------------------------------------------------
+	
+	public void init(EpnoiCore epnoiCore) {
+		this.model = epnoiCore.getModel();
+		//System.out.println("Database path "+ this.parametersModel.getGraphPath());
+		
 		this.database = new GraphDatabaseFactory()
 				.newEmbeddedDatabase(this.parametersModel.getGraphPath());
 		this.nodeIndex = database.index().forNodes("users");
 
 	}
+	
+	// -------------------------------------------------------------------------------------------------
 
 	public void close() {
 		this.database.shutdown();
 	}
 
+	// -------------------------------------------------------------------------------------------------
+	
 	public RecommenderParameters getInitializationParameters() {
 
 		return this.recommenderParameters;
 	}
 
+	// -------------------------------------------------------------------------------------------------
+	
 	private Long _userFriendsGraphEdgesCardinalityOptimized(String user,
 			ExecutionEngine engine) {
 		Long cardinality = 0L;
@@ -250,6 +267,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		return cardinality;
 	}
 
+	// -------------------------------------------------------------------------------------------------
+	
 	public ArrayList<String> _getPossibleCandidates(User user,
 			ExecutionEngine engine) {
 
@@ -271,6 +290,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		return candidates;
 	}
 
+	// -------------------------------------------------------------------------------------------------
+	
 	public Double _userNetworkSimilarityOptimized(String originUser,
 			String destinationUser, Long numberOfEdgesFriendsGraph,
 			HashMap<String, Long> mfgCache, ExecutionEngine engine) {
@@ -310,6 +331,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 		// System.out.println("Similarity" + similarity);
 		return similarity;
 	}
+	
+	// -------------------------------------------------------------------------------------------------
 
 	private Long _usersMutualFriendsGraphEdgesCardinalityOptimized(
 			String originUser, String destinationUser, ExecutionEngine engine) {
@@ -350,6 +373,8 @@ public class UsersSocialNetworkRecommender implements Recommender {
 
 		return numberOfRs + numberOfSs + numberOfTs;
 	}
+	
+	// -------------------------------------------------------------------------------------------------
 
 	private ArrayList<String> _usersMutualFriends(String originUser,
 			String destinationUser, ExecutionEngine engine) {

@@ -61,16 +61,18 @@ public class Model {
 		}
 
 		for (Rating rating : this.ratings) {
-			if (rating.getType().equals(Rating.WORKFLOW_RATING)) {
+			if (rating.getType() != null) {
+				if (rating.getType().equals(Rating.WORKFLOW_RATING)) {
 
-				ArrayList<Rating> userRatings = workflowsRatingsByUser
-						.get(rating.getOwnerURI());
-				userRatings.add(rating);
-			}
-			if (rating.getType().equals(Rating.FILE_RATING)) {
-				ArrayList<Rating> userRatings = filesRatingsByUser.get(rating
-						.getOwnerURI());
-				userRatings.add(rating);
+					ArrayList<Rating> userRatings = workflowsRatingsByUser
+							.get(rating.getOwnerURI());
+					userRatings.add(rating);
+				}
+				if (rating.getType().equals(Rating.FILE_RATING)) {
+					ArrayList<Rating> userRatings = filesRatingsByUser
+							.get(rating.getOwnerURI());
+					userRatings.add(rating);
+				}
 			}
 
 		}
@@ -95,6 +97,7 @@ public class Model {
 			this.packsByID.put(pack.getID(), pack);
 		}
 
+		_initOwners();
 	}
 
 	public ArrayList<File> getFiles() {
@@ -146,8 +149,8 @@ public class Model {
 	public User getUserByURI(String userURI) {
 		return this.usersByURI.get(userURI);
 	}
-	
-	public User getUserByID(Long userID){
+
+	public User getUserByID(Long userID) {
 		return this.userByID.get(userID);
 	}
 
@@ -195,8 +198,8 @@ public class Model {
 	public boolean isFile(String URI) {
 		return this.filesByURI.containsKey(URI);
 	}
-	
-	public boolean isUser(String URI){
+
+	public boolean isUser(String URI) {
 		return this.usersByURI.containsKey(URI);
 	}
 
@@ -233,4 +236,48 @@ public class Model {
 		this.packsByURI.put(file.getURI(), file);
 		this.packsByID.put(file.getID(), file);
 	}
+
+	public void _initOwners() {
+		for (User user : this.users) {
+
+			for (String fileURI : user.getFiles()) {
+				File file = this.filesByURI.get(fileURI);
+				file.setUploaderURI(user.getURI());
+
+			}
+
+			for (String workflowURI : user.getWorkflows()) {
+				Workflow workflow = this.workflowsByURI.get(workflowURI);
+				workflow.setUploaderURI(user.getURI());
+
+			}
+
+			for (String packURI : user.getPacks()) {
+				Pack pack = this.packsByURI.get(packURI);
+				pack.setUploaderURI(user.getURI());
+			}
+		}
+	}
+
+	/*
+	 * Must be invoked begfore initializing the model!
+	 */
+	public void clean() {
+		ArrayList<Rating> ratingsToRemove = new ArrayList<Rating>();
+		for (Rating rating : this.ratings) {
+
+			boolean reomovalCondition = (rating.getType() == null)
+					|| (rating.getOwnerURI() == null)
+					|| (rating.getRatedElement() == null);
+			if (reomovalCondition) {
+				ratingsToRemove.add(rating);
+
+				System.out.println("Removing rating " + rating.getURI());
+			}
+		}
+		for (Rating rating : ratingsToRemove) {
+			this.ratings.remove(rating);
+		}
+	}
+
 }

@@ -24,11 +24,10 @@ public class InferenceEngine {
 	private ExtendedModel extendedModel = null;
 	private ParametersModel parametersModel = null;
 
-	
-	public InferenceEngine(){
-		
+	public InferenceEngine() {
+
 	}
-	
+
 	public InferenceEngine(ParametersModel parametersModel) {
 		this.parametersModel = parametersModel;
 	}
@@ -101,6 +100,8 @@ public class InferenceEngine {
 		_fitlerInitiallyActivated(inferenceResults, parameters);
 		return inferenceResults;
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * 
@@ -125,6 +126,8 @@ public class InferenceEngine {
 			inferenceResult.getActivations().remove(activation);
 		}
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	/*
 	 * Function that initializes the set of current active nodes
@@ -146,9 +149,11 @@ public class InferenceEngine {
 		}
 		return activeNodes;
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	/*
-	 * Function that expands the
+	 * Function that expands the activation set
 	 */
 
 	private void _expandActivationSet(
@@ -200,6 +205,8 @@ public class InferenceEngine {
 		 */
 		currentActiveNodes.putAll(updatedCurrentActiveNodes);
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private void _upadateActivationOfCurrentActiveNodes(
 			HashMap<String, ActiveNode> currentActiveNodes,
@@ -209,6 +216,8 @@ public class InferenceEngine {
 					activeNodes, inferenceStep);
 		}
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private void _upadateActivationOfCurrentActiveNode(
 			ActiveNode currentActiveNode,
@@ -240,6 +249,8 @@ public class InferenceEngine {
 		currentActiveNode.setActivation(currentActiveNode.getActivation()
 				+ activationUpdate);
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private void _normalizeNodes(HashMap<String, ActiveNode> activeNodes,
 			float conservationConstant) {
@@ -256,10 +267,14 @@ public class InferenceEngine {
 		}
 
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private void _filterNodes(HashMap<String, ActiveNode> activeNodes) {
 
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private InferenceResult _generateInferenceResults(
 			HashMap<String, ActiveNode> activeNodes, float conservationConstant) {
@@ -279,6 +294,8 @@ public class InferenceEngine {
 		inferenceResults.setActivations(activations);
 		return inferenceResults;
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private float _calculateTotalActivation(
 			HashMap<String, ActiveNode> activeNodes) {
@@ -288,6 +305,8 @@ public class InferenceEngine {
 		}
 		return activationConstant;
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private void _normalizeAndFilter(ArrayList<ActiveNode> activeNodes,
 			float conservationConstant) {
@@ -296,10 +315,13 @@ public class InferenceEngine {
 					/ conservationConstant);
 		}
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	public RecommendationSpace infer(RecommendationSpace recommendationSpace) {
 		RecommendationSpace inferredRecommendationSpace = new RecommendationSpace();
-		float minimumActivation = this.parametersModel.getInferenceEngine().getMinimumActivation();
+		float minimumActivation = this.parametersModel.getInferenceEngine()
+				.getMinimumActivation();
 		for (User user : this.extendedModel.getModel().getUsers()) {
 			ArrayList<Recommendation> recommendationsForUser = recommendationSpace
 					.getRecommendationsForUserURI(user.getURI());
@@ -320,34 +342,34 @@ public class InferenceEngine {
 
 				// System.out.println("The result for user " + user.getURI()+
 				// " is " + inferenceResult.getActivations());
-				
+
 				for (Activation activation : inferenceResult.getActivations()) {
-					
+
 					if (activation.getActivationValue() > minimumActivation) {
-						//System.out.println(">> URI >"+user.getURI());
+						// System.out.println(">> URI >"+user.getURI());
 						Recommendation recommendation = new Recommendation();
 						recommendation.setUserURI(user.getURI());
 						recommendation.setStrength(activation
-								.getActivationValue());
+								.getActivationValue()*5);
 						recommendation.setItemURI(activation.getNodeURI());
 						recommendation.setRecommenderURI("InferenceEngine");
 						Parameter parameterTechnique = new Parameter();
 						parameterTechnique.setName(Provenance.TECHNIQUE);
-						parameterTechnique.setValue(Provenance.TECHNIQUE_INFERRED);
-						
+						parameterTechnique
+								.setValue(Provenance.TECHNIQUE_INFERRED);
+
 						Parameter parameter = new Parameter();
 						parameter.setName(Provenance.ITEM_TYPE);
 						parameter.setValue(Provenance.ITEM_TYPE_PACK);
-						
+
 						Explanation explanation = new Explanation();
 
-						explanation.setExplanation("TO BE DONE");
+						explanation
+								.setExplanation("The pack is recommended to you since it contains items that either you own or have been recommended to you");
 						explanation.setTimestamp(new Date(System
 								.currentTimeMillis()));
-						recommendation
-								.setExplanation(explanation);
-						
-						
+						recommendation.setExplanation(explanation);
+
 						recommendation.getProvenance().getParameters()
 								.add(parameter);
 						inferredRecommendationSpace.addRecommendationForUser(
@@ -355,13 +377,13 @@ public class InferenceEngine {
 					}
 				}
 
-				// System.out.println("The result for user " + user.getURI()+
-				// " is " + inferenceResult.getActivations());
-
+				
 			}
 		}
 		return inferredRecommendationSpace;
 	}
+	
+	// --------------------------------------------------------------------------------------------------------------------
 
 	private ArrayList<Activation> _generateActivation(
 			ArrayList<Recommendation> recommendationsForUser) {

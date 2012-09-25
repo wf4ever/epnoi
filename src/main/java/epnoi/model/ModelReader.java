@@ -46,8 +46,11 @@ public class ModelReader {
 					+ e.getMessage());
 
 		}
+		
+		model.clean();
 		// After unmarshalling the model, auxiliary data structures must be
 		// initialized
+		
 		model.init();
 		return model;
 	}

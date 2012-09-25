@@ -1,6 +1,5 @@
 package epnoi.inferenceengine;
 
-import epnoi.model.Recommendation;
 
 public class ActiveNode implements Comparable{
 	Node mirroedNode;

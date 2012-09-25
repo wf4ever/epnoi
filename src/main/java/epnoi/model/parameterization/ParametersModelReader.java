@@ -12,7 +12,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 
-public class ParametersModelWrapper {
+public class ParametersModelReader {
 	public static void write(ParametersModel model, String fileName) {
 
 		try {
