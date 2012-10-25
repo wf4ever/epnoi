@@ -27,23 +27,22 @@ import epnoi.model.Model;
 import epnoi.model.ModelReader;
 import epnoi.model.Workflow;
 
-// From chapter 7
 public class MyExperimentIndexer {
 
 	private Model model;
 	private String MODEL_PATH = "/lastImportedModel.xml";
 
-	private boolean DEBUG = false; // 1
+	private boolean DEBUG = false; 
 
-	static Set<String> textualMetadataFields // 2
-	= new HashSet<String>(); // 2
-	static { // 2
-		textualMetadataFields.add(Metadata.TITLE); // 2
-		textualMetadataFields.add(Metadata.AUTHOR); // 2
-		textualMetadataFields.add(Metadata.COMMENTS); // 2
-		textualMetadataFields.add(Metadata.KEYWORDS); // 2
-		textualMetadataFields.add(Metadata.DESCRIPTION); // 2
-		textualMetadataFields.add(Metadata.SUBJECT); // 2
+	static Set<String> textualMetadataFields 
+	= new HashSet<String>();
+	static { 
+		textualMetadataFields.add(Metadata.TITLE); 
+		textualMetadataFields.add(Metadata.AUTHOR);
+		textualMetadataFields.add(Metadata.COMMENTS);
+		textualMetadataFields.add(Metadata.KEYWORDS);
+		textualMetadataFields.add(Metadata.DESCRIPTION); 
+		textualMetadataFields.add(Metadata.SUBJECT); 
 	}
 
 	private IndexWriter writer;
@@ -68,11 +67,11 @@ public class MyExperimentIndexer {
 
 	public MyExperimentIndexer(String indexDir) throws IOException {
 		Directory dir = FSDirectory.open(new File(indexDir));
-		writer = new IndexWriter(dir, // 3
-				new StandardAnalyzer( // 3
-						Version.LUCENE_30),// 3
-				true, // 3
-				IndexWriter.MaxFieldLength.UNLIMITED); // 3
+		writer = new IndexWriter(dir, 
+				new StandardAnalyzer( 
+						Version.LUCENE_30),
+				true, 
+				IndexWriter.MaxFieldLength.UNLIMITED); 
 
 		try {
 			this.model = ModelReader.read(this.MODEL_PATH);
@@ -107,23 +106,23 @@ public class MyExperimentIndexer {
 			is.close();
 		}
 
-		Document doc = new Document();
+		Document newDocument = new Document();
 
-		doc.add(new Field("contents", handler.toString(), Field.Store.NO,
+		newDocument.add(new Field("contents", handler.toString(), Field.Store.NO,
 				Field.Index.ANALYZED));
 		if (DEBUG) {
 			System.out.println("  all text: " + handler.toString());
 		}
 
-		for (String name : metadata.names()) { // 11
+		for (String name : metadata.names()) { 
 			String value = metadata.get(name);
 
 			if (textualMetadataFields.contains(name)) {
-				doc.add(new Field("contents", value, // 12
+				newDocument.add(new Field("contents", value, 
 						Field.Store.NO, Field.Index.ANALYZED));
 			}
 
-			doc.add(new Field(name, value, Field.Store.YES, Field.Index.NO)); // 13
+			newDocument.add(new Field(name, value, Field.Store.YES, Field.Index.NO)); 
 
 			if (DEBUG) {
 				System.out.println("  " + name + ": " + value);
@@ -134,17 +133,16 @@ public class MyExperimentIndexer {
 			System.out.println();
 		}
 
-		doc.add(new Field("filename", URL, // 14
+		newDocument.add(new Field("uri", URL,
 				Field.Store.YES, Field.Index.NOT_ANALYZED));
 
-		return doc;
+		return newDocument;
 	}
 
 	public int index() throws Exception {
 		int indexedResources = 0;
 		for (Workflow workflow : model.getWorkflows()) {
-			// if (workflow.getId()<200){
-
+			
 			try {
 				indexURL(workflow.getURI());
 				indexedResources++;
@@ -152,7 +150,7 @@ public class MyExperimentIndexer {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			// }
+		
 
 		}
 		return indexedResources;

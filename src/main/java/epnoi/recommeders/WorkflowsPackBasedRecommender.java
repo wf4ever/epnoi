@@ -41,7 +41,7 @@ import epnoi.model.parameterization.GroupBasedRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
-public class WorkflowsGroupBasedRecommender implements
+public class WorkflowsPackBasedRecommender implements
 		ContextualizedRecommender {
 	private static final String[] stopWords = { "a", "about", "above", "above",
 			"across", "after", "afterwards", "again", "against", "all",
@@ -104,7 +104,7 @@ public class WorkflowsGroupBasedRecommender implements
 
 	private GroupBasedRecommenderParameters initializationParameters;
 
-	WorkflowsGroupBasedRecommender(
+	WorkflowsPackBasedRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
 		this.parametersModel = parametersModel;
@@ -162,6 +162,9 @@ public class WorkflowsGroupBasedRecommender implements
 
 		if (recommendationContext != null) {
 
+			String packURI = recommendationContext.getParameterByName(RecommendationContext.PACK_URI);
+			
+			
 			for (String resourceURI : recommendationContext.getResource()) {
 				// System.out.println("r->" + resourceURI);
 
@@ -404,3 +407,4 @@ public class WorkflowsGroupBasedRecommender implements
 		return recommendations;
 	}
 }
+

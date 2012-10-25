@@ -1,6 +1,7 @@
 package epnoi.model;
 
 public class ExternalResource implements Resource {
+	
 	private String URI;
 
 	public String getURI() {

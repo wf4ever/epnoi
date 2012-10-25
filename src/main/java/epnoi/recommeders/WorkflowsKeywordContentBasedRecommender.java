@@ -95,7 +95,7 @@ public class WorkflowsKeywordContentBasedRecommender implements
 										.doc(scoreDocument.doc);
 								// System.out.println(doc.get("filename"));
 
-								String itemURI = doc.get("filename");
+								String itemURI = doc.get("uri");
 								if (!this.model.isWorkflow(itemURI)) {
 									System.out
 											.println("---------------------->no esta! "
