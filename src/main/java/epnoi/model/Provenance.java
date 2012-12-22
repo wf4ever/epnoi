@@ -17,6 +17,7 @@ public class Provenance {
 	public static final String ITEM_TYPE_WORKFLOW = "item_type_workflow";
 	public static final String ITEM_TYPE_FILE = "item_type_file";
 	public static final String ITEM_TYPE_PACK = "item_type_pack";
+	public static final String ITEM_TYPE_EXTERNAL_RESOURCE="item_type_external_resource";
 
 	private ArrayList<Parameter> parameters;
 

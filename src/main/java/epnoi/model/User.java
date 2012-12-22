@@ -3,7 +3,7 @@ package epnoi.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class User implements Resource{
+public class User implements Resource {
 
 	Long ID;
 	String URI;
@@ -19,6 +19,7 @@ public class User implements Resource{
 	ArrayList<String> files;
 	ArrayList<String> workflows;
 	ArrayList<String> packs;
+	ArrayList<Action> actions;
 
 	public User() {
 		this.tagApplied = new ArrayList<Tagging>();
@@ -29,6 +30,7 @@ public class User implements Resource{
 		this.workflows = new ArrayList<String>();
 		this.friends = new ArrayList<String>();
 		this.packs = new ArrayList<String>();
+		this.actions = new ArrayList<Action>();
 	}
 
 	public ArrayList<String> getFavouritedFiles() {
@@ -128,19 +130,19 @@ public class User implements Resource{
 	}
 
 	public void addTagging(String tag) {
-		//System.out.println(">> entra " + tag);
+		// System.out.println(">> entra " + tag);
 		Iterator<Tagging> taggingIterator = this.tagApplied.iterator();
 		boolean finded = false;
 		while (!finded && taggingIterator.hasNext()) {
 			Tagging tagging = taggingIterator.next();
 			finded = tagging.getTag().equals(tag);
 			if (finded) {
-				//System.out.println(">> a–ado +1 " + tag);
+				// System.out.println(">> a–ado +1 " + tag);
 				tagging.setNumberOfTaggings(tagging.getNumberOfTaggings() + 1);
 			}
 		}
 		if (!finded) {
-			//System.out.println(">> creo " + tag + " en " + this.ID);
+			// System.out.println(">> creo " + tag + " en " + this.ID);
 			Tagging newTagging = new Tagging();
 			newTagging.setTag(tag);
 			newTagging.setNumberOfTaggings(1);

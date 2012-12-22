@@ -19,14 +19,13 @@ public class ParametersModel {
 	 */
 
 	private String modelPath;
-	private String indexPath;
-	private String graphPath;
+	//private String indexPath;
+	//private String graphPath;
 
 	// Server related properties
 	private String hostname;
 	private String port;
 	private String path;
-	
 
 	private ArrayList<CollaborativeFilterRecommenderParameters> collaborativeFilteringRecommender;
 	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
@@ -77,7 +76,6 @@ public class ParametersModel {
 		this.groupBasedRecommender = groupBasedRecommender;
 	}
 
-	
 	public String getModelPath() {
 		return modelPath;
 	}
@@ -86,6 +84,7 @@ public class ParametersModel {
 		this.modelPath = modelPath;
 	}
 
+	/*
 	public String getIndexPath() {
 		return indexPath;
 	}
@@ -93,7 +92,7 @@ public class ParametersModel {
 	public void setIndexPath(String indexPath) {
 		this.indexPath = indexPath;
 	}
-
+*/
 	public String getHostname() {
 		return hostname;
 	}
@@ -117,7 +116,7 @@ public class ParametersModel {
 	public void setPath(String path) {
 		this.path = path;
 	}
-
+/*
 	public String getGraphPath() {
 		return graphPath;
 	}
@@ -125,7 +124,7 @@ public class ParametersModel {
 	public void setGraphPath(String graphPath) {
 		this.graphPath = graphPath;
 	}
-
+*/
 	public InferenceEngineParameters getInferenceEngine() {
 		return inferenceEngine;
 	}
@@ -134,6 +133,55 @@ public class ParametersModel {
 		this.inferenceEngine = inferenceEngine;
 	}
 
+	public void resolveToAbsolutePaths(Class<? extends Object> referenceClass) {
+		String completeModelPath = referenceClass.getResource(this.modelPath)
+				.getPath();
 
-	
+		this.setModelPath(completeModelPath);
+		/*
+		 * logger.info("The modelPath is made absolute: absolute value: " +
+		 * parametersModel.getModelPath());
+		 * 
+		 * logger.info("The index Path is made absolute: intial value: " +
+		 * parametersModel.getIndexPath());
+		 */
+		/*
+		String indexPath = referenceClass.getResource(this.getIndexPath())
+				.getPath();
+
+		this.setIndexPath(indexPath);
+		*/
+		/*
+		 * logger.info("The indexPath is made absolute: absolute value: " +
+		 * parametersModel.getIndexPath());
+		 * logger.info("The graph Path is made absolute: intial value: " +
+		 * parametersModel.getGraphPath());
+		 */
+		/*
+		String graphPath = referenceClass.getResource(this.getGraphPath())
+				.getPath();
+
+		this.setGraphPath(graphPath);
+*/
+		/*
+		 * logger.info("The graph path is made absolute: absolute value: " +
+		 * parametersModel.getGraphPath());
+		 */
+		for (KeywordRecommenderParameters keywordRecommender : this.keywordBasedRecommender) {
+			keywordRecommender.setIndexPath(referenceClass.getResource(
+					keywordRecommender.getIndexPath()).getPath());
+			
+			//System.out.println("KKKK "+keywordRecommender.getIndexPath());
+		}
+		
+		for (SocialNetworkRecommenderParameters socialNetworkRecommender : this.socialRecommender) {
+			socialNetworkRecommender.setGraphPath(referenceClass.getResource(
+					socialNetworkRecommender.getGraphPath()).getPath());
+		}
+		
+		for (GroupBasedRecommenderParameters groupBasedRecommender : this.groupBasedRecommender) {
+			groupBasedRecommender.setIndexPath(referenceClass.getResource(
+					groupBasedRecommender.getIndexPath()).getPath());
+		}
+	}
 }

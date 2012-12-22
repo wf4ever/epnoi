@@ -46,12 +46,12 @@ public class WorkflowsKeywordContentBasedRecommender implements
 	QueryParser parser = null;
 	ParametersModel parametersModel = null;
 
-	private KeywordRecommenderParameters initializationParameters;
+	private KeywordRecommenderParameters recommenderParameters;
 
 	public WorkflowsKeywordContentBasedRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
-		this.initializationParameters = (KeywordRecommenderParameters) initializationParameters;
+		this.recommenderParameters = (KeywordRecommenderParameters) initializationParameters;
 		this.parametersModel = parametersModel;
 	}
 
@@ -77,7 +77,7 @@ public class WorkflowsKeywordContentBasedRecommender implements
 							Query query = parser.parse(queryExpression);
 
 							TopDocs topHits = indexSearcher.search(query,
-									this.initializationParameters
+									this.recommenderParameters
 											.getNumberOfQueryHits());
 							/*
 							 * System.out.println("(q:" + queryExpression +
@@ -95,7 +95,7 @@ public class WorkflowsKeywordContentBasedRecommender implements
 										.doc(scoreDocument.doc);
 								// System.out.println(doc.get("filename"));
 
-								String itemURI = doc.get("uri");
+								String itemURI = doc.get("filename");
 								if (!this.model.isWorkflow(itemURI)) {
 									System.out
 											.println("---------------------->no esta! "
@@ -138,7 +138,7 @@ public class WorkflowsKeywordContentBasedRecommender implements
 												.containsKey(itemURI)) {
 											Recommendation newRecommendation = new Recommendation();
 											newRecommendation
-													.setRecommenderURI(this.initializationParameters
+													.setRecommenderURI(this.recommenderParameters
 															.getURI());
 
 											newRecommendation
@@ -324,7 +324,7 @@ public class WorkflowsKeywordContentBasedRecommender implements
 
 		this.parser = null;
 		try {
-			String indexDirectory = this.parametersModel.getIndexPath();
+			String indexDirectory = this.recommenderParameters.getIndexPath();
 
 			Directory dir = FSDirectory.open(new File(indexDirectory)); // 3
 			this.indexSearcher = new IndexSearcher(dir);
@@ -456,7 +456,7 @@ public class WorkflowsKeywordContentBasedRecommender implements
 	// -------------------------------------------------------------------------------------------------
 
 	public RecommenderParameters getInitializationParameters() {
-		return this.initializationParameters;
+		return this.recommenderParameters;
 	}
 
 	// -------------------------------------------------------------------------------------------------

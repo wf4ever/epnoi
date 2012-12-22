@@ -1,4 +1,5 @@
 package epnoi.tools;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,6 +37,14 @@ public class OAIPMHRepositoryHarvester {
 
 	// ---------------------------------------------------------------------------------------------------------------------------------------
 
+	/*
+	 * -command init -out /JUNK2 -URL http://export.arxiv.org/oai2 -name arxive
+	 * -command harvest -in /JUNK2/OAIPMH/harvests/arxive -from 2012-04-10 -to 2012-05-10
+	 * 
+	 * 
+	 */
+	
+	
 	public static void main(String[] args) {
 		try {
 
@@ -128,7 +137,6 @@ public class OAIPMHRepositoryHarvester {
 
 				c.add(Calendar.DATE, 1);
 				auxDate = c.getTime();
-				
 
 				String outputFileName = repositoryDirectoryName + "/harvest/"
 						+ simpleDateFormat.format(fromDate) + ".xml";
@@ -205,20 +213,19 @@ public class OAIPMHRepositoryHarvester {
 			if (success) {
 				System.out.println("The directory " + out
 						+ " has been successfully created!");
-				
-				
-				
-				
+
 				Manifest manifest = new Manifest();
 				manifest.setRepository(name);
 				manifest.setURL(URL);
-				ManifestHandler.marshallToFile(manifest,
-						repositoryDirectory.getAbsolutePath() + "/manifest.xml");
-				
-				 File harvestDirectory = new
-				 File(repositoryDirectory.getAbsolutePath() + "/harvest");
-				 harvestDirectory.mkdir();
-				 /*
+				ManifestHandler
+						.marshallToFile(manifest,
+								repositoryDirectory.getAbsolutePath()
+										+ "/manifest.xml");
+
+				File harvestDirectory = new File(
+						repositoryDirectory.getAbsolutePath() + "/harvest");
+				harvestDirectory.mkdir();
+				/*
 				 * try { manifestFile.createNewFile(); } catch (IOException e) {
 				 * // TODO Auto-generated catch block e.printStackTrace(); }
 				 */
@@ -227,7 +234,8 @@ public class OAIPMHRepositoryHarvester {
 			}
 		} else {
 			throw new IllegalArgumentException("The directory "
-					+ repositoryDirectory.getAbsolutePath() + " already existed");
+					+ repositoryDirectory.getAbsolutePath()
+					+ " already existed");
 		}
 	}
 

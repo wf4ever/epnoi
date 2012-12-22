@@ -3,12 +3,10 @@ package epnoi.recommeders;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -23,26 +21,22 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
-
 import epnoi.core.EpnoiCore;
-import epnoi.model.ContextModel;
 import epnoi.model.Explanation;
 import epnoi.model.File;
 import epnoi.model.Model;
 import epnoi.model.Parameter;
 import epnoi.model.Provenance;
 import epnoi.model.Recommendation;
-import epnoi.model.RecommendationContext;
 import epnoi.model.RecommendationSpace;
-import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.Workflow;
-import epnoi.model.parameterization.GroupBasedRecommenderParameters;
+import epnoi.model.parameterization.KeywordRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
-public class WorkflowsPackBasedRecommender implements
-		ContextualizedRecommender {
+public class ExternalResourcesKeywordContentBasedRecommender implements
+		KeywordContentBasedRecommender {
 	private static final String[] stopWords = { "a", "about", "above", "above",
 			"across", "after", "afterwards", "again", "against", "all",
 			"almost", "alone", "along", "already", "also", "although",
@@ -90,44 +84,160 @@ public class WorkflowsPackBasedRecommender implements
 			"whom", "whose", "why", "will", "with", "within", "without",
 			"would", "yet", "you", "your", "yours", "yourself", "yourselves",
 			"the" };
-
 	private static final List<String> stopWordsList = Arrays.asList(stopWords);
-	private static final Logger logger = Logger
-			.getLogger(WorkflowsGroupBasedRecommender.class.getName());
+
 	Model model = null;
-	ContextModel contextModel = null;
+
 	Directory directory = null;
 	IndexSearcher indexSearcher = null;
 	QueryParser parser = null;
 	ParametersModel parametersModel = null;
-	GroupBasedRecommenderParameters recommenderParameters = null;
 
-	private GroupBasedRecommenderParameters initializationParameters;
+	private KeywordRecommenderParameters recommenderParameters;
 
-	WorkflowsPackBasedRecommender(
+	public ExternalResourcesKeywordContentBasedRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
+		this.recommenderParameters = (KeywordRecommenderParameters) initializationParameters;
 		this.parametersModel = parametersModel;
-		this.initializationParameters = (GroupBasedRecommenderParameters) initializationParameters;
-
 	}
 
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------
+
+	public void recommend(RecommendationSpace recommendationSpace) {
+
+		try {
+			// System.out.println("......>"+this.recommenderParameters.getIndexPath());
+			Directory dir = FSDirectory.open(new java.io.File(
+					this.recommenderParameters.getIndexPath()));
+			this.indexSearcher = new IndexSearcher(dir);
+			this.parser = new QueryParser(Version.LUCENE_30, "contents",
+					new StandardAnalyzer(Version.LUCENE_30));
+		} catch (CorruptIndexException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for (User user : model.getUsers()) {
+			if (user.getID() < 20) {
+				System.out.println("User " + user.getName());
+				ArrayList<String> keywords = new ArrayList<String>();
+				this._generateUserKeywords(user, keywords);
+
+				System.out.println("The keywords are >" + keywords
+						+ "the built query is " + _buildQuery(keywords));
+				String queryExpression = _buildQuery(keywords);
+				if (!"".equals(queryExpression)) {
+					ArrayList<Recommendation> recommendations = new ArrayList<Recommendation>();
+					float maximumScore = 0.f;
+					try {
+						Query query = this.parser.parse(queryExpression);
+
+						TopDocs topHits = indexSearcher.search(query,
+								this.recommenderParameters
+										.getNumberOfQueryHits());
+						/*
+						 * System.out.println("(q:" + queryExpression +
+						 * ") Recommendations for user " + user.getName() +
+						 * " #> " + hits.totalHits);
+						 */
+
+						// Each of the top hits correspond to a recommendation.
+
+						for (ScoreDoc scoreDocument : topHits.scoreDocs) {
+
+							// System.out.print(">" + scoreDocument.+" ");
+							Document document = indexSearcher
+									.doc(scoreDocument.doc);
+							// System.out.println(doc.get("filename"));
+
+							String itemURI = document.get("uri");
+							System.out.println("itemURI recomendado --> "
+									+ itemURI + " | " + scoreDocument.score);
+
+							if (scoreDocument.score > maximumScore) {
+								maximumScore = scoreDocument.score;
+							}
+
+							
+							Recommendation newRecommendation = new Recommendation();
+							newRecommendation
+									.setRecommenderURI(this.recommenderParameters
+											.getURI());
+
+							newRecommendation.setItemURI(itemURI);
+							
+							newRecommendation.setStrength(scoreDocument.score);
+							String explanationText = "The external resource entitled ";
+							/*
+							 * + workflow.getTitle() + ("(URI:") +
+							 * workflow.getURI() +
+							 * ") is recommended to you since you selected the resources ("
+							 * + recommendationContext.getResource() +
+							 * ") with similar components ";
+							 */
+							Explanation explanation = new Explanation();
+
+							explanation.setExplanation(explanationText);
+							explanation.setTimestamp(new Date(System
+									.currentTimeMillis()));
+							newRecommendation.setExplanation(explanation);
+
+							Parameter parameterTechnique = new Parameter();
+							parameterTechnique.setName(Provenance.TECHNIQUE);
+							parameterTechnique
+									.setValue(Provenance.TECHNIQUE_GROUP_CONTENT_BASED);
+							Parameter parameter = new Parameter();
+
+							parameter.setName(Provenance.ITEM_TYPE);
+							parameter
+									.setValue(Provenance.ITEM_TYPE_EXTERNAL_RESOURCE);
+
+							newRecommendation.getProvenance().getParameters()
+									.add(parameterTechnique);
+							newRecommendation.getProvenance().getParameters()
+									.add(parameter);
+							System.out.println("the recommender > "+newRecommendation);
+
+							recommendations.add(newRecommendation);
+
+						}
+					} catch (CorruptIndexException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					recommendationSpace.addRecommendationsForUser(user,
+							_normalizeStrength(recommendations, maximumScore));
+				}
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------------------------------------
 
 	public void init(EpnoiCore epnoiCore) {
-
 		this.model = epnoiCore.getModel();
-		this.contextModel = epnoiCore.getContextModel();
 
 		this.parser = null;
 		try {
 			String indexDirectory = this.recommenderParameters.getIndexPath();
-			logger.info("Index directory for the recommender" + indexDirectory);
-			Directory dir = FSDirectory.open(new java.io.File(indexDirectory));
-			this.indexSearcher = new IndexSearcher(dir);
-			this.parser = new QueryParser(Version.LUCENE_30, "contents",
-					new StandardAnalyzer(Version.LUCENE_30));
 
+			Directory dir = FSDirectory.open(new java.io.File(indexDirectory)); // 3
+			this.indexSearcher = new IndexSearcher(dir);
+			this.parser = new QueryParser(Version.LUCENE_30, // 4
+					"contents", // 4
+					new StandardAnalyzer( // 4
+							Version.LUCENE_30));
+			this.model = model;
 		} catch (CorruptIndexException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -135,9 +245,10 @@ public class WorkflowsPackBasedRecommender implements
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+
 	}
 
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------
 
 	public void close() {
 		try {
@@ -148,128 +259,10 @@ public class WorkflowsPackBasedRecommender implements
 		}
 	}
 
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------
 
-	public void recommend(RecommendationSpace recommendationSpace,
-			String userURI) {
-
-		User user = this.model.getUserByURI(userURI);
-
-		RecommendationContext recommendationContext = this.contextModel
-				.getUserRecommendationContext(userURI);
-
-		ArrayList<String> keywords = new ArrayList<String>();
-
-		if (recommendationContext != null) {
-
-			String packURI = recommendationContext.getParameterByName(RecommendationContext.PACK_URI);
-			
-			
-			for (String resourceURI : recommendationContext.getResource()) {
-				// System.out.println("r->" + resourceURI);
-
-				if (this.model.isWorkflow(resourceURI)) {
-					_generateWorkflowKeywords(resourceURI, keywords);
-				} else if (this.model.isUser(resourceURI)) {
-					_generateUserKeywords(resourceURI, keywords);
-				} else if (this.model.isFile(resourceURI)) {
-					_generateFileKeywords(resourceURI, keywords);
-				}
-			}
-			System.out.println("The keywords are >" + keywords
-					+ "the built query is " + _buildQuery(keywords));
-			String queryExpression = _buildQuery(keywords);
-
-			ArrayList<Recommendation> recommendations = new ArrayList<Recommendation>();
-			float maximumScore = 0.f;
-			try {
-				Query query = parser.parse(queryExpression);
-
-				TopDocs topHits = indexSearcher.search(query,
-						this.initializationParameters.getNumberOfQueryHits());
-				/*
-				 * System.out.println("(q:" + queryExpression +
-				 * ") Recommendations for user " + user.getName() + " #> " +
-				 * hits.totalHits);
-				 */
-
-				// Each of the top hits correspond to a recommendation.
-
-				for (ScoreDoc scoreDocument : topHits.scoreDocs) {
-
-					// System.out.print(">" + scoreDocument.+" ");
-					Document document = indexSearcher.doc(scoreDocument.doc);
-					// System.out.println(doc.get("filename"));
-
-					String itemURI = document.get("filename");
-					// System.out.println("itemURI recomendado --> " + itemURI +
-					// " "
-					// + scoreDocument.score + " | "
-					// + workflow.getUploaderURI());
-
-					if (!user.getWorkflows().contains(itemURI)) {
-
-						if (scoreDocument.score > maximumScore) {
-							maximumScore = scoreDocument.score;
-						}
-
-						Workflow workflow = this.model.getWorkflowsByURI().get(
-								itemURI);
-						Recommendation newRecommendation = new Recommendation();
-						newRecommendation
-								.setRecommenderURI(this.initializationParameters
-										.getURI());
-
-						newRecommendation.setItemURI(itemURI);
-						newRecommendation.setStrength(scoreDocument.score);
-						String explanationText = "The workflow entitled "
-								+ workflow.getTitle()
-								+ ("(URI:")
-								+ workflow.getURI()
-								+ ") is recommended to you since you selected the resources ("
-								+ recommendationContext.getResource()
-								+ ") with similar components ";
-
-						Explanation explanation = new Explanation();
-
-						explanation.setExplanation(explanationText);
-						explanation.setTimestamp(new Date(System
-								.currentTimeMillis()));
-						newRecommendation.setExplanation(explanation);
-
-						Parameter parameterTechnique = new Parameter();
-						parameterTechnique.setName(Provenance.TECHNIQUE);
-						parameterTechnique
-								.setValue(Provenance.TECHNIQUE_GROUP_CONTENT_BASED);
-						Parameter parameter = new Parameter();
-
-						parameter.setName(Provenance.ITEM_TYPE);
-						parameter.setValue(Provenance.ITEM_TYPE_WORKFLOW);
-
-						newRecommendation.getProvenance().getParameters()
-								.add(parameterTechnique);
-						newRecommendation.getProvenance().getParameters()
-								.add(parameter);
-
-						recommendations.add(newRecommendation);
-
-					}
-
-				}
-			} catch (CorruptIndexException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			recommendationSpace.addRecommendationsForUser(user,
-					_normalizeStrength(recommendations, maximumScore));
-		}
-
+	public RecommenderParameters getInitializationParameters() {
+		return this.recommenderParameters;
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -284,20 +277,21 @@ public class WorkflowsPackBasedRecommender implements
 
 		if (workflow.getTitle() != null) {
 			String title = workflow.getTitle();
-			_addCarefully(keywords,_tokenizeAndClean(title));
+			_addCarefully(keywords, _tokenizeAndClean(title));
 
 		}
 	}
-	
+
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public void _addCarefully(ArrayList<String> keywords,
 			ArrayList<String> candidateKeywords) {
 		for (String candidateKeyword : candidateKeywords) {
 			candidateKeyword = candidateKeyword.toLowerCase();
-			candidateKeyword =candidateKeyword.replaceAll("[^a-zA-Z 0-9]+", "");
-			
-			if(!keywords.contains(candidateKeyword)){
+			candidateKeyword = candidateKeyword
+					.replaceAll("[^a-zA-Z 0-9]+", "");
+
+			if (!keywords.contains(candidateKeyword)) {
 				keywords.add(candidateKeyword);
 			}
 		}
@@ -314,17 +308,14 @@ public class WorkflowsPackBasedRecommender implements
 		 */
 		if (file.getTitle() != null) {
 			String title = file.getTitle();
-			_addCarefully(keywords,_tokenizeAndClean(title));
+			_addCarefully(keywords, _tokenizeAndClean(title));
 
 		}
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	private void _generateUserKeywords(String resourceURI,
-			ArrayList<String> keywords) {
-
-		User user = this.model.getUserByURI(resourceURI);
+	private void _generateUserKeywords(User user, ArrayList<String> keywords) {
 
 		for (String workflowURI : user.getWorkflows()) {
 
@@ -339,41 +330,20 @@ public class WorkflowsPackBasedRecommender implements
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public String _buildQuery(ArrayList<String> terms) {
-		// System.out.println("Este es el que entra " + terms);
-		Iterator<String> termsIt = terms.iterator();
-		String queryExpression = "contents:" + termsIt.next();
-		while (termsIt.hasNext()) {
+		System.out.println("Este es el que entra " + terms);
+		if (terms.size() > 0) {
+			Iterator<String> termsIt = terms.iterator();
+			String queryExpression = "contents:" + termsIt.next();
+			while (termsIt.hasNext()) {
 
-			queryExpression = queryExpression + " or " + "contents:"
-					+ termsIt.next();
+				queryExpression = queryExpression + " or " + "contents:"
+						+ termsIt.next();
+			}
+			// System.out.println("----->" + queryExpression);
+			return queryExpression;
+		} else {
+			return "";
 		}
-		// System.out.println("----->" + queryExpression);
-		return queryExpression;
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	public RecommenderParameters getInitializationParameters() {
-		return this.initializationParameters;
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	private ArrayList<Tagging> _orderByFrequency(ArrayList<Tagging> taggingsList) {
-		ArrayList<Tagging> taggingsListOrdered = (ArrayList<Tagging>) taggingsList
-				.clone();
-		Collections.sort(taggingsListOrdered);
-		Collections.reverse(taggingsListOrdered);
-		return taggingsListOrdered;
-
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	@Override
-	public String toString() {
-		return "WorkflowsGroupBasedRecommender"
-				+ this.getInitializationParameters().getURI();
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -392,6 +362,8 @@ public class WorkflowsPackBasedRecommender implements
 			if (!stopWordsList.contains(token.toLowerCase())) {
 				keywords.add(token);
 			}
+
+			// keywords.add(token);
 		}
 		return keywords;
 	}
@@ -407,4 +379,3 @@ public class WorkflowsPackBasedRecommender implements
 		return recommendations;
 	}
 }
-

@@ -155,6 +155,9 @@ public class EpnoiCore {
 				.getKeywordBasedRecommender()) {
 			KeywordContentBasedRecommender keywordContentBasedRecommender = (KeywordContentBasedRecommender) RecommendersFactory
 					.buildRecommender(keyword, parametersModel);
+System.out.println(".......>"+keyword);
+System.out.println(".......>"+keywordContentBasedRecommender);
+
 			keywordContentBasedRecommender.init(this);
 
 			this.recommenders.put(keyword.getURI(),

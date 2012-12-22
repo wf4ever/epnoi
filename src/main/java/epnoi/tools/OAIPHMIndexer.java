@@ -48,6 +48,9 @@ public class OAIPHMIndexer {
 
 	/*
 	 * OAIPMHIndexer -in where-oaipmh-harvest-dir -repository name
+	 * 
+	 * -name arxive -in /JUNK (/JUNK/OAIPMH/harvests/arxive/harvest should exist 	)
+	 * 
 	 */
 	public static void main(String[] args) throws Exception {
 
@@ -63,6 +66,12 @@ public class OAIPHMIndexer {
 
 		String harvestDir = in + "/OAIPMH/harvests/" + name + "/harvest";
 
+		System.out
+		.println("Updating the repository harvest with the following paraneters: -in "
+				+ in);
+		
+		
+		
 		long start = new Date().getTime();
 		OAIPHMIndexer indexer = new OAIPHMIndexer(indexDir);
 		int numIndexed = 0;
@@ -128,7 +137,7 @@ public class OAIPHMIndexer {
 			String documentURI = document.get(ExternalResourceLucenHelper.URI);
 			writer.updateDocument(new Term(ExternalResourceLucenHelper.URI,
 					documentURI), document);
-			System.out.println("Writting "
+			System.out.println("Indexing "
 					+ (document.getValues(ExternalResourceLucenHelper.URI)[0]));
 		}
 

@@ -102,13 +102,13 @@ public class WorkflowsGroupBasedRecommender implements
 	ParametersModel parametersModel = null;
 	GroupBasedRecommenderParameters recommenderParameters = null;
 
-	private GroupBasedRecommenderParameters initializationParameters;
+	
 
 	WorkflowsGroupBasedRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
 		this.parametersModel = parametersModel;
-		this.initializationParameters = (GroupBasedRecommenderParameters) initializationParameters;
+		this.recommenderParameters = (GroupBasedRecommenderParameters) initializationParameters;
 
 	}
 
@@ -121,7 +121,8 @@ public class WorkflowsGroupBasedRecommender implements
 
 		this.parser = null;
 		try {
-			String indexDirectory = this.parametersModel.getIndexPath();
+			System.out.println("-------->"+this.recommenderParameters);
+			String indexDirectory = this.recommenderParameters.getIndexPath();
 			logger.info("Index directory for the recommender" + indexDirectory);
 			Directory dir = FSDirectory.open(new java.io.File(indexDirectory));
 			this.indexSearcher = new IndexSearcher(dir);
@@ -156,7 +157,7 @@ public class WorkflowsGroupBasedRecommender implements
 		User user = this.model.getUserByURI(userURI);
 
 		RecommendationContext recommendationContext = this.contextModel
-				.getUserContext(userURI);
+				.getUserRecommendationContext(userURI);
 
 		ArrayList<String> keywords = new ArrayList<String>();
 
@@ -183,7 +184,7 @@ public class WorkflowsGroupBasedRecommender implements
 				Query query = parser.parse(queryExpression);
 
 				TopDocs topHits = indexSearcher.search(query,
-						this.initializationParameters.getNumberOfQueryHits());
+						this.recommenderParameters.getNumberOfQueryHits());
 				/*
 				 * System.out.println("(q:" + queryExpression +
 				 * ") Recommendations for user " + user.getName() + " #> " +
@@ -214,7 +215,7 @@ public class WorkflowsGroupBasedRecommender implements
 								itemURI);
 						Recommendation newRecommendation = new Recommendation();
 						newRecommendation
-								.setRecommenderURI(this.initializationParameters
+								.setRecommenderURI(this.recommenderParameters
 										.getURI());
 
 						newRecommendation.setItemURI(itemURI);
@@ -351,7 +352,7 @@ public class WorkflowsGroupBasedRecommender implements
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public RecommenderParameters getInitializationParameters() {
-		return this.initializationParameters;
+		return this.recommenderParameters;
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------

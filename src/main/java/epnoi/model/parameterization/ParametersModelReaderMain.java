@@ -1,8 +1,5 @@
 package epnoi.model.parameterization;
 
-import java.util.Date;
-
-import epnoi.core.EpnoiCore;
 import epnoi.recommeders.Recommender;
 
 public class ParametersModelReaderMain {
@@ -18,7 +15,7 @@ public class ParametersModelReaderMain {
 		String parametersModelPath = "/parametersModelPath.xml";
 		ParametersModel parametersModel = new ParametersModel();
 
-		parametersModel.setIndexPath("indexMyExperiment");
+	//	parametersModel.setIndexPath("indexMyExperiment");
 		parametersModel.setModelPath("lastImportedModel.xml");
 
 		parametersModel.setPath("");
@@ -52,7 +49,7 @@ public class ParametersModelReaderMain {
 		recommenderC.setURI("recommenderC");
 		recommenderC.setIndexPath("/wf4ever/indexMyExperiment");
 		recommenderC.setNumberOfQueryHits(10);
-		recommenderC.setType(Recommender.KEYWORD_CONTENT_BASED);
+		recommenderC.setType(Recommender.WORKFLOWS_KEYWORD_CONTENT_BASED);
 
 		parametersModel.getKeywordBasedRecommender().add(recommenderC);
 

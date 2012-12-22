@@ -49,12 +49,16 @@ public class RecommendationSpace {
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-/**
- * 
- * @param userID The myExperiment integer ID  of the user
- * @param type The type of the recommended itms (i.e. Provenance.ITEM_TYPE_USER, Provenance.ITEM_TYPE_WORKFLOW, Provenance.ITEM_TYPE_FILE, Provenance.ITEM_TYPE_PACK)
- * @return The list with all the recommendations of such type to the user
- */
+	/**
+	 * 
+	 * @param userID
+	 *            The myExperiment integer ID of the user
+	 * @param type
+	 *            The type of the recommended itms (i.e.
+	 *            Provenance.ITEM_TYPE_USER, Provenance.ITEM_TYPE_WORKFLOW,
+	 *            Provenance.ITEM_TYPE_FILE, Provenance.ITEM_TYPE_PACK)
+	 * @return The list with all the recommendations of such type to the user
+	 */
 	public ArrayList<Recommendation> getRecommendationsForUserID(Long userID,
 			String type) {
 		if (this.recommendationsByID.get(userID) != null) {
@@ -76,8 +80,12 @@ public class RecommendationSpace {
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 	/**
 	 * 
-	 * @param userURI The URI of the user
-	 * @param type The type of the recommended items (i.e. Provenance.ITEM_TYPE_USER, Provenance.ITEM_TYPE_WORKFLOW, Provenance.ITEM_TYPE_FILE, Provenance.ITEM_TYPE_PACK)
+	 * @param userURI
+	 *            The URI of the user
+	 * @param type
+	 *            The type of the recommended items (i.e.
+	 *            Provenance.ITEM_TYPE_USER, Provenance.ITEM_TYPE_WORKFLOW,
+	 *            Provenance.ITEM_TYPE_FILE, Provenance.ITEM_TYPE_PACK)
 	 * @return The list with all the recommendations of such type to the user
 	 */
 	public ArrayList<Recommendation> getRecommendationsForUserURI(
@@ -142,9 +150,9 @@ public class RecommendationSpace {
 		}
 		recommendationsForUserName.add(recommendation);
 	}
-	
+
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	public void addRecommendationsForUser(User user,
 			ArrayList<Recommendation> recommendation) {
 		ArrayList<Recommendation> recommendationsForUser = null;

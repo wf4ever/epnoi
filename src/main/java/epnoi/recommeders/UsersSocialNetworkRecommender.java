@@ -227,7 +227,7 @@ public class UsersSocialNetworkRecommender implements BatchRecommender {
 		//System.out.println("Database path "+ this.parametersModel.getGraphPath());
 		
 		this.database = new GraphDatabaseFactory()
-				.newEmbeddedDatabase(this.parametersModel.getGraphPath());
+				.newEmbeddedDatabase(this.recommenderParameters.getGraphPath());
 		this.nodeIndex = database.index().forNodes("users");
 
 	}

@@ -1,6 +1,5 @@
 package epnoi.model.parameterization;
 
-import java.util.ArrayList;
 
 public class RecommenderParameters {
 	private String URI;
