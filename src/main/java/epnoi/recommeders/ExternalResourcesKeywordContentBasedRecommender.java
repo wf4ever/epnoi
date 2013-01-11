@@ -155,8 +155,8 @@ public class ExternalResourcesKeywordContentBasedRecommender implements
 							// System.out.println(doc.get("filename"));
 
 							String itemURI = document.get("uri");
-							System.out.println("itemURI recomendado --> "
-									+ itemURI + " | " + scoreDocument.score);
+							//System.out.println("itemURI recomendado --> "
+								//	+ itemURI + " | " + scoreDocument.score);
 
 							if (scoreDocument.score > maximumScore) {
 								maximumScore = scoreDocument.score;
@@ -171,7 +171,7 @@ public class ExternalResourcesKeywordContentBasedRecommender implements
 							newRecommendation.setItemURI(itemURI);
 							
 							newRecommendation.setStrength(scoreDocument.score);
-							String explanationText = "The external resource entitled ";
+							String explanationText = "The external resource "+itemURI+" is recommended for you since the keywords that define your interest and they partially describe its content";
 							/*
 							 * + workflow.getTitle() + ("(URI:") +
 							 * workflow.getURI() +
@@ -189,7 +189,7 @@ public class ExternalResourcesKeywordContentBasedRecommender implements
 							Parameter parameterTechnique = new Parameter();
 							parameterTechnique.setName(Provenance.TECHNIQUE);
 							parameterTechnique
-									.setValue(Provenance.TECHNIQUE_GROUP_CONTENT_BASED);
+									.setValue(Provenance.TECHNIQUE_KEYWORD_CONTENT_BASED);
 							Parameter parameter = new Parameter();
 
 							parameter.setName(Provenance.ITEM_TYPE);
@@ -200,7 +200,7 @@ public class ExternalResourcesKeywordContentBasedRecommender implements
 									.add(parameterTechnique);
 							newRecommendation.getProvenance().getParameters()
 									.add(parameter);
-							System.out.println("the recommender > "+newRecommendation);
+							//System.out.println("the recommender > "+newRecommendation);
 
 							recommendations.add(newRecommendation);
 

@@ -16,7 +16,7 @@ import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.SocialNetworkRecommenderParameters;
 import epnoi.recommeders.BatchRecommender;
 import epnoi.recommeders.CollaborativeFilterRecommender;
-import epnoi.recommeders.ContextualizedRecommender;
+import epnoi.recommeders.OnTheFlyRecommender;
 import epnoi.recommeders.WorkflowsGroupBasedRecommender;
 import epnoi.recommeders.KeywordContentBasedRecommender;
 import epnoi.recommeders.Recommender;
@@ -269,9 +269,9 @@ System.out.println(".......>"+keywordContentBasedRecommender);
 		this.contextualizedRecommendationSpace
 				.removeRecommendationsForUserURI(userURI);
 		for (Recommender recommender : this.recommenders.values()) {
-			if (recommender instanceof ContextualizedRecommender) {
+			if (recommender instanceof OnTheFlyRecommender) {
 				System.out.println("----->" + recommender);
-				((ContextualizedRecommender) recommender).recommend(
+				((OnTheFlyRecommender) recommender).recommend(
 						this.contextualizedRecommendationSpace, userURI);
 
 			}

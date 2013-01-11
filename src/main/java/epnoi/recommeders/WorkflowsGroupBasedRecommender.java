@@ -42,7 +42,7 @@ import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
 public class WorkflowsGroupBasedRecommender implements
-		ContextualizedRecommender {
+		OnTheFlyRecommender {
 	private static final String[] stopWords = { "a", "about", "above", "above",
 			"across", "after", "afterwards", "again", "against", "all",
 			"almost", "alone", "along", "already", "also", "although",
@@ -121,7 +121,7 @@ public class WorkflowsGroupBasedRecommender implements
 
 		this.parser = null;
 		try {
-			System.out.println("-------->"+this.recommenderParameters);
+			//System.out.println("-------->"+this.recommenderParameters);
 			String indexDirectory = this.recommenderParameters.getIndexPath();
 			logger.info("Index directory for the recommender" + indexDirectory);
 			Directory dir = FSDirectory.open(new java.io.File(indexDirectory));

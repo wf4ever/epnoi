@@ -41,7 +41,7 @@ import epnoi.model.parameterization.GroupBasedRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
-public class WorkflowsPackBasedRecommender implements
+public class AggregationBasedRecommender implements
 		OnTheFlyRecommender {
 	private static final String[] stopWords = { "a", "about", "above", "above",
 			"across", "after", "afterwards", "again", "against", "all",
@@ -102,13 +102,13 @@ public class WorkflowsPackBasedRecommender implements
 	ParametersModel parametersModel = null;
 	GroupBasedRecommenderParameters recommenderParameters = null;
 
-	private GroupBasedRecommenderParameters initializationParameters;
+	
 
-	WorkflowsPackBasedRecommender(
+	WorkflowsGroupBasedRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
 		this.parametersModel = parametersModel;
-		this.initializationParameters = (GroupBasedRecommenderParameters) initializationParameters;
+		this.recommenderParameters = (GroupBasedRecommenderParameters) initializationParameters;
 
 	}
 
@@ -121,6 +121,7 @@ public class WorkflowsPackBasedRecommender implements
 
 		this.parser = null;
 		try {
+			System.out.println("-------->"+this.recommenderParameters);
 			String indexDirectory = this.recommenderParameters.getIndexPath();
 			logger.info("Index directory for the recommender" + indexDirectory);
 			Directory dir = FSDirectory.open(new java.io.File(indexDirectory));
@@ -162,9 +163,6 @@ public class WorkflowsPackBasedRecommender implements
 
 		if (recommendationContext != null) {
 
-			String packURI = recommendationContext.getParameterByName(RecommendationContext.PACK_URI);
-			
-			
 			for (String resourceURI : recommendationContext.getResource()) {
 				// System.out.println("r->" + resourceURI);
 
@@ -186,7 +184,7 @@ public class WorkflowsPackBasedRecommender implements
 				Query query = parser.parse(queryExpression);
 
 				TopDocs topHits = indexSearcher.search(query,
-						this.initializationParameters.getNumberOfQueryHits());
+						this.recommenderParameters.getNumberOfQueryHits());
 				/*
 				 * System.out.println("(q:" + queryExpression +
 				 * ") Recommendations for user " + user.getName() + " #> " +
@@ -217,7 +215,7 @@ public class WorkflowsPackBasedRecommender implements
 								itemURI);
 						Recommendation newRecommendation = new Recommendation();
 						newRecommendation
-								.setRecommenderURI(this.initializationParameters
+								.setRecommenderURI(this.recommenderParameters
 										.getURI());
 
 						newRecommendation.setItemURI(itemURI);
@@ -354,7 +352,7 @@ public class WorkflowsPackBasedRecommender implements
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public RecommenderParameters getInitializationParameters() {
-		return this.initializationParameters;
+		return this.recommenderParameters;
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -407,4 +405,3 @@ public class WorkflowsPackBasedRecommender implements
 		return recommendations;
 	}
 }
-
