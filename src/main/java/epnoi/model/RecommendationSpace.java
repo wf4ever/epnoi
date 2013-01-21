@@ -185,6 +185,33 @@ public class RecommendationSpace {
 		}
 		recommendationsForUserName.addAll(recommendation);
 	}
+	
+	//
+	
+	public void addRecommendationsForPack(Pack user,
+			ArrayList<Recommendation> recommendation) {
+		ArrayList<Recommendation> recommendationsForUser = null;
+
+		recommendationsForUser = this.recommendationsByURI.get(user.getURI());
+		if (recommendationsForUser == null) {
+			recommendationsForUser = new ArrayList<Recommendation>();
+			this.recommendationsByURI
+					.put(user.getURI(), recommendationsForUser);
+		}
+		recommendationsForUser.addAll(recommendation);
+
+		ArrayList<Recommendation> recommendationsForUserByID = null;
+		recommendationsForUserByID = this.recommendationsByID.get(user.getID());
+		if (recommendationsForUserByID == null) {
+			recommendationsForUserByID = new ArrayList<Recommendation>();
+			this.recommendationsByID.put(user.getID(),
+					recommendationsForUserByID);
+		}
+		recommendationsForUserByID.addAll(recommendation);
+
+		
+		
+	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 

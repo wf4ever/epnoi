@@ -35,6 +35,10 @@ public class RecommendersFactory {
 				Recommender.WORKFLOWS_GROUP_BASED)) {
 			return new WorkflowsGroupBasedRecommender(recommenderParameters,
 					parametersModel);
+		} else if (recommenderParameters.getType().equals(
+				Recommender.AGGREGATION_BASED)) {
+			return new AggregationBasedRecommender(recommenderParameters,
+					parametersModel);
 		}
 		return null;
 	}

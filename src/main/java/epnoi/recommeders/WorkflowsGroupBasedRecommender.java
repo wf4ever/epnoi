@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
@@ -23,7 +24,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
-
 import epnoi.core.EpnoiCore;
 import epnoi.model.ContextModel;
 import epnoi.model.Explanation;
@@ -37,12 +37,12 @@ import epnoi.model.RecommendationSpace;
 import epnoi.model.Tagging;
 import epnoi.model.User;
 import epnoi.model.Workflow;
+import epnoi.model.parameterization.AggregationBasedRecommenderParameters;
 import epnoi.model.parameterization.GroupBasedRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.RecommenderParameters;
 
-public class WorkflowsGroupBasedRecommender implements
-		OnTheFlyRecommender {
+public class WorkflowsGroupBasedRecommender implements OnTheFlyRecommender {
 	private static final String[] stopWords = { "a", "about", "above", "above",
 			"across", "after", "afterwards", "again", "against", "all",
 			"almost", "alone", "along", "already", "also", "although",
@@ -102,8 +102,6 @@ public class WorkflowsGroupBasedRecommender implements
 	ParametersModel parametersModel = null;
 	GroupBasedRecommenderParameters recommenderParameters = null;
 
-	
-
 	WorkflowsGroupBasedRecommender(
 			RecommenderParameters initializationParameters,
 			ParametersModel parametersModel) {
@@ -121,7 +119,7 @@ public class WorkflowsGroupBasedRecommender implements
 
 		this.parser = null;
 		try {
-			//System.out.println("-------->"+this.recommenderParameters);
+			// System.out.println("-------->"+this.recommenderParameters);
 			String indexDirectory = this.recommenderParameters.getIndexPath();
 			logger.info("Index directory for the recommender" + indexDirectory);
 			Directory dir = FSDirectory.open(new java.io.File(indexDirectory));
@@ -152,7 +150,9 @@ public class WorkflowsGroupBasedRecommender implements
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public void recommend(RecommendationSpace recommendationSpace,
-			String userURI) {
+			Map<String, Object> parameters) {
+		String userURI = (String) parameters
+				.get(OnTheFlyRecommender.USER_URI_PARAMETER);
 
 		User user = this.model.getUserByURI(userURI);
 
@@ -282,20 +282,21 @@ public class WorkflowsGroupBasedRecommender implements
 
 		if (workflow.getTitle() != null) {
 			String title = workflow.getTitle();
-			_addCarefully(keywords,_tokenizeAndClean(title));
+			_addCarefully(keywords, _tokenizeAndClean(title));
 
 		}
 	}
-	
+
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public void _addCarefully(ArrayList<String> keywords,
 			ArrayList<String> candidateKeywords) {
 		for (String candidateKeyword : candidateKeywords) {
 			candidateKeyword = candidateKeyword.toLowerCase();
-			candidateKeyword =candidateKeyword.replaceAll("[^a-zA-Z 0-9]+", "");
-			
-			if(!keywords.contains(candidateKeyword)){
+			candidateKeyword = candidateKeyword
+					.replaceAll("[^a-zA-Z 0-9]+", "");
+
+			if (!keywords.contains(candidateKeyword)) {
 				keywords.add(candidateKeyword);
 			}
 		}
@@ -312,7 +313,7 @@ public class WorkflowsGroupBasedRecommender implements
 		 */
 		if (file.getTitle() != null) {
 			String title = file.getTitle();
-			_addCarefully(keywords,_tokenizeAndClean(title));
+			_addCarefully(keywords, _tokenizeAndClean(title));
 
 		}
 	}

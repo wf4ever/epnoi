@@ -1,27 +1,29 @@
 package epnoi.core;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import epnoi.inferenceengine.InferenceEngine;
 import epnoi.model.ContextModel;
 import epnoi.model.Model;
 import epnoi.model.ModelReader;
-import epnoi.model.RecommendationContext;
 import epnoi.model.RecommendationSpace;
+import epnoi.model.parameterization.AggregationBasedRecommenderParameters;
 import epnoi.model.parameterization.CollaborativeFilterRecommenderParameters;
 import epnoi.model.parameterization.GroupBasedRecommenderParameters;
 import epnoi.model.parameterization.KeywordRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.SocialNetworkRecommenderParameters;
+import epnoi.recommeders.AggregationBasedRecommender;
 import epnoi.recommeders.BatchRecommender;
 import epnoi.recommeders.CollaborativeFilterRecommender;
-import epnoi.recommeders.OnTheFlyRecommender;
-import epnoi.recommeders.WorkflowsGroupBasedRecommender;
 import epnoi.recommeders.KeywordContentBasedRecommender;
+import epnoi.recommeders.OnTheFlyRecommender;
 import epnoi.recommeders.Recommender;
 import epnoi.recommeders.RecommendersFactory;
 import epnoi.recommeders.UsersSocialNetworkRecommender;
+import epnoi.recommeders.WorkflowsGroupBasedRecommender;
 
 public class EpnoiCore {
 
@@ -100,8 +102,8 @@ public class EpnoiCore {
 				((BatchRecommender) recommender)
 						.recommend(this.recommendationSpace);
 			} else {
-				//System.out.println("-------------------------------------->"
-					//	+ recommender.getInitializationParameters());
+				// System.out.println("-------------------------------------->"
+				// + recommender.getInitializationParameters());
 			}
 
 		}
@@ -155,8 +157,6 @@ public class EpnoiCore {
 				.getKeywordBasedRecommender()) {
 			KeywordContentBasedRecommender keywordContentBasedRecommender = (KeywordContentBasedRecommender) RecommendersFactory
 					.buildRecommender(keyword, parametersModel);
-System.out.println(".......>"+keyword);
-System.out.println(".......>"+keywordContentBasedRecommender);
 
 			keywordContentBasedRecommender.init(this);
 
@@ -173,10 +173,23 @@ System.out.println(".......>"+keywordContentBasedRecommender);
 			WorkflowsGroupBasedRecommender groupBasedRecommender = (WorkflowsGroupBasedRecommender) RecommendersFactory
 					.buildRecommender(groupbased, parametersModel);
 			groupBasedRecommender.init(this);
-			
+
 			this.recommenders.put(groupbased.getURI(), groupBasedRecommender);
 
 		}
+
+		logger.info("Initializing aggregation based recommenders");
+		for (AggregationBasedRecommenderParameters aggregationBased : this.parametersModel
+				.getAggregationBasedRecommender()) {
+			AggregationBasedRecommender groupBasedRecommender = (AggregationBasedRecommender) RecommendersFactory
+					.buildRecommender(aggregationBased, parametersModel);
+			groupBasedRecommender.init(this);
+
+			this.recommenders.put(aggregationBased.getURI(),
+					groupBasedRecommender);
+
+		}
+
 		logger.info("Initializing social recommenders");
 
 		for (SocialNetworkRecommenderParameters socialNetowrkRecommenderParameters : this.parametersModel
@@ -208,7 +221,7 @@ System.out.println(".......>"+keywordContentBasedRecommender);
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	/**
 	 * Inner model getter
 	 * 
@@ -265,18 +278,36 @@ System.out.println(".......>"+keywordContentBasedRecommender);
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public void updateContextualizedRecommendationSpace(String userURI) {
-		
+
 		this.contextualizedRecommendationSpace
 				.removeRecommendationsForUserURI(userURI);
 		for (Recommender recommender : this.recommenders.values()) {
 			if (recommender instanceof OnTheFlyRecommender) {
-				System.out.println("----->" + recommender);
+				// System.out.println("----->" + recommender);
+				HashMap<String, Object> parameters = new HashMap<String, Object>();
+				parameters.put(OnTheFlyRecommender.USER_URI_PARAMETER, userURI);
 				((OnTheFlyRecommender) recommender).recommend(
-						this.contextualizedRecommendationSpace, userURI);
+						this.contextualizedRecommendationSpace, parameters);
 
 			}
 		}
 
+	}
+
+	public RecommendationSpace getOnTheFlyRecommendationSpace(Map<String, Object> parameters) {
+
+		RecommendationSpace recommendationSpace = new RecommendationSpace();
+		for (Recommender recommender : this.recommenders.values()) {
+			if (recommender instanceof AggregationBasedRecommender) {
+				// System.out.println("----->" + recommender);
+
+				((OnTheFlyRecommender) recommender).recommend(
+						recommendationSpace, parameters);
+
+			}
+		}
+
+		return recommendationSpace;
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------

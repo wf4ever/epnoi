@@ -8,16 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "parametersModel")
 public class ParametersModel {
 
-	/*
-	 * public static final String HOSTNAME_PROPERTY = "server.hostname"; public
-	 * static final String PORT_PROPERTY = "server.port"; public static final
-	 * String PATH_PROPERTY = "server.path"; public static final String
-	 * MODEL_PATH_PROPERTY = "model.path"; public static final String
-	 * INDEX_PATH_PROPERTY = "index.path"; Como un arraylist de propiedases
-	 * public static final String MODEL_PATH_PROPERTY = "model.path"; public
-	 * static final String INDEX_PATH_PROPERTY = "index.path";
-	 */
-
 	private String modelPath;
 	//private String indexPath;
 	//private String graphPath;
@@ -31,6 +21,7 @@ public class ParametersModel {
 	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
 	private ArrayList<SocialNetworkRecommenderParameters> socialRecommender;
 	private ArrayList<GroupBasedRecommenderParameters> groupBasedRecommender;
+	private ArrayList<AggregationBasedRecommenderParameters> aggregationBasedRecommender;
 	private InferenceEngineParameters inferenceEngine;
 
 	public ParametersModel() {
@@ -38,6 +29,7 @@ public class ParametersModel {
 		this.keywordBasedRecommender = new ArrayList<KeywordRecommenderParameters>();
 		this.socialRecommender = new ArrayList<SocialNetworkRecommenderParameters>();
 		this.groupBasedRecommender = new ArrayList<GroupBasedRecommenderParameters>();
+		this.aggregationBasedRecommender = new ArrayList<AggregationBasedRecommenderParameters>();
 	}
 
 	public ArrayList<KeywordRecommenderParameters> getKeywordBasedRecommender() {
@@ -67,15 +59,7 @@ public class ParametersModel {
 		this.socialRecommender = socialRecommender;
 	}
 
-	public ArrayList<GroupBasedRecommenderParameters> getGroupBasedRecommender() {
-		return groupBasedRecommender;
-	}
-
-	public void setGroupBasedRecommender(
-			ArrayList<GroupBasedRecommenderParameters> groupBasedRecommender) {
-		this.groupBasedRecommender = groupBasedRecommender;
-	}
-
+	
 	public String getModelPath() {
 		return modelPath;
 	}
@@ -183,5 +167,28 @@ public class ParametersModel {
 			groupBasedRecommender.setIndexPath(referenceClass.getResource(
 					groupBasedRecommender.getIndexPath()).getPath());
 		}
+		
+		for (AggregationBasedRecommenderParameters aggregationBasedRecommender : this.aggregationBasedRecommender) {
+			aggregationBasedRecommender.setIndexPath(referenceClass.getResource(
+					aggregationBasedRecommender.getIndexPath()).getPath());
+		}
+	}
+
+	public ArrayList<AggregationBasedRecommenderParameters> getAggregationBasedRecommender() {
+		return aggregationBasedRecommender;
+	}
+
+	public void setAggregationBasedRecommender(
+			ArrayList<AggregationBasedRecommenderParameters> aggregationBasedRecommender) {
+		this.aggregationBasedRecommender = aggregationBasedRecommender;
+	}
+
+	public ArrayList<GroupBasedRecommenderParameters> getGroupBasedRecommender() {
+		return groupBasedRecommender;
+	}
+
+	public void setGroupBasedRecommender(
+			ArrayList<GroupBasedRecommenderParameters> groupBasedRecommender) {
+		this.groupBasedRecommender = groupBasedRecommender;
 	}
 }

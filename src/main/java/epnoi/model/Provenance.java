@@ -10,6 +10,7 @@ public class Provenance {
 	public static final String TECHNIQUE_COLLABORATIVE = "technique_collaborative";
 	public static final String TECHNIQUE_KEYWORD_CONTENT_BASED = "technique_keyword_content_based";
 	public static final String TECHNIQUE_GROUP_CONTENT_BASED = "technique_group_content_based";
+	public static final String TECHNIQUE_AGGREGATION_CONTENT_BASED = "technique_aggregation_content_based";
 	public static final String TECHNIQUE_INFERRED = "technique_inferred";
 
 	public static final String ITEM_TYPE = "item_type";

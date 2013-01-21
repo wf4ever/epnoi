@@ -16,12 +16,7 @@ import epnoi.model.Pack;
 
 public class PackWrapper {
 	public static Pack extractPack(String packURI) {
-		/*
-		 * Long id; String URI; String resource; String description; String
-		 * title; String contentType; String contentURI; String uploaderURI;
-		 * ArrayList<String> tags;
-		 */
-
+		
 		Pack pack = new Pack();
 	
 		int indexOfPacks = packURI.indexOf("=");
