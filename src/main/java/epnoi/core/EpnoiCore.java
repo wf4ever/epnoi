@@ -282,7 +282,7 @@ public class EpnoiCore {
 		this.contextualizedRecommendationSpace
 				.removeRecommendationsForUserURI(userURI);
 		for (Recommender recommender : this.recommenders.values()) {
-			if (recommender instanceof OnTheFlyRecommender) {
+			if (recommender instanceof WorkflowsGroupBasedRecommender) {
 				// System.out.println("----->" + recommender);
 				HashMap<String, Object> parameters = new HashMap<String, Object>();
 				parameters.put(OnTheFlyRecommender.USER_URI_PARAMETER, userURI);

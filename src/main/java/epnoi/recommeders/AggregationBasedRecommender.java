@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -36,16 +35,12 @@ import wrappers.myexperiment.PackWrapper;
 import epnoi.core.EpnoiCore;
 import epnoi.model.ContextModel;
 import epnoi.model.Explanation;
-import epnoi.model.File;
 import epnoi.model.Model;
 import epnoi.model.Pack;
 import epnoi.model.Parameter;
 import epnoi.model.Provenance;
 import epnoi.model.Recommendation;
-import epnoi.model.RecommendationContext;
 import epnoi.model.RecommendationSpace;
-import epnoi.model.Tagging;
-import epnoi.model.User;
 import epnoi.model.Workflow;
 import epnoi.model.parameterization.AggregationBasedRecommenderParameters;
 import epnoi.model.parameterization.ParametersModel;
@@ -135,7 +130,7 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 
 		this.parser = null;
 		try {
-			System.out.println("-------->" + this.recommenderParameters);
+			// System.out.println("-------->" + this.recommenderParameters);
 			String indexDirectory = this.recommenderParameters.getIndexPath();
 			logger.info("Index directory for the recommender" + indexDirectory);
 			Directory dir = FSDirectory.open(new java.io.File(indexDirectory));
@@ -165,24 +160,31 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	public void recommend(RecommendationSpace recommendationSpace, Map<String, Object> parameters) {
-		String packURI = (String)parameters.get(OnTheFlyRecommender.PACK_URI_PARAMETER);
-		String userURI = (String)parameters.get(OnTheFlyRecommender.USER_URI_PARAMETER);
+	public void recommend(RecommendationSpace recommendationSpace,
+			Map<String, Object> parameters) {
+		String packURI = (String) parameters
+				.get(OnTheFlyRecommender.PACK_URI_PARAMETER);
 		
+		//System.out.println(">> "+parameters.get(OnTheFlyRecommender.PACK_PARAMETER));
+		Pack pack = (Pack) parameters.get(OnTheFlyRecommender.PACK_PARAMETER);
+
 		ArrayList<String> packKeywords = null;
-		//Pack extraction is made on the fly (meter un flag?)
-		Pack pack = PackWrapper.extractPack(packURI);
-		User user = this.model.getUserByURI(userURI);
-		
-		
+		// Pack extraction is made on the fly (meter un flag?)
+		if (pack == null) {
+			pack = PackWrapper.extractPack(packURI);
+		}
+	
+
 		packKeywords = _scanPackKewyords(pack);
+		/*
+		 * System.out
+		 * .println("//////////////////////////////////////////////////////////"
+		 * + _buildQuery(packKeywords));
+		 * 
+		 * System.out.println("The keywords are >" + packKeywords +
+		 * "the built query is " + _buildQuery(packKeywords));
+		 */
 
-		System.out
-				.println("//////////////////////////////////////////////////////////"
-						+ _buildQuery(packKeywords));
-
-		System.out.println("The keywords are >" + packKeywords
-				+ "the built query is " + _buildQuery(packKeywords));
 		String queryExpression = _buildQuery(packKeywords);
 
 		ArrayList<Recommendation> recommendations = new ArrayList<Recommendation>();
@@ -228,12 +230,10 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 					newRecommendation.setItemURI(itemURI);
 					newRecommendation.setStrength(scoreDocument.score);
 					String explanationText = "The workflow entitled "
-							+ workflow.getTitle()
-							+ ("(URI:")
+							+ workflow.getTitle() + ("(URI:")
 							+ workflow.getURI()
-							+ ") is recommended to you since you selected the resources ("
-
-							+ ") with similar components ";
+							+ ") is recommended to you since the pack "
+							+ pack.getTitle() + " aggregates similar content";
 
 					Explanation explanation = new Explanation();
 
@@ -309,39 +309,6 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	private void _generateFileKeywords(String resourceURI,
-			ArrayList<String> keywords) {
-		File file = this.model.getFileByURI(resourceURI);
-		/*
-		 * Files info should be completed with tags! for (String tag :
-		 * workflow.getTags()) { keywords.add(tag); }
-		 */
-		if (file.getTitle() != null) {
-			String title = file.getTitle();
-			_addCarefully(keywords, _tokenizeAndClean(title));
-
-		}
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	private void _generateUserKeywords(String resourceURI,
-			ArrayList<String> keywords) {
-
-		User user = this.model.getUserByURI(resourceURI);
-
-		for (String workflowURI : user.getWorkflows()) {
-
-			_generateWorkflowKeywords(workflowURI, keywords);
-		}
-
-		for (String fileURI : user.getFiles()) {
-			_generateFileKeywords(fileURI, keywords);
-		}
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-
 	public String _buildQuery(ArrayList<String> terms) {
 		// System.out.println("Este es el que entra " + terms);
 		Iterator<String> termsIt = terms.iterator();
@@ -363,20 +330,9 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	private ArrayList<Tagging> _orderByFrequency(ArrayList<Tagging> taggingsList) {
-		ArrayList<Tagging> taggingsListOrdered = (ArrayList<Tagging>) taggingsList
-				.clone();
-		Collections.sort(taggingsListOrdered);
-		Collections.reverse(taggingsListOrdered);
-		return taggingsListOrdered;
-
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------------
-
 	@Override
 	public String toString() {
-		return "WorkflowsGroupBasedRecommender"
+		return "AggregationBasedRecommender "
 				+ this.getInitializationParameters().getURI();
 	}
 
@@ -460,7 +416,7 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 						&& token.length() > MIN_TOKEN_LENGTH
 						&& token.length() < MAX_TOKEN_LENGTH) {
 					// System.out.println("Este si!!");
-					System.out.println("---> " + token);
+					// System.out.println("---> " + token);
 					if (!candidateKeywords.contains(token))
 						candidateKeywords.add(token);
 				}
@@ -495,7 +451,7 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 			ArrayList<String> keywords = _scanKeywords(fileURI);
 			// System.out.println("fileuri "+fileURI);
 			for (String keyword : keywords) {
-				System.out.println("---->" + keyword);
+				// System.out.println("---->" + keyword);
 				keyword = keyword.toLowerCase();
 				if (!packKeywords.contains(keyword)) {
 					packKeywords.add(keyword);
@@ -513,15 +469,16 @@ public class AggregationBasedRecommender implements OnTheFlyRecommender {
 		// String url = "http://www.slashdot.org/";
 		// String url = "http://lingo.stanford.edu/sag/papers/copestake.pdf";
 		String packURI = "http://www.myexperiment.org/pack.xml?id=122";
-		String url = "file:///Users/rafita/Desktop/D4.2v1.4_jun.docx	ppc.txt";
+		String url = "file:///Users/rafita/Desktop/D4.2v1.4_jun.docx";
 		ArrayList<String> packKeywords = new ArrayList<String>();
 		AggregationBasedRecommender recommender = new AggregationBasedRecommender();
 		Pack pack = PackWrapper.extractPack(packURI);
 		packKeywords = recommender._scanPackKewyords(pack);
-
-		System.out
-				.println("//////////////////////////////////////////////////////////"
-						+ recommender._buildQuery(packKeywords));
+		/*
+		 * System.out
+		 * .println("//////////////////////////////////////////////////////////"
+		 * + recommender._buildQuery(packKeywords));
+		 */
 	}
 
 }

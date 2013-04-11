@@ -2,14 +2,13 @@ package epnoi.core;
 
 import epnoi.logging.EpnoiLogger;
 import epnoi.model.Recommendation;
-import epnoi.model.User;
 import epnoi.model.parameterization.ParametersModel;
 import epnoi.model.parameterization.ParametersModelReader;
 
 public class EpnoiCoreMain {
 
 	public static void main(String[] args) {
-		EpnoiLogger.setup();
+		EpnoiLogger.setup("");
 		System.out.println("Starting the EpnoiCoreMain");
 		EpnoiCore epnoiCore = new EpnoiCore();
 

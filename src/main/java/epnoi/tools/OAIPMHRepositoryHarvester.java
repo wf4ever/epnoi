@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -21,6 +22,8 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import epnoi.logging.EpnoiLogger;
 
 import ORG.oclc.oai.harvester2.verb.ListRecords;
 
@@ -34,18 +37,19 @@ public class OAIPMHRepositoryHarvester {
 	public static final String PARAMETER_TO = "-to";
 	public static final String PARAMETER_COMMAND_INIT = "init";
 	public static final String PARAMETER_COMMAND_HARVEST = "harvest";
+	private static final Logger logger = Logger
+			.getLogger(OAIPMHRepositoryHarvester.class.getName());
 
 	// ---------------------------------------------------------------------------------------------------------------------------------------
 
 	/*
 	 * -command init -out /JUNK2 -URL http://export.arxiv.org/oai2 -name arxive
-	 * -command harvest -in /JUNK2/OAIPMH/harvests/arxive -from 2012-04-10 -to 2012-05-10
-	 * 
-	 * 
+	 * -command harvest -in /JUNK2/OAIPMH/harvests/arxive -from 2012-04-10 -to
+	 * 2012-05-10
 	 */
-	
-	
+
 	public static void main(String[] args) {
+
 		try {
 
 			HashMap<String, String> options = getOptions(args);
@@ -53,7 +57,11 @@ public class OAIPMHRepositoryHarvester {
 			OutputStream out = System.out;
 
 			String command = (String) options.get(PARAMETER_COMMAND);
+			String in = (String) options.get(PARAMETER_IN);
+			String fileName = new SimpleDateFormat("MM-dd-hh-mmSSS-yyyy")
+					.format(new Date());
 
+			EpnoiLogger.setup(in + "/logs/" + fileName);
 			if (command != null) {
 				if (command.equals(PARAMETER_COMMAND_INIT)) {
 					// Add arguments checking here
@@ -82,13 +90,21 @@ public class OAIPMHRepositoryHarvester {
 				.get(OAIPMHRepositoryHarvester.PARAMETER_FROM);
 		String to = (String) options
 				.get(OAIPMHRepositoryHarvester.PARAMETER_TO);
+
 		System.out
 				.println("Updating the repository harvest with the following paraneters: -in "
 						+ in + " -from " + from + " -to " + to);
 
+		logger.info("Updating the repository harvest with the following paraneters: -in "
+				+ in + " -from " + from + " -to " + to);
+
 		Manifest manifest = ManifestHandler.read(in + "/" + "manifest.xml");
+
 		if (manifest != null) {
 			System.out.println("Updating the harvest of the repository "
+					+ manifest.getRepository() + " in the URL "
+					+ manifest.getURL());
+			logger.fine("Updating the harvest of the repository "
 					+ manifest.getRepository() + " in the URL "
 					+ manifest.getURL());
 
@@ -137,7 +153,8 @@ public class OAIPMHRepositoryHarvester {
 
 				c.add(Calendar.DATE, 1);
 				auxDate = c.getTime();
-
+				logger.info("Attempting to harvest the day "
+						+ simpleDateFormat.format(fromDate));
 				String outputFileName = repositoryDirectoryName + "/harvest/"
 						+ simpleDateFormat.format(fromDate) + ".xml";
 				OutputStream outputFile = null;
@@ -146,11 +163,17 @@ public class OAIPMHRepositoryHarvester {
 					try {
 						outputFile = new FileOutputStream(outputFileName, true);
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
+						logger.severe(e.getMessage());
 						e.printStackTrace();
 					}
 
 					System.out.println("harvest(" + manifest.getURL() + ","
+							+ simpleDateFormat.format(fromDate) + ","
+							+ simpleDateFormat.format(auxDate) + ", "
+							+ metadataPrefix + ", " + setSpec + ", "
+							+ outputFileName);
+
+					logger.info("harvest(" + manifest.getURL() + ","
 							+ simpleDateFormat.format(fromDate) + ","
 							+ simpleDateFormat.format(auxDate) + ", "
 							+ metadataPrefix + ", " + setSpec + ", "
@@ -161,21 +184,26 @@ public class OAIPMHRepositoryHarvester {
 								simpleDateFormat.format(fromDate),
 								simpleDateFormat.format(auxDate),
 								metadataPrefix, setSpec, outputFile);
-					} catch (IOException e1) {
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (ParserConfigurationException e1) {
+						e.printStackTrace();
+						logger.severe(e.getMessage());
+					} catch (ParserConfigurationException e) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SAXException e1) {
+						e.printStackTrace();
+						logger.severe(e.getMessage());
+					} catch (SAXException e) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (TransformerException e1) {
+						e.printStackTrace();
+						logger.severe(e.getMessage());
+					} catch (TransformerException e) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (NoSuchFieldException e1) {
+						e.printStackTrace();
+						logger.severe(e.getMessage());
+					} catch (NoSuchFieldException e) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						e.printStackTrace();
+						logger.severe(e.getMessage());
 					}
 
 					try {
@@ -183,7 +211,12 @@ public class OAIPMHRepositoryHarvester {
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						logger.severe(e.getMessage());
 					}
+				} else {
+					logger.info("The harvested file "
+							+ outputFileName
+							+ " already exists and therefore this day is skipped");
 				}
 
 				fromDate = auxDate;
@@ -206,12 +239,16 @@ public class OAIPMHRepositoryHarvester {
 		System.out
 				.println("Initializing repository harvest with the following paraneters: -name "
 						+ name + " -URL " + URL + " -out " + out);
+		logger.info("Initializing repository harvest with the following paraneters: -name "
+				+ name + " -URL " + URL + " -out " + out);
 
 		File repositoryDirectory = new File(out + "/OAIPMH/harvests/" + name);
 		if (!repositoryDirectory.exists()) {
 			boolean success = repositoryDirectory.mkdirs();
 			if (success) {
 				System.out.println("The directory " + out
+						+ " has been successfully created!");
+				logger.info("The directory " + out
 						+ " has been successfully created!");
 
 				Manifest manifest = new Manifest();
@@ -221,18 +258,28 @@ public class OAIPMHRepositoryHarvester {
 						.marshallToFile(manifest,
 								repositoryDirectory.getAbsolutePath()
 										+ "/manifest.xml");
-
+				// First we create the harvest directory
 				File harvestDirectory = new File(
 						repositoryDirectory.getAbsolutePath() + "/harvest");
 				harvestDirectory.mkdir();
+
+				// First we create the harvest directory
+				File logDirectory = new File(
+						repositoryDirectory.getAbsolutePath() + "/logs");
+				logDirectory.mkdir();
 				/*
 				 * try { manifestFile.createNewFile(); } catch (IOException e) {
 				 * // TODO Auto-generated catch block e.printStackTrace(); }
 				 */
 			} else {
-				System.out.println(":(");
+				logger.severe("Something went wrong when creating the " + out
+						+ "/OAIPMH/harvests/" + name);
+				// System.out.println(":(");
 			}
 		} else {
+			logger.severe("The directory "
+					+ repositoryDirectory.getAbsolutePath()
+					+ " already existed");
 			throw new IllegalArgumentException("The directory "
 					+ repositoryDirectory.getAbsolutePath()
 					+ " already existed");

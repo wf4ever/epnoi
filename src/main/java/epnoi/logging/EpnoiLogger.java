@@ -8,31 +8,32 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class EpnoiLogger {
-	static private FileHandler fileTxt;
-	static private SimpleFormatter formatterTxt;
+	static private FileHandler fileTXT;
+	static private SimpleFormatter formatterTXT;
 
 	static private FileHandler fileHTML;
 	static private Formatter formatterHTML;
 
-	static public void setup() {
+	static public void setup(String path) {
 		// Create Logger
+		System.out.println("path -----> entra "+ path);
 		Logger logger = Logger.getLogger("");
 		logger.setLevel(Level.INFO);
 		try {
-			fileTxt = new FileHandler("log.txt");
-			fileHTML = new FileHandler("log.html");
+			fileTXT = new FileHandler(path + "log.txt");
+			fileHTML = new FileHandler(path + "log.html");
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
 		// Create txt Formatter
-		formatterTxt = new SimpleFormatter();
-		fileTxt.setFormatter(formatterTxt);
-		logger.addHandler(fileTxt);
+		formatterTXT = new SimpleFormatter();
+		fileTXT.setFormatter(formatterTXT);
+		logger.addHandler(fileTXT);
 
 		// Create HTML Formatter
 		formatterHTML = new HtmlFormatter();

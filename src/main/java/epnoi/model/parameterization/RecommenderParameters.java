@@ -4,6 +4,7 @@ package epnoi.model.parameterization;
 public class RecommenderParameters {
 	private String URI;
 	private String type;
+	
 
 
 	public String getURI() {

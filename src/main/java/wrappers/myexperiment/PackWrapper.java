@@ -125,4 +125,10 @@ public class PackWrapper {
 		return fileURI;
 		
 	}
+	
+	public static void main(String[] args) {
+		String packURI = "http://www.myexperiment.org/pack.xml?id=354";
+		Pack pack= PackWrapper.extractPack(packURI);
+		System.out.println(pack.getTitle());
+	}
 }

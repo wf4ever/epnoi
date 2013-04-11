@@ -9,13 +9,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ParametersModel {
 
 	private String modelPath;
-	//private String indexPath;
-	//private String graphPath;
+	// private String indexPath;
+	// private String graphPath;
 
 	// Server related properties
 	private String hostname;
 	private String port;
 	private String path;
+	// private String scope;
 
 	private ArrayList<CollaborativeFilterRecommenderParameters> collaborativeFilteringRecommender;
 	private ArrayList<KeywordRecommenderParameters> keywordBasedRecommender;
@@ -59,7 +60,6 @@ public class ParametersModel {
 		this.socialRecommender = socialRecommender;
 	}
 
-	
 	public String getModelPath() {
 		return modelPath;
 	}
@@ -69,14 +69,11 @@ public class ParametersModel {
 	}
 
 	/*
-	public String getIndexPath() {
-		return indexPath;
-	}
-
-	public void setIndexPath(String indexPath) {
-		this.indexPath = indexPath;
-	}
-*/
+	 * public String getIndexPath() { return indexPath; }
+	 * 
+	 * public void setIndexPath(String indexPath) { this.indexPath = indexPath;
+	 * }
+	 */
 	public String getHostname() {
 		return hostname;
 	}
@@ -100,15 +97,13 @@ public class ParametersModel {
 	public void setPath(String path) {
 		this.path = path;
 	}
-/*
-	public String getGraphPath() {
-		return graphPath;
-	}
 
-	public void setGraphPath(String graphPath) {
-		this.graphPath = graphPath;
-	}
-*/
+	/*
+	 * public String getGraphPath() { return graphPath; }
+	 * 
+	 * public void setGraphPath(String graphPath) { this.graphPath = graphPath;
+	 * }
+	 */
 	public InferenceEngineParameters getInferenceEngine() {
 		return inferenceEngine;
 	}
@@ -118,9 +113,11 @@ public class ParametersModel {
 	}
 
 	public void resolveToAbsolutePaths(Class<? extends Object> referenceClass) {
-		String completeModelPath = referenceClass.getResource(this.modelPath)
-				.getPath();
-
+		String completeModelPath = this.modelPath;
+		if (this.modelPath.charAt(0) != '/') {
+			completeModelPath = referenceClass.getResource(this.modelPath)
+					.getPath();
+		}
 		this.setModelPath(completeModelPath);
 		/*
 		 * logger.info("The modelPath is made absolute: absolute value: " +
@@ -130,11 +127,11 @@ public class ParametersModel {
 		 * parametersModel.getIndexPath());
 		 */
 		/*
-		String indexPath = referenceClass.getResource(this.getIndexPath())
-				.getPath();
-
-		this.setIndexPath(indexPath);
-		*/
+		 * String indexPath = referenceClass.getResource(this.getIndexPath())
+		 * .getPath();
+		 * 
+		 * this.setIndexPath(indexPath);
+		 */
 		/*
 		 * logger.info("The indexPath is made absolute: absolute value: " +
 		 * parametersModel.getIndexPath());
@@ -142,35 +139,48 @@ public class ParametersModel {
 		 * parametersModel.getGraphPath());
 		 */
 		/*
-		String graphPath = referenceClass.getResource(this.getGraphPath())
-				.getPath();
-
-		this.setGraphPath(graphPath);
-*/
+		 * String graphPath = referenceClass.getResource(this.getGraphPath())
+		 * .getPath();
+		 * 
+		 * this.setGraphPath(graphPath);
+		 */
 		/*
 		 * logger.info("The graph path is made absolute: absolute value: " +
 		 * parametersModel.getGraphPath());
 		 */
 		for (KeywordRecommenderParameters keywordRecommender : this.keywordBasedRecommender) {
-			keywordRecommender.setIndexPath(referenceClass.getResource(
-					keywordRecommender.getIndexPath()).getPath());
-			
-			//System.out.println("KKKK "+keywordRecommender.getIndexPath());
+
+			if (keywordRecommender.getIndexPath().charAt(0) != '/') {
+				keywordRecommender.setIndexPath(referenceClass.getResource(
+						keywordRecommender.getIndexPath()).getPath());
+			}
+
 		}
-		
+
 		for (SocialNetworkRecommenderParameters socialNetworkRecommender : this.socialRecommender) {
-			socialNetworkRecommender.setGraphPath(referenceClass.getResource(
-					socialNetworkRecommender.getGraphPath()).getPath());
+			if (socialNetworkRecommender.getGraphPath().charAt(0) != '/') {
+				socialNetworkRecommender.setGraphPath(referenceClass
+						.getResource(socialNetworkRecommender.getGraphPath())
+						.getPath());
+			}
 		}
-		
+
 		for (GroupBasedRecommenderParameters groupBasedRecommender : this.groupBasedRecommender) {
-			groupBasedRecommender.setIndexPath(referenceClass.getResource(
-					groupBasedRecommender.getIndexPath()).getPath());
+			if (groupBasedRecommender.getIndexPath().charAt(0) != '/') {
+				groupBasedRecommender.setIndexPath(referenceClass.getResource(
+						groupBasedRecommender.getIndexPath()).getPath());
+			}
 		}
-		
+
 		for (AggregationBasedRecommenderParameters aggregationBasedRecommender : this.aggregationBasedRecommender) {
-			aggregationBasedRecommender.setIndexPath(referenceClass.getResource(
-					aggregationBasedRecommender.getIndexPath()).getPath());
+			if (aggregationBasedRecommender.getIndexPath().charAt(0) != '/') {
+
+				aggregationBasedRecommender
+						.setIndexPath(referenceClass.getResource(
+								aggregationBasedRecommender.getIndexPath())
+								.getPath());
+
+			}
 		}
 	}
 
