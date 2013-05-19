@@ -10,6 +10,7 @@ public class User implements Resource {
 	String resource;
 	String description;
 	String name;
+	String password;
 
 	ArrayList<Tagging> tagApplied;
 	ArrayList<String> friends;
@@ -20,6 +21,7 @@ public class User implements Resource {
 	ArrayList<String> workflows;
 	ArrayList<String> packs;
 	ArrayList<Action> actions;
+	ArrayList<String> searchs;
 
 	public User() {
 		this.tagApplied = new ArrayList<Tagging>();
@@ -31,6 +33,15 @@ public class User implements Resource {
 		this.friends = new ArrayList<String>();
 		this.packs = new ArrayList<String>();
 		this.actions = new ArrayList<Action>();
+		this.searchs = new ArrayList<String>();
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public ArrayList<String> getFavouritedFiles() {
@@ -157,6 +168,27 @@ public class User implements Resource {
 
 	public void setPacks(ArrayList<String> packs) {
 		this.packs = packs;
+	}
+
+	
+	
+	
+	public ArrayList<String> getSearchs() {
+		return searchs;
+	}
+
+	public void setSearchs(ArrayList<String> searchs) {
+		this.searchs = searchs;
+	}
+	
+	public void addSearch(String search){
+		this.searchs.add(search);
+	}
+
+	@Override
+	public String toString() {
+
+		return "[User URI>"+this.URI +", name>" +this.name + ", password>" + this.password+", searchs> "+this.searchs+"]";
 	}
 
 }

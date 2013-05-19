@@ -13,20 +13,30 @@ public class ExternalResourceCassandraDAO extends CassandraDAO {
 	// --------------------------------------------------------------------------------
 
 	public void create(ExternalResource externalResource) {
-		super.createRow(externalResource.getURI(), ExternalResourceCassandraHelper.COLUMN_FAMILLY);
-		if (externalResource.getDescription()!=null){
-		super.updateColumn(externalResource.getURI(),
-				ExternalResourceCassandraHelper.DESCRIPTION,
-				externalResource.getDescription(),
+		super.createRow(externalResource.getURI(),
 				ExternalResourceCassandraHelper.COLUMN_FAMILLY);
+		if (externalResource.getDescription() != null) {
+			super.updateColumn(externalResource.getURI(),
+					ExternalResourceCassandraHelper.DESCRIPTION,
+					externalResource.getDescription(),
+					ExternalResourceCassandraHelper.COLUMN_FAMILLY);
+
 		}
-		
+
 	}
 
 	// --------------------------------------------------------------------------------
 
 	public ExternalResource read(String URI) {
-
+		/*
+		 * System.out.println(" --> " + URI); ColumnSliceIterator<String,
+		 * String, String> columnsIteratorProof = super .getAllCollumns(URI,
+		 * ExternalResourceCassandraHelper.COLUMN_FAMILLY);
+		 * 
+		 * while (columnsIteratorProof.hasNext()) { HColumn<String, String>
+		 * column = columnsIteratorProof.next(); System.out.println("Column   "
+		 * + column); }
+		 */
 		ColumnSliceIterator<String, String, String> columnsIterator = super
 				.getAllCollumns(URI,
 						ExternalResourceCassandraHelper.COLUMN_FAMILLY);
@@ -35,6 +45,7 @@ public class ExternalResourceCassandraDAO extends CassandraDAO {
 			externalResource.setURI(URI);
 			while (columnsIterator.hasNext()) {
 				HColumn<String, String> column = columnsIterator.next();
+				System.out.println("-- "+column);
 				if (ExternalResourceCassandraHelper.DESCRIPTION.equals(column
 						.getName())) {
 					externalResource.setDescription(column.getValue());
@@ -63,7 +74,7 @@ public class ExternalResourceCassandraDAO extends CassandraDAO {
 		ExternalResourceCassandraDAO externalResourceCassandraDAO = new ExternalResourceCassandraDAO();
 		externalResourceCassandraDAO.init();
 		System.out.println("Starting test");
-		
+
 		ExternalResource externalResource = new ExternalResource();
 		externalResource.setURI("http://uriproof");
 		externalResource.setDescription("description proof");
@@ -74,16 +85,16 @@ public class ExternalResourceCassandraDAO extends CassandraDAO {
 
 		externalResourceCassandraDAO.create(externalResource);
 
-		externalResourceCassandraDAO.update(externalResource2);
+		externalResourceCassandraDAO.create(externalResource2);
 		externalResourceCassandraDAO.delete("http://uriproof2");
 		// externalResourceCassandraDAO.delete("http://uriproof");
-
-		//externalResourceCassandraDAO.delete("http://uriproof");
 
 		ExternalResource readedExternalResource = externalResourceCassandraDAO
 				.read("http://uriproof");
 		System.out
 				.println("readedExternalResource.> " + readedExternalResource);
+
+		externalResourceCassandraDAO.delete("http://uriproof");
 		System.out.println("Exiting test");
 
 	}
