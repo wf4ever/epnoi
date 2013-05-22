@@ -45,7 +45,8 @@ public class CassandraDAO {
 
 		List<String> columnFamillyNames = Arrays.asList(
 				ExternalResourceCassandraHelper.COLUMN_FAMILLY,
-				UserCassandraHelper.COLUMN_FAMILLY);
+				UserCassandraHelper.COLUMN_FAMILLY,
+				SearchCassandraHelper.COLUMN_FAMILLY);
 
 		if (CassandraDAO.columnFamilyDefinitions == null) {
 			System.out.println("Intializing columnFamilyDefinitions");

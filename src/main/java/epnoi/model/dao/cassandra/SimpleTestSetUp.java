@@ -12,39 +12,31 @@ public class SimpleTestSetUp {
 		System.out
 				.println("Initialization --------------------------------------------");
 		UserCassandraDAO userCassandraDAO = new UserCassandraDAO();
+		SearchCassandraDAO searchCassandraDAO = new SearchCassandraDAO();
 		userCassandraDAO.init();
 
 		System.out.println(" --------------------------------------------");
-
-		if (userCassandraDAO.existsUserWithName("Rafa")) {
-			System.out.println("Rafita existe!");
-			User userToDelete = userCassandraDAO.getUserWithName("Rafa");
-			userCassandraDAO.delete(userToDelete.getURI());
-
+		System.out.println("-- "+searchCassandraDAO.getSearchs());
+		for (User user:userCassandraDAO.getUsers()){
+			System.out.println(user.getName()+ " existe!");
+			userCassandraDAO.delete(user.getURI());
 		}
-
-		if (userCassandraDAO.existsUserWithName("Sara")) {
-			System.out.println("Sara existe!");
-			User userToDelete = userCassandraDAO
-					.getUserWithName("Sara");
-			userCassandraDAO.delete(userToDelete.getURI());
-		}
-
+		
 		//Let's create the users
 		User user = new User();
 		user.setURI("http://userRafa");
 		user.setName("Rafa");
 		user.setPassword("PasswordDeRafa");
-		user.addSearch("searchA");
-		user.addSearch("searchB");
+		user.addSearch("http://searchA");
+		user.addSearch("http://searchB");
 		userCassandraDAO.create(user);
 
 		User userElOtro = new User();
 		userElOtro.setURI("http://userSara");
 		userElOtro.setName("Sara");
 		userElOtro.setPassword("PasswordDeSara");
-		userElOtro.addSearch("searchC");
-		userElOtro.addSearch("searchD");
+		userElOtro.addSearch("http://searchC");
+		userElOtro.addSearch("http://searchD");
 		userCassandraDAO.create(userElOtro);
 		
 		User readUser = userCassandraDAO.read("http://userRafa");
@@ -55,7 +47,13 @@ public class SimpleTestSetUp {
 		System.out.println("Exiting test");
 		//Let's create the searchs
 		
-		SearchCassandraDAO searchCassandraDAO = new SearchCassandraDAO();
+		for (Search search:searchCassandraDAO.getSearchs()){
+			System.out.println(search.getTitle()+ "existe!");
+			searchCassandraDAO.delete(search.getURI());
+		}
+		
+		
+		
 		for (String label : Arrays.asList("A","B","C","D")){
 			String searchURI= "http://search"+label;
 			Search search = new Search();

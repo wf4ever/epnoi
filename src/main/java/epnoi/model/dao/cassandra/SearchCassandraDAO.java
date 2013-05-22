@@ -111,14 +111,17 @@ public class SearchCassandraDAO extends CassandraDAO {
 	 * } return null; }
 	 */
 
-	public List getSearchs() {
+	public List<Search> getSearchs() {
 		List<Search> searchs = new ArrayList<Search>();
 		List<Row<String, String, String>> result = (CassandraCQLClient
-				.query("select * from User"));
-		for (Row row : result) {
+				.query("select * from " + SearchCassandraHelper.COLUMN_FAMILLY));
+		if (result != null) {
+			for (Row<String, String, String> row : result) {
 
-			Search user = this.read((String) row.getKey());
+				Search user = this.read((String) row.getKey());
+				searchs.add(user);
 
+			}
 		}
 		return searchs;
 	}

@@ -1,11 +1,13 @@
 package epnoi.model.dao.cassandra;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.prettyprint.cassandra.service.ColumnSliceIterator;
 import me.prettyprint.hector.api.beans.HColumn;
 import me.prettyprint.hector.api.beans.Row;
 import epnoi.model.ExternalResource;
+import epnoi.model.Search;
 import epnoi.model.User;
 
 public class UserCassandraDAO extends CassandraDAO {
@@ -68,8 +70,8 @@ public class UserCassandraDAO extends CassandraDAO {
 					if (UserCassandraHelper.PASSWORD.equals(column.getName())) {
 						user.setPassword(column.getValue());
 					} else {
-						if (UserCassandraHelper.SEARCHS
-								.equals(column.getValue())) {
+						if (UserCassandraHelper.SEARCHS.equals(column
+								.getValue())) {
 							user.addSearch(column.getName());
 						}
 					}
@@ -110,6 +112,23 @@ public class UserCassandraDAO extends CassandraDAO {
 		return null;
 	}
 
+	// --------------------------------------------------------------------------------
+	public List<User> getUsers() {
+		List<User> users = new ArrayList<User>();
+		List<Row<String, String, String>> result = (CassandraCQLClient
+				.query("select * from " + UserCassandraHelper.COLUMN_FAMILLY));
+
+		if (result != null) {
+			for (Row<String, String, String> row : result) {
+
+				User user = this.read((String) row.getKey());
+				users.add(user);
+
+			}
+		}
+		return users;
+	}
+
 	//
 	public static void main(String[] args) {
 		System.out.println("Starting test");
@@ -130,12 +149,12 @@ public class UserCassandraDAO extends CassandraDAO {
 			User userToDelete = userCassandraDAO.getUserWithName("Rafita");
 			userCassandraDAO.delete(userToDelete.getURI());
 
-			
 		}
-		
+
 		if (userCassandraDAO.existsUserWithName("RafitaELOtro")) {
 			System.out.println("RafitaElOtro existe!");
-			User userToDelete = userCassandraDAO.getUserWithName("RafitaELOtro");
+			User userToDelete = userCassandraDAO
+					.getUserWithName("RafitaELOtro");
 			userCassandraDAO.delete(userToDelete.getURI());
 		}
 
